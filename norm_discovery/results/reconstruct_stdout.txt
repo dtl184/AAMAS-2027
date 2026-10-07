@@ -1,0 +1,294 @@
+# Reconstruction report
+
+Hyper-parameters: beta=2, lambda=0.2, gamma=0.2, W={0,0.5,...,30}, rho=0.1 (min running baseline).
+
+## Domain `cart`
+
+```
+..........
+R.........
+..........
+..ii#ii...
+..........
+EC.......X
+```
+'#' shelf, 'i' shelf holding an item, E entrance/start, X exit, C cart station, R cart return
+
+Items: {'apple': [2, 3], 'bread': [3, 3], 'milk': [5, 3], 'eggs': [6, 3]}
+Mechanics: {'exit_requires_cart': False, 'cart_reach': 2, 'hand_capacity': 0, 'action_cost': 1}
+Vocabulary levels: {'0': ['coords', 'actions_coarse'], '1': ['coords', 'actions_coarse', 'cart_possession', 'cart_location', 'hand', 'actions_primitive']}
+Hidden norm: [TRUE] OBLIGED: after pickUpCart, eventually returnCart (before exit)  where atReturn := at(0,1); pickUpCart := (INTERACT ∧ ¬hasCart) · hasCart; returnCart := (INTERACT ∧ hasCart ∧ atReturn) · ¬hasCart
+
+### Training demonstrations
+
+- **D1** items=['apple', 'milk'] len=32: `E PICKUP_CART NNNEEEE PICKUP_ITEM(milk) WWW PICKUP_ITEM(apple) NWW LEAVE_CART SSSSEEEEEEEEE EXIT`
+- **D2** items=['bread', 'eggs'] len=34: `E PICKUP_CART NNNEEEEE PICKUP_ITEM(eggs) WWW PICKUP_ITEM(bread) NWWW LEAVE_CART SSSSEEEEEEEEE EXIT`
+- **D3** items=['apple', 'bread', 'milk'] len=33: `E PICKUP_CART NNNEEEE PICKUP_ITEM(milk) WW PICKUP_ITEM(bread) W PICKUP_ITEM(apple) NWW LEAVE_CART SSSSEEEEEEEEE EXIT`
+
+### Held-out trajectories
+
+| name | label | unseen | len | actions |
+|---|---|---|---|---|
+| C1_milk_apple | compliant |  | 32 | `E PICKUP_CART NEEEE PICKUP_ITEM(milk) WWW PICKUP_ITEM(apple) WNNNW LEAVE_CART SSSSEEEEEEEEE EXIT` |
+| C2_bread_milk | compliant |  | 32 | `E PICKUP_CART NEE PICKUP_ITEM(bread) EE PICKUP_ITEM(milk) WWWWNNNW LEAVE_CART SSSSEEEEEEEEE EXIT` |
+| C3_eggs_apple | compliant |  | 34 | `E PICKUP_CART NEEEEE PICKUP_ITEM(eggs) WWWW PICKUP_ITEM(apple) WNNNW LEAVE_CART SSSSEEEEEEEEE EXIT` |
+| C4_eggs_apple_bread | compliant |  | 37 | `E PICKUP_CART NEEEEE PICKUP_ITEM(eggs) WWWW PICKUP_ITEM(apple) E PICKUP_ITEM(bread) WWNNNW LEAVE_CART SSSSEEEEEEEEE EXIT` |
+| V1_no_return | violating |  | 19 | `E PICKUP_CART NN PICKUP_ITEM(apple) NEEEE PICKUP_ITEM(milk) EESSSEE EXIT` |
+| V2_no_return | violating |  | 21 | `E PICKUP_CART NEEEEE PICKUP_ITEM(eggs) WWW PICKUP_ITEM(bread) SEEEEEE EXIT` |
+| V3_wrong_location_near_exit | violating |  | 20 | `E PICKUP_CART NEEEE PICKUP_ITEM(milk) WW PICKUP_ITEM(bread) SEEEEE LEAVE_CART E EXIT` |
+| V4_wrong_location_mid_store | violating |  | 24 | `E PICKUP_CART NN PICKUP_ITEM(apple) NEEEEE PICKUP_ITEM(eggs) NW LEAVE_CART SEESSSEE EXIT` |
+| V5_return_then_reacquire | violating |  | 33 | `E PICKUP_CART NN PICKUP_ITEM(apple) NEEEE PICKUP_ITEM(milk) NWWWWW LEAVE_CART PICKUP_CART SSSSEEEEEEEEE EXIT` |
+| V6_return_then_reacquire | violating |  | 35 | `E PICKUP_CART NEE PICKUP_ITEM(bread) EEE PICKUP_ITEM(eggs) WWWWWNNNW LEAVE_CART PICKUP_CART SSSSEEEEEEEEE EXIT` |
+
+### Candidate hypotheses (level 0 from D1; level 1 from D1..D3)
+
+| id | lvl | intended | L(α) | L(N) | prior | V on D1..D3 | held-out acc if MAP | norm | definitions |
+|---|---|---|---|---|---|---|---|---|---|
+| H_null | 0 |  | 0 | 2 | 0.210 | [0, 0, 0] | 0.40 | FORBIDDEN: () |  |
+| A0_interact_last | 0 |  | 0 | 5 | 0.115 | [0, 0, 0] | 0.80 | OBLIGED: after start, eventually (INTERACT ∧ at(0,1)) (before exit) |  |
+| A0_visit_last | 0 |  | 0 | 3 | 0.172 | [0, 0, 0] | 0.80 | OBLIGED: after start, eventually at(0,1) (before exit) |  |
+| A0_any_to_last | 0 |  | 0 | 5 | 0.115 | [0, 0, 0] | 0.80 | OBLIGED: after INTERACT, eventually (INTERACT ∧ at(0,1)) (before exit) |  |
+| A0_first_to_last | 0 |  | 0 | 7 | 0.077 | [0, 0, 0] | 0.80 | OBLIGED: after (INTERACT ∧ at(1,5)), eventually (INTERACT ∧ at(0,1)) (before exit) |  |
+| H_int | 1 | ✓ | 12 | 3 | 0.016 | [0, 0, 0] | 1.00 | OBLIGED: after pickUpCart, eventually returnCart (before exit) | atReturn := at(0,1); pickUpCart := (INTERACT ∧ ¬hasCart) · hasCart; returnCart := (INTERACT ∧ hasCart ∧ atReturn) · ¬hasCart |
+| H_uncond | 1 |  | 7 | 3 | 0.042 | [0, 0, 0] | 0.80 | OBLIGED: after start, eventually returnCart (before exit) | atReturn := at(0,1); returnCart := (INTERACT ∧ hasCart ∧ atReturn) · ¬hasCart |
+| H_item | 1 |  | 8 | 3 | 0.035 | [0, 0, 0] | 0.80 | OBLIGED: after pickUpItem, eventually returnCart (before exit) | atReturn := at(0,1); pickUpItem := PICKUP_ITEM; returnCart := (INTERACT ∧ hasCart ∧ atReturn) · ¬hasCart |
+| H_visit | 1 |  | 6 | 3 | 0.052 | [0, 0, 0] | 0.80 | OBLIGED: after pickUpCart, eventually atReturn (before exit) | atReturn := at(0,1); pickUpCart := (INTERACT ∧ ¬hasCart) · hasCart |
+| H_leave | 1 |  | 10 | 3 | 0.023 | [0, 0, 0] | 0.80 | OBLIGED: after pickUpCart, eventually leaveCart (before exit) | leaveCart := (INTERACT ∧ hasCart) · ¬hasCart; pickUpCart := (INTERACT ∧ ¬hasCart) · hasCart |
+| H_noexit | 1 |  | 0 | 4 | 0.141 | [0, 0, 0] | 0.80 | FORBIDDEN: (EXIT ∧ hasCart) |  |
+
+Partition-function check (fixed point vs direct sparse solve): w=0.0: -25.661572 vs -25.661572, w=5.0: -35.661572 vs -35.661572, w=20.0: -52.469399 vs -52.469399
+
+## Domain `aisle`
+
+```
+..#.##.##.#.
+..#.ii.#i.#.
+..#.##.##.#.
+............
+............
+......i..i..
+............
+EC.........X
+```
+'#' shelf, 'i' shelf holding an item, E entrance/start, X exit, C cart station, R cart return
+
+Items: {'a1': [4, 1], 'a2': [5, 1], 'a3': [8, 1], 's1': [6, 5], 's2': [9, 5]}
+Mechanics: {'exit_requires_cart': True, 'cart_reach': 2, 'hand_capacity': 0, 'action_cost': 1}
+Vocabulary levels: {'0': ['coords', 'cart_possession', 'actions_coarse'], '1': ['coords', 'cart_possession', 'actions_coarse', 'geometry']}
+Hidden norm: [TRUE] FORBIDDEN: (hasCart ∧ inAisle)  where inAisle := ((shelfW ∧ shelfE) ∨ (shelfN ∧ shelfS))
+
+### Training demonstrations
+
+- **D1** items=['a1'] len=28: `E PICKUP_CART NNNNEE LEAVE_CART NN PICKUP_ITEM(a1) SS PICKUP_CART SSSSEEEEEEEE EXIT`
+- **D2** items=['a2'] len=28: `E PICKUP_CART NNNNEEEEE LEAVE_CART NN PICKUP_ITEM(a2) SS PICKUP_CART SESSSEEEE EXIT`
+- **D3** items=['s1'] len=16: `E PICKUP_CART NEEEEE PICKUP_ITEM(s1) SEEEEE EXIT`
+
+### Held-out trajectories
+
+| name | label | unseen | len | actions |
+|---|---|---|---|---|
+| H1_A1_compliant | compliant |  | 33 | `E PICKUP_CART NNEEEE PICKUP_ITEM(s1) NNWW LEAVE_CART NN PICKUP_ITEM(a1) SS PICKUP_CART SSSSEEEEEEEE EXIT` |
+| H2_A1_cart_in_aisle | violating |  | 26 | `E PICKUP_CART NNNNEENN PICKUP_ITEM(a1) SSSSSSEEEEEEEE EXIT` |
+| H3_A2_compliant | compliant |  | 29 | `E PICKUP_CART NNNNEEEEE LEAVE_CART NN PICKUP_ITEM(a2) SS PICKUP_CART SESE PICKUP_ITEM(s2) SSEEE EXIT` |
+| H4_A2_cart_in_aisle | violating |  | 26 | `E PICKUP_CART NNNNEEEEENN PICKUP_ITEM(a2) SSSESSSEEEE EXIT` |
+| H5_A3_compliant | compliant | yes | 28 | `E PICKUP_CART NNNNEEEEEEEE LEAVE_CART NN PICKUP_ITEM(a3) SS PICKUP_CART SESSSE EXIT` |
+| H6_A3_cart_deep_in_aisle | violating | yes | 26 | `E PICKUP_CART NNNNEEEEEEEENN PICKUP_ITEM(a3) SSSESSSE EXIT` |
+| H7_A3_cart_parked_inside_aisle | violating | yes | 28 | `E PICKUP_CART NNNNEEEEEEEEN LEAVE_CART N PICKUP_ITEM(a3) S PICKUP_CART SSESSSE EXIT` |
+| H8_standalone_with_cart | compliant |  | 21 | `E PICKUP_CART NNEEEE PICKUP_ITEM(s1) NEESE PICKUP_ITEM(s2) SSEEE EXIT` |
+| H9_A1_A3_compliant | compliant | yes | 35 | `E PICKUP_CART NNNNEE LEAVE_CART NN PICKUP_ITEM(a1) SS PICKUP_CART EEEEEE LEAVE_CART NN PICKUP_ITEM(a3) SS PICKUP_CART SESSSE EXIT` |
+| H10_A2_ok_A3_cart_in_aisle | violating | yes | 33 | `E PICKUP_CART NNNNEEEEE LEAVE_CART NN PICKUP_ITEM(a2) SS PICKUP_CART EEENN PICKUP_ITEM(a3) SSSESSSE EXIT` |
+
+### Candidate hypotheses (level 0 from D1; level 1 from D1..D3)
+
+| id | lvl | intended | L(α) | L(N) | prior | V on D1..D3 | held-out acc if MAP | norm | definitions |
+|---|---|---|---|---|---|---|---|---|---|
+| H_null | 0 |  | 0 | 2 | 0.221 | [0, 0, 0] | 0.50 | FORBIDDEN: () |  |
+| B0_cells | 0 |  | 0 | 6 | 0.099 | [0, 0, 0] | 0.60 | FORBIDDEN: (hasCart ∧ (at(3,1) ∨ at(3,2))) |  |
+| B0_pickcells | 0 |  | 0 | 4 | 0.148 | [0, 0, 0] | 0.60 | FORBIDDEN: (hasCart ∧ at(3,1)) |  |
+| B0_interact_cells | 0 |  | 0 | 5 | 0.121 | [0, 0, 0] | 0.60 | FORBIDDEN: (INTERACT ∧ hasCart ∧ at(3,1)) |  |
+| S_inAisle | 1 | ✓ | 7 | 4 | 0.037 | [0, 0, 0] | 1.00 | FORBIDDEN: (hasCart ∧ inAisle) | inAisle := ((shelfW ∧ shelfE) ∨ (shelfN ∧ shelfS)) |
+| S_corridor | 1 |  | 7 | 4 | 0.037 | [0, 0, 0] | 1.00 | FORBIDDEN: (hasCart ∧ corridor) | corridor := (freeWidthH≤1 ∨ freeWidthV≤1) |
+| S_nearShelf | 1 |  | 0 | 4 | 0.148 | [1, 5, 2] | 0.50 | FORBIDDEN: (hasCart ∧ adjShelf) |  |
+| S_noShelfInteractWithCart | 1 |  | 0 | 5 | 0.121 | [0, 0, 1] | 0.70 | FORBIDDEN: (INTERACT ∧ hasCart ∧ adjShelf) |  |
+| S_memorised | 1 |  | 0 | 8 | 0.067 | [0, 0, 0] | 0.70 | FORBIDDEN: (hasCart ∧ (at(3,1) ∨ at(3,2) ∨ at(6,1) ∨ at(6,2))) |  |
+
+Partition-function check (fixed point vs direct sparse solve): w=0.0: -41.990824 vs -41.990824, w=5.0: -46.014652 vs -46.014652, w=20.0: -46.014654 vs -46.014654
+
+## Original protocol (3 demonstrations, deterministic)
+
+| domain | method | acc | viol. F1 | unseen acc | MAP | MAP intended | P(intended) | refinements |
+|---|---|---|---|---|---|---|---|---|
+| cart | fixed | 0.80 | 0.80 |  | A0_any_to_last | False |  | 0 |
+| cart | full | 0.80 | 0.80 |  | A0_any_to_last | False |  | 0 |
+| cart | oracle | 0.80 | 0.80 |  | A0_any_to_last | False | 0.152 | 0 |
+| cart | mlci | 0.60 | 0.75 |  |  | None |  | None |
+| aisle | fixed | 0.60 | 0.33 | 0.40 | B0_cells | False |  | 0 |
+| aisle | full | 0.60 | 0.33 | 0.40 | B0_cells | False |  | 0 |
+| aisle | oracle | 1.00 | 1.00 | 1.00 | S_corridor | False | 0.382 | 0 |
+| aisle | mlci | 0.50 | 0.00 | 0.40 |  | None |  | None |
+
+## Supplement: same tasks, optimal demonstrations with random tie-breaking (mean, 95% bootstrap CI)
+
+| domain | method | n | acc | viol. F1 | unseen acc | MAP=intended rate | refined rate |
+|---|---|---|---|---|---|---|---|
+| cart | fixed | 20 | 0.80 [0.80,0.80] | 0.80 [0.80,0.80] |  | 0.0 | 0.0 |
+| cart | full | 20 | 0.80 [0.80,0.80] | 0.80 [0.80,0.80] |  | 0.0 | 0.0 |
+| cart | oracle | 20 | 0.80 [0.80,0.80] | 0.80 [0.80,0.80] |  | 0.0 | 0.0 |
+| cart | mlci | 20 | 0.39 [0.36,0.42] | 0.07 [0.00,0.15] |  |  |  |
+| aisle | fixed | 20 | 0.60 [0.60,0.60] | 0.33 [0.33,0.33] | 0.40 [0.40,0.40] | 0.0 | 0.0 |
+| aisle | full | 20 | 0.60 [0.60,0.60] | 0.33 [0.33,0.33] | 0.40 [0.40,0.40] | 0.0 | 0.0 |
+| aisle | oracle | 20 | 0.95 [0.88,1.00] | 0.97 [0.92,1.00] | 0.96 [0.90,1.00] | 0.0 | 0.0 |
+| aisle | mlci | 20 | 0.50 [0.50,0.50] | 0.00 [0.00,0.00] | 0.40 [0.40,0.40] |  |  |
+
+## MLCI threshold sensitivity (supplementary; the primary threshold was fixed a priori)
+
+| domain | epsilon | acc | F1 | unseen | #constraints |
+|---|---|---|---|---|---|
+| cart | 0.1 (0.10) | 0.60 | 0.75 | None | 30 |
+| cart | 1.0 (1.00) | 0.60 | 0.75 | None | 6 |
+| cart | log_candidates (7.10) | 0.60 | 0.75 | None | 6 |
+| cart | 15.0 (15.00) | 0.30 | 0.46 | None | 1 |
+| aisle | 0.1 (0.10) | 0.50 | 0.67 | 0.6 | 20 |
+| aisle | 1.0 (1.00) | 0.50 | 0.67 | 0.6 | 12 |
+| aisle | log_candidates (7.42) | 0.50 | 0.00 | 0.4 | 0 |
+| aisle | 15.0 (15.00) | 0.50 | 0.00 | 0.4 | 0 |
+
+## Sanity checks
+
+```json
+{
+ "cart": {
+  "intended_hypothesis_heldout_accuracy": 1.0,
+  "intended_hypothesis_consistent_with_training": true,
+  "oracle_map": "A0_any_to_last",
+  "oracle_map_is_intended": false,
+  "oracle_P_intended": 0.152100951894343,
+  "oracle_accuracy": 0.8,
+  "fixed_accuracy": 0.8,
+  "fixed_map": "A0_any_to_last",
+  "full_refined": false,
+  "full_trace": [
+   {
+    "t": 1,
+    "log_p": null,
+    "log_b": null,
+    "log_ratio_p_over_b": null,
+    "triggered": false
+   },
+   {
+    "t": 2,
+    "log_p": -11.850383914997394,
+    "log_b": null,
+    "log_ratio_p_over_b": null,
+    "triggered": false
+   },
+   {
+    "t": 3,
+    "log_p": -12.290982070051335,
+    "log_b": -11.850383914997394,
+    "log_ratio_p_over_b": -0.44059815505394084,
+    "triggered": false
+   }
+  ],
+  "alpha0_expressivity": {
+   "n_candidate_alpha0_norms": 12430,
+   "n_consistent_with_training": 9257,
+   "best_heldout_accuracy_any_consistent_alpha0_norm (oracle-selected on held-out!)": {
+    "norm": "OBLIGED: after start, eventually (INTERACT \u2227 at(0,1)) (before exit)",
+    "accuracy": 0.8,
+    "violation_f1": 0.8,
+    "unseen_accuracy": null
+   },
+   "n_consistent_alpha0_norms_correct_on_all_compliant_and_reacquire_cases": 0
+  },
+  "partition_function_check": [
+   {
+    "w": 0.0,
+    "logZ_fixed_point": -25.661571938298817,
+    "logZ_direct": -25.661571938298817
+   },
+   {
+    "w": 5.0,
+    "logZ_fixed_point": -35.66157188813011,
+    "logZ_direct": -35.66157188813011
+   },
+   {
+    "w": 20.0,
+    "logZ_fixed_point": -52.46939907903403,
+    "logZ_direct": -52.46939907903403
+   }
+  ]
+ },
+ "aisle": {
+  "intended_hypothesis_heldout_accuracy": 1.0,
+  "intended_hypothesis_consistent_with_training": true,
+  "oracle_map": "S_corridor",
+  "oracle_map_is_intended": false,
+  "oracle_P_intended": 0.3821500696457121,
+  "oracle_accuracy": 1.0,
+  "fixed_accuracy": 0.6,
+  "fixed_map": "B0_cells",
+  "full_refined": false,
+  "full_trace": [
+   {
+    "t": 1,
+    "log_p": null,
+    "log_b": null,
+    "log_ratio_p_over_b": null,
+    "triggered": false
+   },
+   {
+    "t": 2,
+    "log_p": -14.562159091993813,
+    "log_b": null,
+    "log_ratio_p_over_b": null,
+    "triggered": false
+   },
+   {
+    "t": 3,
+    "log_p": -5.034523987967328,
+    "log_b": -14.562159091993813,
+    "log_ratio_p_over_b": 9.527635104026485,
+    "triggered": false
+   }
+  ],
+  "unseen_test": {
+   "memorised_A1_A2_cells_unseen_accuracy": 0.4,
+   "memorised_A1_A2_cells_seen_accuracy": 1.0,
+   "structural_inAisle_unseen_accuracy": 1.0
+  },
+  "alpha0_expressivity": {
+   "n_candidate_alpha0_norms": 152,
+   "n_consistent_with_training": 119,
+   "best_heldout_accuracy_any_consistent_alpha0_norm (oracle-selected on held-out!)": {
+    "norm": "FORBIDDEN: (hasCart \u2227 at(9,2))",
+    "accuracy": 0.8,
+    "violation_f1": 0.7499999999999999,
+    "unseen_accuracy": 1.0
+   },
+   "best_unseen_accuracy_among_consistent_rules_naming_only_cells_seen_in_training": {
+    "norm": "FORBIDDEN: (hasCart \u2227 at(3,1))",
+    "unseen_accuracy": 0.4,
+    "accuracy": 0.6
+   }
+  },
+  "partition_function_check": [
+   {
+    "w": 0.0,
+    "logZ_fixed_point": -41.990823692573905,
+    "logZ_direct": -41.990823692573905
+   },
+   {
+    "w": 5.0,
+    "logZ_fixed_point": -46.014651514031854,
+    "logZ_direct": -46.014651514031854
+   },
+   {
+    "w": 20.0,
+    "logZ_fixed_point": -46.014653640977166,
+    "logZ_direct": -46.014653640977166
+   }
+  ]
+ }
+}
+```

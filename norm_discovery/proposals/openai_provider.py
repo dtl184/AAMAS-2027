@@ -29,6 +29,14 @@ class LLMCallError(RuntimeError):
     pass
 
 
+class CacheMissError(RuntimeError):
+    """Raised in cache_only mode (dry runs) when a prompt is not yet in the response cache."""
+
+    def __init__(self, prompt: str):
+        super().__init__("cache miss (cache_only mode)")
+        self.prompt = prompt
+
+
 def model_matches(requested: str, returned: Optional[str]) -> bool:
     """'gpt-5.5' matches 'gpt-5.5' and dated snapshots 'gpt-5.5-YYYY-MM-DD'; nothing else."""
     if not returned:
@@ -43,7 +51,7 @@ class OpenAICompletion:
     def __init__(self, model: str = "gpt-5.5", temperature: Optional[float] = None,
                  reasoning_effort: Optional[str] = None, max_output_tokens: Optional[int] = None,
                  cache_dir: Optional[str] = None, replicate: object = 0, max_retries: int = 3,
-                 timeout: float = 600.0):
+                 timeout: float = 600.0, cache_only: bool = False):
         from openai import OpenAI  # imported lazily so the deterministic code path never needs the SDK
         if not os.environ.get("OPENAI_API_KEY"):
             raise LLMCallError("OPENAI_API_KEY is not set (run `source ~/.bashrc` first)")
@@ -55,6 +63,7 @@ class OpenAICompletion:
         self.cache_dir = cache_dir
         self.replicate = replicate
         self.max_retries = max_retries
+        self.cache_only = cache_only
         self.calls: List[Dict] = []          # metadata of every call made through this object
         self.last_call: Optional[Dict] = None
         if cache_dir:
@@ -78,6 +87,8 @@ class OpenAICompletion:
     def __call__(self, prompt: str) -> str:
         key = self.cache_key(prompt)
         path = self._cache_path(key)
+        if self.cache_only and not (path and os.path.exists(path)):
+            raise CacheMissError(prompt)
         lock = None
         if path:
             if not os.path.exists(path):

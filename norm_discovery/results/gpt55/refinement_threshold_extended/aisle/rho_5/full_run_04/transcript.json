@@ -1,0 +1,445 @@
+{
+  "llm_calls": [
+    {
+      "cache_key": "5fb1f4f36344d2997d42ce07549555d30afe473975ad48d461e026313e181e98",
+      "requested_model": "gpt-5.5",
+      "returned_model": "gpt-5.5-2026-04-23",
+      "response_id": "resp_0537d7cf2e7c8dd0006ac660aa003487d1814e82ef0bee4c47",
+      "status": "completed",
+      "incomplete_details": null,
+      "usage": {
+        "input_tokens": 1032,
+        "input_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0
+        },
+        "output_tokens": 2934,
+        "output_tokens_details": {
+          "reasoning_tokens": 2070
+        },
+        "total_tokens": 3966
+      },
+      "settings": {
+        "model": "gpt-5.5",
+        "temperature": null,
+        "reasoning_effort": null,
+        "max_output_tokens": null,
+        "api": "responses.create"
+      },
+      "replicate": "orig/aisle/4",
+      "timestamp": "2026-10-07T11:10:02",
+      "latency_s": 32.77,
+      "retries": [],
+      "cache_hit": true
+    }
+  ],
+  "proposals": [
+    {
+      "index": 0,
+      "kind": "initial",
+      "level": 0,
+      "n_demos_shown": 1,
+      "timestamp": "2026-10-07T13:53:16",
+      "model": "gpt-5.5",
+      "replicate": "orig/aisle/4",
+      "experiment": "refinement_threshold_extended",
+      "domain": "aisle",
+      "run_index": 4,
+      "condition": "rho_5",
+      "prompt": "Agents in a supermarket gridworld must collect their required items and leave through the exit. Every action costs the same, so demonstrators prefer short trajectories -- unless an unknown social norm makes them behave otherwise. Your task is to propose candidate norms (obligations or prohibitions) that could explain the demonstrated behaviour.\nEach demonstration is listed step by step as  `k: {atoms true in the state} action`.\n\nAvailable atoms:\n- at(x,y) -- the agent is at cell (x,y); x = column (0 = left), y = row (0 = top); N decreases y, S increases y, E increases x, W decreases x\n- hasCart -- the agent is holding/pushing a shopping cart\n- actions N, S, E, W, MOVE (any of the four moves), INTERACT (any interaction with an object: the different kinds of interaction are NOT distinguished), EXIT (leave the store; always the last action)\n\nDemonstration 1 (required items: a1):\n  0: {at(0,7)} E\n  1: {at(1,7)} INTERACT\n  2: {at(1,7), hasCart} N\n  3: {at(1,6), hasCart} N\n  4: {at(1,5), hasCart} N\n  5: {at(1,4), hasCart} N\n  6: {at(1,3), hasCart} E\n  7: {at(2,3), hasCart} E\n  8: {at(3,3), hasCart} INTERACT\n  9: {at(3,3)} N\n 10: {at(3,2)} N\n 11: {at(3,1)} INTERACT\n 12: {at(3,1)} S\n 13: {at(3,2)} S\n 14: {at(3,3)} INTERACT\n 15: {at(3,3), hasCart} S\n 16: {at(3,4), hasCart} S\n 17: {at(3,5), hasCart} S\n 18: {at(3,6), hasCart} S\n 19: {at(3,7), hasCart} E\n 20: {at(4,7), hasCart} E\n 21: {at(5,7), hasCart} E\n 22: {at(6,7), hasCart} E\n 23: {at(7,7), hasCart} E\n 24: {at(8,7), hasCart} E\n 25: {at(9,7), hasCart} E\n 26: {at(10,7), hasCart} E\n 27: {at(11,7), hasCart} EXIT\n 28: {at(11,7), hasCart} <terminal>\n\nPropose norms using ONLY the atoms listed above. Do NOT define any new state properties or events: \"abstraction\" must be {}.\nPropose 8 diverse candidate hypotheses.\n\nOutput format: return ONLY a JSON list (no prose, no code fences). Each element:\n{\"id\": short_name, \"text\": one-sentence natural-language statement of the norm,\n \"abstraction\": {\"state_properties\": {name: FORMULA, ...},\n                 \"events\": {name: {\"pre\": FORMULA, \"post\": FORMULA or null}, ...}},\n \"norm\": {\"type\": \"prohibition\", \"condition\": FORMULA}\n       | {\"type\": \"obligation\", \"trigger\": FORMULA or \"START\", \"discharge\": FORMULA}}\nFORMULA := atom | name of a property/event defined in this hypothesis | {\"not\": F} | {\"and\": [F, ...]}\n         | {\"or\": [F, ...]} | {\"le\"|\"lt\"|\"ge\"|\"gt\"|\"eq\": [numeric_feature, integer]}\nSemantics.  A trajectory is a sequence of steps (state s_k, action a_k).  A step's label contains the atoms true in\ns_k and the action a_k.  A state property is a formula over state atoms (no actions).  An event\n{\"pre\": P, \"post\": Q} occurs at step k when P holds for the label of step k and Q holds in the next state s_{k+1}\n(post may be null).  A prohibition counts one violation for every step whose label (including events occurring at\nthat step) satisfies the condition.  An obligation becomes pending at any step satisfying the trigger (\"START\" =\npending from the beginning) and is fulfilled by a later (or the same) step satisfying the discharge; it can be\ntriggered again; it is violated if it is still pending when the trajectory ends.",
+      "raw_response": "[\n  {\n    \"id\": \"must_get_cart\",\n    \"text\": \"A shopper is obliged to obtain a shopping cart before completing the trip.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"START\",\n      \"discharge\": \"hasCart\"\n    }\n  },\n  {\n    \"id\": \"no_exit_without_cart\",\n    \"text\": \"A shopper is prohibited from exiting the store without a shopping cart.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"EXIT\",\n          {\n            \"not\": \"hasCart\"\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"no_cart_in_north_aisle\",\n    \"text\": \"A shopper is prohibited from taking a cart into the narrow northern aisle at column 3.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"hasCart\",\n          {\n            \"or\": [\n              \"at(3,1)\",\n              \"at(3,2)\"\n            ]\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"park_cart_at_3_3\",\n    \"text\": \"A shopper who reaches cell (3,3) with a cart is obliged to interact there, as if parking the cart before proceeding.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": {\n        \"and\": [\n          \"at(3,3)\",\n          \"hasCart\"\n        ]\n      },\n      \"discharge\": {\n        \"and\": [\n          \"at(3,3)\",\n          \"INTERACT\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"interact_at_item_cell\",\n    \"text\": \"A shopper who reaches cell (3,1) is obliged to interact there.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"at(3,1)\",\n      \"discharge\": {\n        \"and\": [\n          \"at(3,1)\",\n          \"INTERACT\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"retrieve_cart_after_return\",\n    \"text\": \"A shopper at cell (3,3) without a cart is obliged to retrieve a cart before continuing to the exit.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": {\n        \"and\": [\n          \"at(3,3)\",\n          {\n            \"not\": \"hasCart\"\n          }\n        ]\n      },\n      \"discharge\": \"hasCart\"\n    }\n  },\n  {\n    \"id\": \"no_cartless_east_exit_corridor\",\n    \"text\": \"A shopper is prohibited from moving east along the lower exit corridor without a cart.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          {\n            \"not\": \"hasCart\"\n          },\n          \"E\",\n          {\n            \"or\": [\n              \"at(3,7)\",\n              \"at(4,7)\",\n              \"at(5,7)\",\n              \"at(6,7)\",\n              \"at(7,7)\",\n              \"at(8,7)\",\n              \"at(9,7)\",\n              \"at(10,7)\"\n            ]\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"exit_at_11_7_with_cart\",\n    \"text\": \"A shopper is obliged to leave the store from cell (11,7) while holding a cart.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"START\",\n      \"discharge\": {\n        \"and\": [\n          \"at(11,7)\",\n          \"hasCart\",\n          \"EXIT\"\n        ]\n      }\n    }\n  }\n]",
+      "parsed": [
+        {
+          "id": "must_get_cart",
+          "text": "A shopper is obliged to obtain a shopping cart before completing the trip.",
+          "abstraction": {},
+          "norm": {
+            "type": "obligation",
+            "trigger": "START",
+            "discharge": "hasCart"
+          }
+        },
+        {
+          "id": "no_exit_without_cart",
+          "text": "A shopper is prohibited from exiting the store without a shopping cart.",
+          "abstraction": {},
+          "norm": {
+            "type": "prohibition",
+            "condition": {
+              "and": [
+                "EXIT",
+                {
+                  "not": "hasCart"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "no_cart_in_north_aisle",
+          "text": "A shopper is prohibited from taking a cart into the narrow northern aisle at column 3.",
+          "abstraction": {},
+          "norm": {
+            "type": "prohibition",
+            "condition": {
+              "and": [
+                "hasCart",
+                {
+                  "or": [
+                    "at(3,1)",
+                    "at(3,2)"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "park_cart_at_3_3",
+          "text": "A shopper who reaches cell (3,3) with a cart is obliged to interact there, as if parking the cart before proceeding.",
+          "abstraction": {},
+          "norm": {
+            "type": "obligation",
+            "trigger": {
+              "and": [
+                "at(3,3)",
+                "hasCart"
+              ]
+            },
+            "discharge": {
+              "and": [
+                "at(3,3)",
+                "INTERACT"
+              ]
+            }
+          }
+        },
+        {
+          "id": "interact_at_item_cell",
+          "text": "A shopper who reaches cell (3,1) is obliged to interact there.",
+          "abstraction": {},
+          "norm": {
+            "type": "obligation",
+            "trigger": "at(3,1)",
+            "discharge": {
+              "and": [
+                "at(3,1)",
+                "INTERACT"
+              ]
+            }
+          }
+        },
+        {
+          "id": "retrieve_cart_after_return",
+          "text": "A shopper at cell (3,3) without a cart is obliged to retrieve a cart before continuing to the exit.",
+          "abstraction": {},
+          "norm": {
+            "type": "obligation",
+            "trigger": {
+              "and": [
+                "at(3,3)",
+                {
+                  "not": "hasCart"
+                }
+              ]
+            },
+            "discharge": "hasCart"
+          }
+        },
+        {
+          "id": "no_cartless_east_exit_corridor",
+          "text": "A shopper is prohibited from moving east along the lower exit corridor without a cart.",
+          "abstraction": {},
+          "norm": {
+            "type": "prohibition",
+            "condition": {
+              "and": [
+                {
+                  "not": "hasCart"
+                },
+                "E",
+                {
+                  "or": [
+                    "at(3,7)",
+                    "at(4,7)",
+                    "at(5,7)",
+                    "at(6,7)",
+                    "at(7,7)",
+                    "at(8,7)",
+                    "at(9,7)",
+                    "at(10,7)"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "exit_at_11_7_with_cart",
+          "text": "A shopper is obliged to leave the store from cell (11,7) while holding a cart.",
+          "abstraction": {},
+          "norm": {
+            "type": "obligation",
+            "trigger": "START",
+            "discharge": {
+              "and": [
+                "at(11,7)",
+                "hasCart",
+                "EXIT"
+              ]
+            }
+          }
+        }
+      ],
+      "attempts": [
+        {
+          "attempt": 0,
+          "prompt": "Agents in a supermarket gridworld must collect their required items and leave through the exit. Every action costs the same, so demonstrators prefer short trajectories -- unless an unknown social norm makes them behave otherwise. Your task is to propose candidate norms (obligations or prohibitions) that could explain the demonstrated behaviour.\nEach demonstration is listed step by step as  `k: {atoms true in the state} action`.\n\nAvailable atoms:\n- at(x,y) -- the agent is at cell (x,y); x = column (0 = left), y = row (0 = top); N decreases y, S increases y, E increases x, W decreases x\n- hasCart -- the agent is holding/pushing a shopping cart\n- actions N, S, E, W, MOVE (any of the four moves), INTERACT (any interaction with an object: the different kinds of interaction are NOT distinguished), EXIT (leave the store; always the last action)\n\nDemonstration 1 (required items: a1):\n  0: {at(0,7)} E\n  1: {at(1,7)} INTERACT\n  2: {at(1,7), hasCart} N\n  3: {at(1,6), hasCart} N\n  4: {at(1,5), hasCart} N\n  5: {at(1,4), hasCart} N\n  6: {at(1,3), hasCart} E\n  7: {at(2,3), hasCart} E\n  8: {at(3,3), hasCart} INTERACT\n  9: {at(3,3)} N\n 10: {at(3,2)} N\n 11: {at(3,1)} INTERACT\n 12: {at(3,1)} S\n 13: {at(3,2)} S\n 14: {at(3,3)} INTERACT\n 15: {at(3,3), hasCart} S\n 16: {at(3,4), hasCart} S\n 17: {at(3,5), hasCart} S\n 18: {at(3,6), hasCart} S\n 19: {at(3,7), hasCart} E\n 20: {at(4,7), hasCart} E\n 21: {at(5,7), hasCart} E\n 22: {at(6,7), hasCart} E\n 23: {at(7,7), hasCart} E\n 24: {at(8,7), hasCart} E\n 25: {at(9,7), hasCart} E\n 26: {at(10,7), hasCart} E\n 27: {at(11,7), hasCart} EXIT\n 28: {at(11,7), hasCart} <terminal>\n\nPropose norms using ONLY the atoms listed above. Do NOT define any new state properties or events: \"abstraction\" must be {}.\nPropose 8 diverse candidate hypotheses.\n\nOutput format: return ONLY a JSON list (no prose, no code fences). Each element:\n{\"id\": short_name, \"text\": one-sentence natural-language statement of the norm,\n \"abstraction\": {\"state_properties\": {name: FORMULA, ...},\n                 \"events\": {name: {\"pre\": FORMULA, \"post\": FORMULA or null}, ...}},\n \"norm\": {\"type\": \"prohibition\", \"condition\": FORMULA}\n       | {\"type\": \"obligation\", \"trigger\": FORMULA or \"START\", \"discharge\": FORMULA}}\nFORMULA := atom | name of a property/event defined in this hypothesis | {\"not\": F} | {\"and\": [F, ...]}\n         | {\"or\": [F, ...]} | {\"le\"|\"lt\"|\"ge\"|\"gt\"|\"eq\": [numeric_feature, integer]}\nSemantics.  A trajectory is a sequence of steps (state s_k, action a_k).  A step's label contains the atoms true in\ns_k and the action a_k.  A state property is a formula over state atoms (no actions).  An event\n{\"pre\": P, \"post\": Q} occurs at step k when P holds for the label of step k and Q holds in the next state s_{k+1}\n(post may be null).  A prohibition counts one violation for every step whose label (including events occurring at\nthat step) satisfies the condition.  An obligation becomes pending at any step satisfying the trigger (\"START\" =\npending from the beginning) and is fulfilled by a later (or the same) step satisfying the discharge; it can be\ntriggered again; it is violated if it is still pending when the trajectory ends.",
+          "raw_response": "[\n  {\n    \"id\": \"must_get_cart\",\n    \"text\": \"A shopper is obliged to obtain a shopping cart before completing the trip.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"START\",\n      \"discharge\": \"hasCart\"\n    }\n  },\n  {\n    \"id\": \"no_exit_without_cart\",\n    \"text\": \"A shopper is prohibited from exiting the store without a shopping cart.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"EXIT\",\n          {\n            \"not\": \"hasCart\"\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"no_cart_in_north_aisle\",\n    \"text\": \"A shopper is prohibited from taking a cart into the narrow northern aisle at column 3.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"hasCart\",\n          {\n            \"or\": [\n              \"at(3,1)\",\n              \"at(3,2)\"\n            ]\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"park_cart_at_3_3\",\n    \"text\": \"A shopper who reaches cell (3,3) with a cart is obliged to interact there, as if parking the cart before proceeding.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": {\n        \"and\": [\n          \"at(3,3)\",\n          \"hasCart\"\n        ]\n      },\n      \"discharge\": {\n        \"and\": [\n          \"at(3,3)\",\n          \"INTERACT\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"interact_at_item_cell\",\n    \"text\": \"A shopper who reaches cell (3,1) is obliged to interact there.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"at(3,1)\",\n      \"discharge\": {\n        \"and\": [\n          \"at(3,1)\",\n          \"INTERACT\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"retrieve_cart_after_return\",\n    \"text\": \"A shopper at cell (3,3) without a cart is obliged to retrieve a cart before continuing to the exit.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": {\n        \"and\": [\n          \"at(3,3)\",\n          {\n            \"not\": \"hasCart\"\n          }\n        ]\n      },\n      \"discharge\": \"hasCart\"\n    }\n  },\n  {\n    \"id\": \"no_cartless_east_exit_corridor\",\n    \"text\": \"A shopper is prohibited from moving east along the lower exit corridor without a cart.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          {\n            \"not\": \"hasCart\"\n          },\n          \"E\",\n          {\n            \"or\": [\n              \"at(3,7)\",\n              \"at(4,7)\",\n              \"at(5,7)\",\n              \"at(6,7)\",\n              \"at(7,7)\",\n              \"at(8,7)\",\n              \"at(9,7)\",\n              \"at(10,7)\"\n            ]\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"exit_at_11_7_with_cart\",\n    \"text\": \"A shopper is obliged to leave the store from cell (11,7) while holding a cart.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"START\",\n      \"discharge\": {\n        \"and\": [\n          \"at(11,7)\",\n          \"hasCart\",\n          \"EXIT\"\n        ]\n      }\n    }\n  }\n]",
+          "parsed": [
+            {
+              "id": "must_get_cart",
+              "text": "A shopper is obliged to obtain a shopping cart before completing the trip.",
+              "abstraction": {},
+              "norm": {
+                "type": "obligation",
+                "trigger": "START",
+                "discharge": "hasCart"
+              }
+            },
+            {
+              "id": "no_exit_without_cart",
+              "text": "A shopper is prohibited from exiting the store without a shopping cart.",
+              "abstraction": {},
+              "norm": {
+                "type": "prohibition",
+                "condition": {
+                  "and": [
+                    "EXIT",
+                    {
+                      "not": "hasCart"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "no_cart_in_north_aisle",
+              "text": "A shopper is prohibited from taking a cart into the narrow northern aisle at column 3.",
+              "abstraction": {},
+              "norm": {
+                "type": "prohibition",
+                "condition": {
+                  "and": [
+                    "hasCart",
+                    {
+                      "or": [
+                        "at(3,1)",
+                        "at(3,2)"
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "park_cart_at_3_3",
+              "text": "A shopper who reaches cell (3,3) with a cart is obliged to interact there, as if parking the cart before proceeding.",
+              "abstraction": {},
+              "norm": {
+                "type": "obligation",
+                "trigger": {
+                  "and": [
+                    "at(3,3)",
+                    "hasCart"
+                  ]
+                },
+                "discharge": {
+                  "and": [
+                    "at(3,3)",
+                    "INTERACT"
+                  ]
+                }
+              }
+            },
+            {
+              "id": "interact_at_item_cell",
+              "text": "A shopper who reaches cell (3,1) is obliged to interact there.",
+              "abstraction": {},
+              "norm": {
+                "type": "obligation",
+                "trigger": "at(3,1)",
+                "discharge": {
+                  "and": [
+                    "at(3,1)",
+                    "INTERACT"
+                  ]
+                }
+              }
+            },
+            {
+              "id": "retrieve_cart_after_return",
+              "text": "A shopper at cell (3,3) without a cart is obliged to retrieve a cart before continuing to the exit.",
+              "abstraction": {},
+              "norm": {
+                "type": "obligation",
+                "trigger": {
+                  "and": [
+                    "at(3,3)",
+                    {
+                      "not": "hasCart"
+                    }
+                  ]
+                },
+                "discharge": "hasCart"
+              }
+            },
+            {
+              "id": "no_cartless_east_exit_corridor",
+              "text": "A shopper is prohibited from moving east along the lower exit corridor without a cart.",
+              "abstraction": {},
+              "norm": {
+                "type": "prohibition",
+                "condition": {
+                  "and": [
+                    {
+                      "not": "hasCart"
+                    },
+                    "E",
+                    {
+                      "or": [
+                        "at(3,7)",
+                        "at(4,7)",
+                        "at(5,7)",
+                        "at(6,7)",
+                        "at(7,7)",
+                        "at(8,7)",
+                        "at(9,7)",
+                        "at(10,7)"
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "exit_at_11_7_with_cart",
+              "text": "A shopper is obliged to leave the store from cell (11,7) while holding a cart.",
+              "abstraction": {},
+              "norm": {
+                "type": "obligation",
+                "trigger": "START",
+                "discharge": {
+                  "and": [
+                    "at(11,7)",
+                    "hasCart",
+                    "EXIT"
+                  ]
+                }
+              }
+            }
+          ],
+          "call": {
+            "cache_key": "5fb1f4f36344d2997d42ce07549555d30afe473975ad48d461e026313e181e98",
+            "requested_model": "gpt-5.5",
+            "returned_model": "gpt-5.5-2026-04-23",
+            "response_id": "resp_0537d7cf2e7c8dd0006ac660aa003487d1814e82ef0bee4c47",
+            "status": "completed",
+            "incomplete_details": null,
+            "usage": {
+              "input_tokens": 1032,
+              "input_tokens_details": {
+                "cached_tokens": 0,
+                "cache_write_tokens": 0
+              },
+              "output_tokens": 2934,
+              "output_tokens_details": {
+                "reasoning_tokens": 2070
+              },
+              "total_tokens": 3966
+            },
+            "settings": {
+              "model": "gpt-5.5",
+              "temperature": null,
+              "reasoning_effort": null,
+              "max_output_tokens": null,
+              "api": "responses.create"
+            },
+            "replicate": "orig/aisle/4",
+            "timestamp": "2026-10-07T11:10:02",
+            "latency_s": 32.77,
+            "retries": [],
+            "cache_hit": true
+          }
+        }
+      ],
+      "accepted": [
+        {
+          "id": "g0_must_get_cart",
+          "description": "[g0_must_get_cart] OBLIGED: after start, eventually hasCart (before exit)",
+          "L_alpha": 0,
+          "L_norm": 3,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        },
+        {
+          "id": "g0_no_exit_without_cart",
+          "description": "[g0_no_exit_without_cart] FORBIDDEN: (EXIT \u2227 \u00achasCart)",
+          "L_alpha": 0,
+          "L_norm": 5,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        },
+        {
+          "id": "g0_no_cart_in_north_aisle",
+          "description": "[g0_no_cart_in_north_aisle] FORBIDDEN: (hasCart \u2227 (at(3,1) \u2228 at(3,2)))",
+          "L_alpha": 0,
+          "L_norm": 6,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        },
+        {
+          "id": "g0_park_cart_at_3_3",
+          "description": "[g0_park_cart_at_3_3] OBLIGED: after (at(3,3) \u2227 hasCart), eventually (at(3,3) \u2227 INTERACT) (before exit)",
+          "L_alpha": 0,
+          "L_norm": 7,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        },
+        {
+          "id": "g0_interact_at_item_cell",
+          "description": "[g0_interact_at_item_cell] OBLIGED: after at(3,1), eventually (at(3,1) \u2227 INTERACT) (before exit)",
+          "L_alpha": 0,
+          "L_norm": 5,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        },
+        {
+          "id": "g0_retrieve_cart_after_return",
+          "description": "[g0_retrieve_cart_after_return] OBLIGED: after (at(3,3) \u2227 \u00achasCart), eventually hasCart (before exit)",
+          "L_alpha": 0,
+          "L_norm": 6,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        },
+        {
+          "id": "g0_no_cartless_east_exit_corridor",
+          "description": "[g0_no_cartless_east_exit_corridor] FORBIDDEN: (\u00achasCart \u2227 E \u2227 (at(3,7) \u2228 at(4,7) \u2228 at(5,7) \u2228 at(6,7) \u2228 at(7,7) \u2228 at(8,7) \u2228 at(9,7) \u2228 at(10,7)))",
+          "L_alpha": 0,
+          "L_norm": 14,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        },
+        {
+          "id": "g0_exit_at_11_7_with_cart",
+          "description": "[g0_exit_at_11_7_with_cart] OBLIGED: after start, eventually (at(11,7) \u2227 hasCart \u2227 EXIT) (before exit)",
+          "L_alpha": 0,
+          "L_norm": 6,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        }
+      ],
+      "rejected": []
+    }
+  ]
+}

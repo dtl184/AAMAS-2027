@@ -201,7 +201,8 @@ def make_provider(cfg: Dict, replicate: object = 0, run_info: Optional[Dict] = N
         comp = OpenAICompletion(model=cfg["openai_model"], temperature=cfg["openai_temperature"],
                                 reasoning_effort=cfg["openai_reasoning_effort"],
                                 max_output_tokens=cfg["openai_max_output_tokens"], cache_dir=LLM_CACHE,
-                                replicate=replicate, max_retries=cfg["openai_max_retries"])
+                                replicate=replicate, max_retries=cfg["openai_max_retries"],
+                                cache_only=bool(cfg.get("openai_cache_only", False)))
         return LLMProposalProvider(comp, n_hypotheses=cfg["llm_n_hypotheses"],
                                    max_parse_retries=cfg["llm_max_parse_retries"],
                                    run_info={"model": cfg["openai_model"], "replicate": replicate, **(run_info or {})})

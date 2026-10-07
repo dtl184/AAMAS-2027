@@ -1,0 +1,38 @@
+{
+ "cache_key": "4f156d7b982516932e74d32e924f806250fc96e3b5d4a11e628f2e1674039c05",
+ "requested_model": "gpt-5.5",
+ "returned_model": "gpt-5.5-2026-04-23",
+ "response_id": "resp_0e9971e6e4243f42006ac6a60ba26487d1b4ea466d499657a9",
+ "status": "completed",
+ "incomplete_details": null,
+ "usage": {
+  "input_tokens": 5809,
+  "input_tokens_details": {
+   "cached_tokens": 1792,
+   "cache_write_tokens": 0
+  },
+  "output_tokens": 4536,
+  "output_tokens_details": {
+   "reasoning_tokens": 3268
+  },
+  "total_tokens": 10345
+ },
+ "settings": {
+  "model": "gpt-5.5",
+  "temperature": null,
+  "reasoning_effort": null,
+  "max_output_tokens": null,
+  "api": "responses.create"
+ },
+ "replicate": "trig/cart/4",
+ "timestamp": "2026-10-07T16:06:17",
+ "latency_s": 46.21,
+ "retries": [
+  {
+   "attempt": 0,
+   "error": "RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
+   "at": "2026-10-07T16:05:26"
+  }
+ ],
+ "output_text": "[\n  {\n    \"id\": \"must_take_entrance_cart\",\n    \"text\": \"Customers are obliged to take the entrance cart before doing the shopping trip.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"entrance_cart_available\": {\n          \"and\": [\n            \"at(1,5)\",\n            \"cartAt(1,5)\"\n          ]\n        }\n      },\n      \"events\": {\n        \"pickup_entrance_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"entrance_cart_available\",\n              \"PICKUP_CART\"\n            ]\n          },\n          \"post\": \"hasCart\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"START\",\n      \"discharge\": \"pickup_entrance_cart\"\n    }\n  },\n  {\n    \"id\": \"items_only_with_cart\",\n    \"text\": \"Customers are prohibited from picking up shelf items unless they currently have the cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"without_cart\": {\n          \"not\": \"hasCart\"\n        }\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"PICKUP_ITEM\",\n          \"without_cart\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"no_hand_carrying\",\n    \"text\": \"Customers are prohibited from carrying groceries by hand instead of putting them in the cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"carrying_by_hand\": \"handFull\"\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"carrying_by_hand\"\n    }\n  },\n  {\n    \"id\": \"return_cart_after_use\",\n    \"text\": \"After taking a cart, customers are obliged to return it to the designated cart-return cell before leaving.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"entrance_cart_available\": {\n          \"and\": [\n            \"at(1,5)\",\n            \"cartAt(1,5)\"\n          ]\n        },\n        \"cart_return_cell\": \"at(0,1)\"\n      },\n      \"events\": {\n        \"pickup_entrance_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"entrance_cart_available\",\n              \"PICKUP_CART\"\n            ]\n          },\n          \"post\": \"hasCart\"\n        },\n        \"return_cart_to_bay\": {\n          \"pre\": {\n            \"and\": [\n              \"cart_return_cell\",\n              \"hasCart\",\n              \"LEAVE_CART\"\n            ]\n          },\n          \"post\": \"cartAt(0,1)\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"pickup_entrance_cart\",\n      \"discharge\": \"return_cart_to_bay\"\n    }\n  },\n  {\n    \"id\": \"cart_only_left_at_bay\",\n    \"text\": \"Customers are prohibited from leaving the cart anywhere except the designated cart-return cell.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"cart_return_cell\": \"at(0,1)\",\n        \"away_from_cart_return\": {\n          \"not\": \"cart_return_cell\"\n        }\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"LEAVE_CART\",\n          \"away_from_cart_return\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"no_push_cart_east_from_bay\",\n    \"text\": \"Customers are prohibited from pushing the cart east out of the return bay, although walking east after parking it is allowed.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"cart_return_cell\": \"at(0,1)\",\n        \"pushing_cart_at_return\": {\n          \"and\": [\n            \"cart_return_cell\",\n            \"hasCart\"\n          ]\n        }\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"pushing_cart_at_return\",\n          \"E\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"exit_only_after_cart_parked\",\n    \"text\": \"Customers are prohibited from exiting unless the cart has been parked at the return bay and is no longer in their possession.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"cart_parked_at_return\": \"cartAt(0,1)\",\n        \"without_cart\": {\n          \"not\": \"hasCart\"\n        },\n        \"ready_to_exit\": {\n          \"and\": [\n            \"cart_parked_at_return\",\n            \"without_cart\"\n          ]\n        }\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"EXIT\",\n          {\n            \"not\": \"ready_to_exit\"\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"no_east_from_right_shelf_with_cart\",\n    \"text\": \"When pushing a cart at the right-side item shelves, customers are prohibited from continuing farther east and should turn back west instead.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"right_side_item_shelf_cell\": {\n          \"or\": [\n            \"at(6,4)\",\n            \"at(6,2)\"\n          ]\n        },\n        \"cart_at_right_shelf\": {\n          \"and\": [\n            \"right_side_item_shelf_cell\",\n            \"hasCart\"\n          ]\n        }\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"cart_at_right_shelf\",\n          \"E\"\n        ]\n      }\n    }\n  }\n]"
+}

@@ -1,0 +1,48 @@
+{
+ "cache_key": "8f35492e63ec007d3a88bcb7a990deb5003dbecc9e4e2e547da9c3e270b96747",
+ "requested_model": "gpt-5.5",
+ "returned_model": "gpt-5.5-2026-04-23",
+ "response_id": "resp_0152724aa5cf36b2006ac6a6fb30b087d1966740ea9b24f818",
+ "status": "completed",
+ "incomplete_details": null,
+ "usage": {
+  "input_tokens": 11632,
+  "input_tokens_details": {
+   "cached_tokens": 9984,
+   "cache_write_tokens": 0
+  },
+  "output_tokens": 4083,
+  "output_tokens_details": {
+   "reasoning_tokens": 2519
+  },
+  "total_tokens": 15715
+ },
+ "settings": {
+  "model": "gpt-5.5",
+  "temperature": null,
+  "reasoning_effort": null,
+  "max_output_tokens": null,
+  "api": "responses.create"
+ },
+ "replicate": "trig/cart/5",
+ "timestamp": "2026-10-07T16:10:10",
+ "latency_s": 39.84,
+ "retries": [
+  {
+   "attempt": 0,
+   "error": "RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
+   "at": "2026-10-07T16:08:54"
+  },
+  {
+   "attempt": 1,
+   "error": "RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
+   "at": "2026-10-07T16:09:00"
+  },
+  {
+   "attempt": 2,
+   "error": "RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
+   "at": "2026-10-07T16:09:11"
+  }
+ ],
+ "output_text": "[\n  {\n    \"id\": \"use_entry_cart\",\n    \"text\": \"Customers are obliged to take the cart from the entry cart station before doing the shopping trip.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"entry_cart_station\": {\n          \"and\": [\n            \"at(1,5)\",\n            \"cartAt(1,5)\"\n          ]\n        },\n        \"pushing_cart\": \"hasCart\"\n      },\n      \"events\": {\n        \"pickup_entry_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"entry_cart_station\",\n              \"PICKUP_CART\"\n            ]\n          },\n          \"post\": \"pushing_cart\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"START\",\n      \"discharge\": \"pickup_entry_cart\"\n    }\n  },\n  {\n    \"id\": \"no_hand_item_pickup\",\n    \"text\": \"Customers are prohibited from picking up items by hand rather than into a cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"pushing_cart\": \"hasCart\",\n        \"carrying_by_hand\": \"handFull\"\n      },\n      \"events\": {\n        \"hand_item_pickup\": {\n          \"pre\": {\n            \"and\": [\n              \"PICKUP_ITEM\",\n              {\n                \"not\": \"pushing_cart\"\n              }\n            ]\n          },\n          \"post\": \"carrying_by_hand\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"hand_item_pickup\"\n    }\n  },\n  {\n    \"id\": \"return_cart_after_items\",\n    \"text\": \"After collecting any item with a cart, customers are obliged to return the cart to the northwest cart-return point.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"pushing_cart\": \"hasCart\",\n        \"cart_return_point\": \"at(0,1)\",\n        \"cart_parked_at_return\": \"cartAt(0,1)\"\n      },\n      \"events\": {\n        \"item_collected_with_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"pushing_cart\",\n              \"PICKUP_ITEM\"\n            ]\n          },\n          \"post\": \"pushing_cart\"\n        },\n        \"return_cart_northwest\": {\n          \"pre\": {\n            \"and\": [\n              \"pushing_cart\",\n              \"cart_return_point\",\n              \"LEAVE_CART\"\n            ]\n          },\n          \"post\": \"cart_parked_at_return\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"item_collected_with_cart\",\n      \"discharge\": \"return_cart_northwest\"\n    }\n  },\n  {\n    \"id\": \"no_exit_with_cart\",\n    \"text\": \"Customers are prohibited from leaving the supermarket while still pushing a cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"pushing_cart\": \"hasCart\",\n        \"cart_parked_at_return\": \"cartAt(0,1)\"\n      },\n      \"events\": {\n        \"exit_with_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"pushing_cart\",\n              \"EXIT\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"exit_with_cart\"\n    }\n  },\n  {\n    \"id\": \"only_leave_cart_at_return\",\n    \"text\": \"Customers are prohibited from leaving a cart anywhere except the northwest cart-return cell.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"pushing_cart\": \"hasCart\",\n        \"cart_return_point\": \"at(0,1)\"\n      },\n      \"events\": {\n        \"abandon_cart_away_from_return\": {\n          \"pre\": {\n            \"and\": [\n              \"pushing_cart\",\n              \"LEAVE_CART\",\n              {\n                \"not\": \"cart_return_point\"\n              }\n            ]\n          },\n          \"post\": {\n            \"not\": \"hasCart\"\n          }\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"abandon_cart_away_from_return\"\n    }\n  },\n  {\n    \"id\": \"cart_west_wall_no_east_turn\",\n    \"text\": \"While pushing a cart on the west-wall return corridor, customers are prohibited from turning east into the store aisles.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"pushing_cart\": \"hasCart\",\n        \"west_wall_return_corridor\": {\n          \"or\": [\n            \"at(0,1)\",\n            \"at(0,2)\",\n            \"at(0,3)\",\n            \"at(0,4)\"\n          ]\n        },\n        \"cart_in_return_corridor\": {\n          \"and\": [\n            \"pushing_cart\",\n            \"west_wall_return_corridor\"\n          ]\n        }\n      },\n      \"events\": {\n        \"east_turn_with_cart_from_west_wall\": {\n          \"pre\": {\n            \"and\": [\n              \"cart_in_return_corridor\",\n              \"E\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"east_turn_with_cart_from_west_wall\"\n    }\n  },\n  {\n    \"id\": \"cart_middle_station_no_south\",\n    \"text\": \"When pushing a cart at the middle lower shelf station, customers are prohibited from moving south into the bottom aisle.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"pushing_cart\": \"hasCart\",\n        \"middle_lower_station\": \"at(2,4)\",\n        \"cart_at_middle_lower_station\": {\n          \"and\": [\n            \"pushing_cart\",\n            \"middle_lower_station\"\n          ]\n        }\n      },\n      \"events\": {\n        \"south_from_middle_with_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"cart_at_middle_lower_station\",\n              \"S\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"south_from_middle_with_cart\"\n    }\n  },\n  {\n    \"id\": \"cart_east_station_no_direct_exit\",\n    \"text\": \"When pushing a cart at the eastern shelf station, customers are prohibited from continuing east or south toward the exit side.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"pushing_cart\": \"hasCart\",\n        \"east_shelf_station\": \"at(6,4)\",\n        \"cart_at_east_shelf_station\": {\n          \"and\": [\n            \"pushing_cart\",\n            \"east_shelf_station\"\n          ]\n        },\n        \"direct_exit_direction\": {\n          \"or\": [\n            \"E\",\n            \"S\"\n          ]\n        }\n      },\n      \"events\": {\n        \"direct_exit_move_with_cart_from_east_station\": {\n          \"pre\": {\n            \"and\": [\n              \"cart_at_east_shelf_station\",\n              \"direct_exit_direction\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"direct_exit_move_with_cart_from_east_station\"\n    }\n  }\n]"
+}

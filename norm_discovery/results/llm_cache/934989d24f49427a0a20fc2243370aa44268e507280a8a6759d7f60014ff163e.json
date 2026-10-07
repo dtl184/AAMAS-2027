@@ -1,0 +1,43 @@
+{
+ "cache_key": "934989d24f49427a0a20fc2243370aa44268e507280a8a6759d7f60014ff163e",
+ "requested_model": "gpt-5.5",
+ "returned_model": "gpt-5.5-2026-04-23",
+ "response_id": "resp_0d408c3467d8d90c006ac6a63ff92887d1aacdcdcc3e40f471",
+ "status": "completed",
+ "incomplete_details": null,
+ "usage": {
+  "input_tokens": 8525,
+  "input_tokens_details": {
+   "cached_tokens": 5888,
+   "cache_write_tokens": 0
+  },
+  "output_tokens": 4092,
+  "output_tokens_details": {
+   "reasoning_tokens": 2588
+  },
+  "total_tokens": 12617
+ },
+ "settings": {
+  "model": "gpt-5.5",
+  "temperature": null,
+  "reasoning_effort": null,
+  "max_output_tokens": null,
+  "api": "responses.create"
+ },
+ "replicate": "trig/cart/4",
+ "timestamp": "2026-10-07T16:07:05",
+ "latency_s": 41.64,
+ "retries": [
+  {
+   "attempt": 0,
+   "error": "RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
+   "at": "2026-10-07T16:06:07"
+  },
+  {
+   "attempt": 1,
+   "error": "RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
+   "at": "2026-10-07T16:06:13"
+  }
+ ],
+ "output_text": "[\n  {\n    \"id\": \"must_take_entry_cart\",\n    \"text\": \"A shopper is obliged to take the entrance cart before completing the trip.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"at_entry_cart_station\": {\n          \"and\": [\n            \"at(1,5)\",\n            \"cartAt(1,5)\"\n          ]\n        },\n        \"has_shopping_cart\": \"hasCart\"\n      },\n      \"events\": {\n        \"pickup_entry_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"at_entry_cart_station\",\n              \"PICKUP_CART\"\n            ]\n          },\n          \"post\": \"has_shopping_cart\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"START\",\n      \"discharge\": \"pickup_entry_cart\"\n    }\n  },\n  {\n    \"id\": \"pickup_items_only_with_cart\",\n    \"text\": \"A shopper is prohibited from picking up shelf items unless they are currently pushing or holding a cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"cart_controlled\": \"hasCart\",\n        \"without_cart\": {\n          \"not\": \"hasCart\"\n        }\n      },\n      \"events\": {\n        \"cartless_item_pickup\": {\n          \"pre\": {\n            \"and\": [\n              \"without_cart\",\n              \"PICKUP_ITEM\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"cartless_item_pickup\"\n    }\n  },\n  {\n    \"id\": \"no_hand_carrying\",\n    \"text\": \"A shopper is prohibited from carrying merchandise by hand rather than putting it in the cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"carrying_by_hand\": \"handFull\",\n        \"cart_available_or_used\": {\n          \"or\": [\n            \"hasCart\",\n            \"cartAt(0,1)\",\n            \"cartAt(1,5)\"\n          ]\n        }\n      },\n      \"events\": {\n        \"becomes_hand_full\": {\n          \"pre\": \"PICKUP_ITEM\",\n          \"post\": \"carrying_by_hand\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"carrying_by_hand\"\n    }\n  },\n  {\n    \"id\": \"return_cart_after_shopping\",\n    \"text\": \"After taking any required item, the shopper is obliged to return the cart to the designated cart-return cell before the trajectory ends.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"cart_return_cell\": \"at(0,1)\",\n        \"cart_parked_in_return\": \"cartAt(0,1)\",\n        \"shopping_with_cart\": \"hasCart\"\n      },\n      \"events\": {\n        \"take_shelf_item\": {\n          \"pre\": \"PICKUP_ITEM\",\n          \"post\": null\n        },\n        \"return_cart_to_bay\": {\n          \"pre\": {\n            \"and\": [\n              \"shopping_with_cart\",\n              \"cart_return_cell\",\n              \"LEAVE_CART\"\n            ]\n          },\n          \"post\": \"cart_parked_in_return\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"take_shelf_item\",\n      \"discharge\": \"return_cart_to_bay\"\n    }\n  },\n  {\n    \"id\": \"leave_cart_only_at_return_bay\",\n    \"text\": \"A shopper is prohibited from leaving the cart anywhere other than the official return bay at cell (0,1).\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"official_cart_return_bay\": \"at(0,1)\",\n        \"not_at_cart_return_bay\": {\n          \"not\": \"official_cart_return_bay\"\n        }\n      },\n      \"events\": {\n        \"abandon_cart_outside_bay\": {\n          \"pre\": {\n            \"and\": [\n              \"LEAVE_CART\",\n              \"not_at_cart_return_bay\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"abandon_cart_outside_bay\"\n    }\n  },\n  {\n    \"id\": \"exit_without_cart_after_checkin\",\n    \"text\": \"A shopper is prohibited from exiting while still possessing the cart or before the cart is parked in the return bay.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"cart_checked_in\": \"cartAt(0,1)\",\n        \"cart_not_checked_in\": {\n          \"not\": \"cart_checked_in\"\n        },\n        \"still_with_cart\": \"hasCart\",\n        \"bad_exit_cart_status\": {\n          \"or\": [\n            \"still_with_cart\",\n            \"cart_not_checked_in\"\n          ]\n        }\n      },\n      \"events\": {\n        \"exit_with_unreturned_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"EXIT\",\n              \"bad_exit_cart_status\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"exit_with_unreturned_cart\"\n    }\n  },\n  {\n    \"id\": \"no_more_interactions_after_cart_return\",\n    \"text\": \"Once the cart is parked in the return bay, the shopper is prohibited from performing further store interactions.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"cart_already_returned\": \"cartAt(0,1)\",\n        \"pedestrian_phase\": {\n          \"and\": [\n            \"cart_already_returned\",\n            {\n              \"not\": \"hasCart\"\n            }\n          ]\n        }\n      },\n      \"events\": {\n        \"post_return_interaction\": {\n          \"pre\": {\n            \"and\": [\n              \"pedestrian_phase\",\n              \"INTERACT\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"post_return_interaction\"\n    }\n  },\n  {\n    \"id\": \"must_drop_cart_at_return_not_drive_away\",\n    \"text\": \"When the shopper reaches the cart-return cell while still possessing the cart, they are prohibited from moving away instead of leaving the cart there.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"at_cart_return_cell\": \"at(0,1)\",\n        \"arrived_with_cart_at_return\": {\n          \"and\": [\n            \"at_cart_return_cell\",\n            \"hasCart\"\n          ]\n        }\n      },\n      \"events\": {\n        \"move_away_with_cart_from_return\": {\n          \"pre\": {\n            \"and\": [\n              \"arrived_with_cart_at_return\",\n              \"MOVE\"\n            ]\n          },\n          \"post\": \"hasCart\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"move_away_with_cart_from_return\"\n    }\n  }\n]"
+}

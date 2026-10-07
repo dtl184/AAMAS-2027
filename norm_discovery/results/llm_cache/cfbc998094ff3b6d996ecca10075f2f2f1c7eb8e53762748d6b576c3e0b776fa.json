@@ -1,0 +1,32 @@
+{
+ "cache_key": "cfbc998094ff3b6d996ecca10075f2f2f1c7eb8e53762748d6b576c3e0b776fa",
+ "requested_model": "gpt-5.5",
+ "returned_model": "gpt-5.5-2026-04-23",
+ "response_id": "resp_073d0b651b649554006ac6a3d0b51087d190cfa133a0dc4e9d",
+ "status": "completed",
+ "incomplete_details": null,
+ "usage": {
+  "input_tokens": 4479,
+  "input_tokens_details": {
+   "cached_tokens": 1792,
+   "cache_write_tokens": 0
+  },
+  "output_tokens": 4858,
+  "output_tokens_details": {
+   "reasoning_tokens": 3624
+  },
+  "total_tokens": 9337
+ },
+ "settings": {
+  "model": "gpt-5.5",
+  "temperature": null,
+  "reasoning_effort": null,
+  "max_output_tokens": null,
+  "api": "responses.create"
+ },
+ "replicate": "trig/cart/0",
+ "timestamp": "2026-10-07T15:56:51",
+ "latency_s": 51.32,
+ "retries": [],
+ "output_text": "[\n  {\n    \"id\": \"must_take_entrance_cart\",\n    \"text\": \"A shopper is obliged to take the staged entrance cart before completing the trip.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"at_entrance_cart_bay\": \"at(1,5)\",\n        \"entrance_cart_present\": \"cartAt(1,5)\",\n        \"with_cart\": \"hasCart\"\n      },\n      \"events\": {\n        \"take_entrance_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"at_entrance_cart_bay\",\n              \"entrance_cart_present\",\n              \"PICKUP_CART\"\n            ]\n          },\n          \"post\": \"with_cart\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"START\",\n      \"discharge\": \"take_entrance_cart\"\n    }\n  },\n  {\n    \"id\": \"pickup_cart_only_from_entrance_bay\",\n    \"text\": \"A shopper is prohibited from picking up a cart anywhere except the designated entrance cart bay.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"at_entrance_cart_bay\": \"at(1,5)\"\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"PICKUP_CART\",\n          {\n            \"not\": \"at_entrance_cart_bay\"\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"items_must_be_collected_with_cart\",\n    \"text\": \"A shopper is prohibited from picking up shelf items unless they currently have the cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"with_cart\": \"hasCart\",\n        \"without_cart\": {\n          \"not\": \"hasCart\"\n        }\n      },\n      \"events\": {\n        \"cartless_item_pickup\": {\n          \"pre\": {\n            \"and\": [\n              \"PICKUP_ITEM\",\n              \"without_cart\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"cartless_item_pickup\"\n    }\n  },\n  {\n    \"id\": \"no_hand_carrying_goods\",\n    \"text\": \"A shopper is prohibited from carrying goods by hand rather than transporting them in the cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"carrying_item_by_hand\": \"handFull\"\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"carrying_item_by_hand\"\n    }\n  },\n  {\n    \"id\": \"cart_must_be_returned_to_front_bay\",\n    \"text\": \"After taking a cart, a shopper is obliged to return it to the front cart-return bay before leaving the store.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"at_front_return_bay\": \"at(0,1)\",\n        \"cart_parked_front\": \"cartAt(0,1)\",\n        \"with_cart\": \"hasCart\"\n      },\n      \"events\": {\n        \"take_cart\": {\n          \"pre\": \"PICKUP_CART\",\n          \"post\": \"with_cart\"\n        },\n        \"return_cart_front\": {\n          \"pre\": {\n            \"and\": [\n              \"at_front_return_bay\",\n              \"LEAVE_CART\"\n            ]\n          },\n          \"post\": \"cart_parked_front\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"take_cart\",\n      \"discharge\": \"return_cart_front\"\n    }\n  },\n  {\n    \"id\": \"leave_cart_only_at_front_bay\",\n    \"text\": \"A shopper is prohibited from putting the cart down anywhere other than the front return bay.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"at_front_return_bay\": \"at(0,1)\"\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"LEAVE_CART\",\n          {\n            \"not\": \"at_front_return_bay\"\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"carts_banned_from_checkout_exit_zone\",\n    \"text\": \"Carts are prohibited in the pedestrian checkout and exit zone near the store exit.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"checkout_exit_zone\": {\n          \"or\": [\n            \"at(7,5)\",\n            \"at(8,5)\",\n            \"at(9,5)\",\n            \"at(8,4)\",\n            \"at(9,4)\",\n            \"at(9,3)\",\n            \"at(9,2)\"\n          ]\n        },\n        \"with_cart\": \"hasCart\"\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"checkout_exit_zone\",\n          \"with_cart\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"after_cart_return_no_more_interactions\",\n    \"text\": \"Once the cart is parked in the front return bay, the shopper enters checkout mode and is prohibited from performing further object interactions.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"cart_parked_front\": \"cartAt(0,1)\"\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"cart_parked_front\",\n          \"INTERACT\"\n        ]\n      }\n    }\n  }\n]"
+}

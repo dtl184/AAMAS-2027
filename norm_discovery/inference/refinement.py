@@ -42,6 +42,11 @@ class LearnerConfig:
     prior_mode: str = "joint"
     dl_coding: str = "nodes"         # "nodes" (primary) | "tokens" (sensitivity analysis)
     record_posteriors: bool = False  # store P(h | D_1:t) for every hypothesis at every step
+    # refinement trigger (inference/triggers.py).  Default = the paper's rule p_t < rho * b_t (running minimum).
+    trigger_family: str = "raw"      # raw | len | task | rel
+    trigger_rule: str = "ratio"      # ratio | quantile | never
+    trigger_param: Optional[float] = None   # ratio: margin (None -> log(rho)); quantile: q
+    record_refinement_eval: bool = False    # evaluate held-out metrics just before / after every refinement
 
     @property
     def W(self) -> np.ndarray:
@@ -113,29 +118,39 @@ class NormLearner:
         self._accept(self.provider.propose_initial(spec, demos[:1]), 0)
         if cfg.oracle:
             self._refine(demos[:1])
+        from inference.triggers import should_trigger, trigger_scores
         log_b, nonref = None, []
+        accepted: List[float] = []
         trace.append(self._snapshot(1, demos[0], None, None, False, intended_key, record_prefix_eval))
         refinement_points = []
+        rule = cfg.trigger_rule if cfg.refinement else "never"
+        param = cfg.trigger_param
+        if rule == "ratio" and param is None:
+            param = float(np.log(cfg.rho))
         for t in range(2, len(demos) + 1):
             tau = demos[t - 1]
             log_p = self.post.predictive_logprob(tau)
+            scores = trigger_scores(self.zc, tau, log_p, cfg.beta)
+            s = scores[cfg.trigger_family]
             log_b_before = log_b
-            triggered = (cfg.refinement and log_b is not None and log_p < np.log(cfg.rho) + log_b)
+            triggered, base_val, thr = should_trigger(rule, param, s, accepted, cfg.baseline)
             n_before = len(self.post.hyps)
             self.post.add_demo(tau)
+            pre_eval = self._eval_now() if (triggered and cfg.record_refinement_eval) else None
             if triggered:
                 self._refine(demos[:t])
                 refinement_points.append(t)
             else:
                 nonref.append(log_p)
-                if cfg.baseline == "min":
-                    log_b = min(nonref)
-                elif cfg.baseline == "median":
-                    log_b = float(np.median(nonref))
-                else:
-                    raise ValueError(cfg.baseline)
+                accepted.append(s)
+                log_b = min(nonref) if cfg.baseline == "min" else float(np.median(nonref))
             snap = self._snapshot(t, tau, log_p, log_b_before, triggered, intended_key, record_prefix_eval)
             snap["n_new_hypotheses"] = len(self.post.hyps) - n_before
+            snap.update({"trigger_family": cfg.trigger_family, "trigger_rule": rule, "trigger_param": param,
+                         "trigger_score": s, "trigger_baseline": base_val, "trigger_threshold": thr,
+                         "scores": scores, "C_task": tau.cost, "n_refinements_so_far": len(refinement_points)})
+            if pre_eval is not None:
+                snap["refinement_eval"] = {"before": pre_eval, "after": self._eval_now()}
             trace.append(snap)
         final = self.final_summary(intended_key)
         final.update({"refinement_points": refinement_points, "n_refinements": len(refinement_points),
@@ -144,6 +159,15 @@ class NormLearner:
                       "n_rejected_proposals": self.n_rejected,
                       "final_level": self.level})
         return {"trace": trace, "final": final}
+
+    def _eval_now(self) -> Dict:
+        m = self.post.marginal()
+        p_eq, eq = self._intended_mass(m)
+        imap = int(np.argmax(m))
+        ev = evaluate_predictions(self.spec, classify(self.spec.domain, self.post.hyps[imap], self.spec.heldout))
+        return {"P_intended": p_eq or 0.0, "intended_present": bool(eq), "map_id": self.post.hyps[imap].hid,
+                "accuracy": ev["accuracy"], "violation_f1": ev["violation_f1"],
+                "unseen_accuracy": ev["unseen_accuracy"], "n_hypotheses": len(self.post.hyps)}
 
     def _intended_mass(self, m) -> tuple:
         eq = [i for i, h in enumerate(self.post.hyps) if self.spec.is_intended(h)]

@@ -1,0 +1,43 @@
+{
+ "cache_key": "fe7222030951257864cc28de71c4c76186472467566faf168a7f8e09e6728e76",
+ "requested_model": "gpt-5.5",
+ "returned_model": "gpt-5.5-2026-04-23",
+ "response_id": "resp_0c8c3a60de62a159006ac6a616ff6087d18d77e89168b008ed",
+ "status": "completed",
+ "incomplete_details": null,
+ "usage": {
+  "input_tokens": 6453,
+  "input_tokens_details": {
+   "cached_tokens": 0,
+   "cache_write_tokens": 0
+  },
+  "output_tokens": 4780,
+  "output_tokens_details": {
+   "reasoning_tokens": 3525
+  },
+  "total_tokens": 11233
+ },
+ "settings": {
+  "model": "gpt-5.5",
+  "temperature": null,
+  "reasoning_effort": null,
+  "max_output_tokens": null,
+  "api": "responses.create"
+ },
+ "replicate": "trig/cart/4",
+ "timestamp": "2026-10-07T16:06:32",
+ "latency_s": 49.65,
+ "retries": [
+  {
+   "attempt": 0,
+   "error": "RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
+   "at": "2026-10-07T16:05:27"
+  },
+  {
+   "attempt": 1,
+   "error": "RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
+   "at": "2026-10-07T16:05:32"
+  }
+ ],
+ "output_text": "[\n  {\n    \"id\": \"must_take_entrance_cart\",\n    \"text\": \"At the start of the shopping trip, the shopper is obliged to take the available cart from the entrance cart bay.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"at_entrance_cart_bay\": {\n          \"and\": [\n            \"at(1,5)\",\n            \"cartAt(1,5)\"\n          ]\n        }\n      },\n      \"events\": {\n        \"pickup_entrance_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"at_entrance_cart_bay\",\n              \"PICKUP_CART\"\n            ]\n          },\n          \"post\": \"hasCart\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"START\",\n      \"discharge\": \"pickup_entrance_cart\"\n    }\n  },\n  {\n    \"id\": \"no_shelf_pickup_without_cart\",\n    \"text\": \"Items may only be picked up from shelves while the shopper is holding or pushing the cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"cart_possessed\": \"hasCart\"\n      },\n      \"events\": {\n        \"shelf_item_pickup\": {\n          \"pre\": \"PICKUP_ITEM\",\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"shelf_item_pickup\",\n          {\n            \"not\": \"cart_possessed\"\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"no_hand_carrying_items\",\n    \"text\": \"The shopper is prohibited from carrying merchandise by hand instead of using the cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"carrying_item_by_hand\": \"handFull\"\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"carrying_item_by_hand\"\n    }\n  },\n  {\n    \"id\": \"return_cart_after_taking_it\",\n    \"text\": \"Once the shopper takes a cart, they are obliged to return it to the north-west cart return before the trip ends.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"at_cart_return\": \"at(0,1)\",\n        \"cart_returned\": \"cartAt(0,1)\"\n      },\n      \"events\": {\n        \"cart_acquired\": {\n          \"pre\": \"PICKUP_CART\",\n          \"post\": \"hasCart\"\n        },\n        \"return_cart_to_bay\": {\n          \"pre\": {\n            \"and\": [\n              \"hasCart\",\n              \"at_cart_return\",\n              \"LEAVE_CART\"\n            ]\n          },\n          \"post\": \"cart_returned\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"cart_acquired\",\n      \"discharge\": \"return_cart_to_bay\"\n    }\n  },\n  {\n    \"id\": \"leave_cart_only_at_return_bay\",\n    \"text\": \"The cart may be put down only at the designated cart return at cell (0,1).\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"at_designated_return_bay\": \"at(0,1)\"\n      },\n      \"events\": {\n        \"leave_cart\": {\n          \"pre\": \"LEAVE_CART\",\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"leave_cart\",\n          {\n            \"not\": \"at_designated_return_bay\"\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"no_exit_before_cart_return\",\n    \"text\": \"The shopper is prohibited from exiting unless the cart has already been parked at the return bay.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"cart_returned_to_bay\": \"cartAt(0,1)\"\n      },\n      \"events\": {\n        \"exit_store\": {\n          \"pre\": \"EXIT\",\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"exit_store\",\n          {\n            \"not\": \"cart_returned_to_bay\"\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"exit_without_cart\",\n    \"text\": \"The shopper must leave the store on foot rather than while still possessing the cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"cart_possessed\": \"hasCart\",\n        \"at_exit\": \"at(9,5)\"\n      },\n      \"events\": {\n        \"exit_with_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"at_exit\",\n              \"EXIT\",\n              \"cart_possessed\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"exit_with_cart\"\n    }\n  },\n  {\n    \"id\": \"no_shopping_after_cart_return\",\n    \"text\": \"After the cart has been returned to the bay, the shopper must not retrieve the cart or interact with shelves again.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"cart_already_returned\": \"cartAt(0,1)\"\n      },\n      \"events\": {\n        \"post_return_interaction\": {\n          \"pre\": {\n            \"and\": [\n              \"cart_already_returned\",\n              \"INTERACT\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"post_return_interaction\"\n    }\n  }\n]"
+}

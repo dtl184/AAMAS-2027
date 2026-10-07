@@ -1,0 +1,32 @@
+{
+ "cache_key": "59c0bf25a23ffa2f34a9d743c053ae7200b93c8bbc61c5fead192c81f60173a5",
+ "requested_model": "gpt-5.5",
+ "returned_model": "gpt-5.5-2026-04-23",
+ "response_id": "resp_05e4f51093709a67006ac6a3d0c84887d19c472e1f7e47b387",
+ "status": "completed",
+ "incomplete_details": null,
+ "usage": {
+  "input_tokens": 6930,
+  "input_tokens_details": {
+   "cached_tokens": 3840,
+   "cache_write_tokens": 0
+  },
+  "output_tokens": 5600,
+  "output_tokens_details": {
+   "reasoning_tokens": 4303
+  },
+  "total_tokens": 12530
+ },
+ "settings": {
+  "model": "gpt-5.5",
+  "temperature": null,
+  "reasoning_effort": null,
+  "max_output_tokens": null,
+  "api": "responses.create"
+ },
+ "replicate": "trig/cart/0",
+ "timestamp": "2026-10-07T15:56:59",
+ "latency_s": 59.17,
+ "retries": [],
+ "output_text": "[\n  {\n    \"id\": \"must_take_entry_cart\",\n    \"text\": \"A shopper is obliged to collect the entrance cart before continuing the shopping trip.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"at_entry_cart_corral\": \"at(1,5)\",\n        \"entry_cart_available\": \"cartAt(1,5)\"\n      },\n      \"events\": {\n        \"take_entry_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"at_entry_cart_corral\",\n              \"entry_cart_available\",\n              \"PICKUP_CART\"\n            ]\n          },\n          \"post\": \"hasCart\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"START\",\n      \"discharge\": \"take_entry_cart\"\n    }\n  },\n  {\n    \"id\": \"items_require_cart\",\n    \"text\": \"Picking up merchandise is prohibited unless the shopper currently has the cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"cart_possessed\": \"hasCart\"\n      },\n      \"events\": {\n        \"pickup_merchandise\": {\n          \"pre\": \"PICKUP_ITEM\",\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"pickup_merchandise\",\n          {\n            \"not\": \"cart_possessed\"\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"no_hand_carrying\",\n    \"text\": \"Items should not be carried by hand; shoppers must avoid becoming handFull.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"carrying_by_hand\": \"handFull\"\n      },\n      \"events\": {\n        \"hand_item_pickup\": {\n          \"pre\": {\n            \"and\": [\n              \"PICKUP_ITEM\",\n              {\n                \"not\": \"hasCart\"\n              }\n            ]\n          },\n          \"post\": \"handFull\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"carrying_by_hand\"\n    }\n  },\n  {\n    \"id\": \"return_used_cart_front\",\n    \"text\": \"After any item has been placed in the cart, the cart is obliged to be returned to the front bay at (0,1) before exit.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"front_cart_return_bay\": \"at(0,1)\",\n        \"cart_parked_at_front_bay\": \"cartAt(0,1)\"\n      },\n      \"events\": {\n        \"cart_used_for_item\": {\n          \"pre\": {\n            \"and\": [\n              \"hasCart\",\n              \"PICKUP_ITEM\"\n            ]\n          },\n          \"post\": \"hasCart\"\n        },\n        \"return_cart_to_front_bay\": {\n          \"pre\": {\n            \"and\": [\n              \"front_cart_return_bay\",\n              \"hasCart\",\n              \"LEAVE_CART\"\n            ]\n          },\n          \"post\": \"cart_parked_at_front_bay\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"cart_used_for_item\",\n      \"discharge\": \"return_cart_to_front_bay\"\n    }\n  },\n  {\n    \"id\": \"leave_cart_only_front_bay\",\n    \"text\": \"Leaving a cart is permitted only at the front return bay, not in the shopping aisles or exit area.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"front_cart_return_bay\": \"at(0,1)\"\n      },\n      \"events\": {\n        \"leave_cart_event\": {\n          \"pre\": \"LEAVE_CART\",\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"leave_cart_event\",\n          {\n            \"not\": \"front_cart_return_bay\"\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"no_exit_with_cart\",\n    \"text\": \"A shopper is prohibited from exiting while still possessing or pushing the cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"cart_possessed\": \"hasCart\"\n      },\n      \"events\": {\n        \"exit_store\": {\n          \"pre\": \"EXIT\",\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"exit_store\",\n          \"cart_possessed\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"exit_only_after_cart_parked\",\n    \"text\": \"Exiting is prohibited unless the cart is already parked at the front return bay.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"cart_parked_at_front_bay\": \"cartAt(0,1)\"\n      },\n      \"events\": {\n        \"exit_store\": {\n          \"pre\": \"EXIT\",\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"exit_store\",\n          {\n            \"not\": \"cart_parked_at_front_bay\"\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"no_interactions_after_return\",\n    \"text\": \"Once the cart has been returned to the front bay, the shopper should perform no further object interactions before exiting.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"cart_already_returned\": \"cartAt(0,1)\"\n      },\n      \"events\": {\n        \"post_return_interaction\": {\n          \"pre\": {\n            \"and\": [\n              \"cart_already_returned\",\n              \"INTERACT\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"post_return_interaction\"\n    }\n  }\n]"
+}

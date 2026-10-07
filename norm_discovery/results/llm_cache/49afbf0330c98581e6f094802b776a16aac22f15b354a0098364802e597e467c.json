@@ -1,0 +1,32 @@
+{
+ "cache_key": "49afbf0330c98581e6f094802b776a16aac22f15b354a0098364802e597e467c",
+ "requested_model": "gpt-5.5",
+ "returned_model": "gpt-5.5-2026-04-23",
+ "response_id": "resp_0c5ed77eac14516c006ac6a668db0887d1add885d418081207",
+ "status": "completed",
+ "incomplete_details": null,
+ "usage": {
+  "input_tokens": 12619,
+  "input_tokens_details": {
+   "cached_tokens": 9984,
+   "cache_write_tokens": 0
+  },
+  "output_tokens": 2234,
+  "output_tokens_details": {
+   "reasoning_tokens": 1034
+  },
+  "total_tokens": 14853
+ },
+ "settings": {
+  "model": "gpt-5.5",
+  "temperature": null,
+  "reasoning_effort": null,
+  "max_output_tokens": null,
+  "api": "responses.create"
+ },
+ "replicate": "trig/cart/4",
+ "timestamp": "2026-10-07T16:07:26",
+ "latency_s": 21.51,
+ "retries": [],
+ "output_text": "[\n  {\n    \"id\": \"take_cart_before_shopping\",\n    \"text\": \"The shopper is obliged to collect the store cart from the cart station before doing the shopping.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"at_initial_cart_station\": \"at(1,5)\"\n      },\n      \"events\": {\n        \"pickup_initial_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"at_initial_cart_station\",\n              \"PICKUP_CART\"\n            ]\n          },\n          \"post\": \"hasCart\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"START\",\n      \"discharge\": \"pickup_initial_cart\"\n    }\n  },\n  {\n    \"id\": \"return_cart_to_bay\",\n    \"text\": \"Before leaving the supermarket, the shopper is obliged to return the cart to the designated cart-return bay at the northwest side of the store.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"cart_return_bay\": \"at(0,1)\"\n      },\n      \"events\": {\n        \"return_cart_to_bay\": {\n          \"pre\": {\n            \"and\": [\n              \"cart_return_bay\",\n              \"LEAVE_CART\"\n            ]\n          },\n          \"post\": \"cartAt(0,1)\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"START\",\n      \"discharge\": \"return_cart_to_bay\"\n    }\n  },\n  {\n    \"id\": \"no_abandon_cart_elsewhere\",\n    \"text\": \"The shopper is prohibited from leaving the cart anywhere other than the designated cart-return bay.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"cart_return_bay\": \"at(0,1)\",\n        \"not_at_cart_return_bay\": {\n          \"not\": \"cart_return_bay\"\n        }\n      },\n      \"events\": {\n        \"leave_cart_away_from_bay\": {\n          \"pre\": {\n            \"and\": [\n              \"LEAVE_CART\",\n              \"not_at_cart_return_bay\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"leave_cart_away_from_bay\"\n    }\n  },\n  {\n    \"id\": \"do_not_exit_with_cart\",\n    \"text\": \"The shopper is prohibited from exiting the store while still holding or pushing the cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"with_cart\": \"hasCart\"\n      },\n      \"events\": {\n        \"exit_with_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"EXIT\",\n              \"with_cart\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"exit_with_cart\"\n    }\n  },\n  {\n    \"id\": \"exit_after_cart_return\",\n    \"text\": \"The shopper should only exit after the cart has been parked at the return bay, so the final exit occurs while the cart remains stationed there.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"cart_parked_at_return_bay\": \"cartAt(0,1)\"\n      },\n      \"events\": {\n        \"exit_after_cart_return\": {\n          \"pre\": {\n            \"and\": [\n              \"EXIT\",\n              \"cart_parked_at_return_bay\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"START\",\n      \"discharge\": \"exit_after_cart_return\"\n    }\n  },\n  {\n    \"id\": \"no_hand_carrying_items\",\n    \"text\": \"The shopper is prohibited from carrying groceries by hand rather than placing them in the cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"carrying_item_by_hand\": \"handFull\"\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"carrying_item_by_hand\"\n    }\n  },\n  {\n    \"id\": \"pickup_items_only_with_cart\",\n    \"text\": \"The shopper is prohibited from picking up shelf items unless they currently have the cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"without_cart\": {\n          \"not\": \"hasCart\"\n        }\n      },\n      \"events\": {\n        \"item_pickup_without_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"PICKUP_ITEM\",\n              \"without_cart\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"item_pickup_without_cart\"\n    }\n  },\n  {\n    \"id\": \"do_not_retake_returned_cart\",\n    \"text\": \"Once the cart is parked at the return bay, the shopper is prohibited from picking it up again.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"cart_parked_at_return_bay\": \"cartAt(0,1)\"\n      },\n      \"events\": {\n        \"retake_returned_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"cart_parked_at_return_bay\",\n              \"PICKUP_CART\"\n            ]\n          },\n          \"post\": \"hasCart\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"retake_returned_cart\"\n    }\n  }\n]"
+}

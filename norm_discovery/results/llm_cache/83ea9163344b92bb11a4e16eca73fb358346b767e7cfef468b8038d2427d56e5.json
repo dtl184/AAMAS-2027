@@ -1,0 +1,32 @@
+{
+ "cache_key": "83ea9163344b92bb11a4e16eca73fb358346b767e7cfef468b8038d2427d56e5",
+ "requested_model": "gpt-5.5",
+ "returned_model": "gpt-5.5-2026-04-23",
+ "response_id": "resp_012539d62502939a006ac6a52c929c87d1ba9fab03be3a5f96",
+ "status": "completed",
+ "incomplete_details": null,
+ "usage": {
+  "input_tokens": 11342,
+  "input_tokens_details": {
+   "cached_tokens": 7936,
+   "cache_write_tokens": 0
+  },
+  "output_tokens": 4450,
+  "output_tokens_details": {
+   "reasoning_tokens": 3106
+  },
+  "total_tokens": 15792
+ },
+ "settings": {
+  "model": "gpt-5.5",
+  "temperature": null,
+  "reasoning_effort": null,
+  "max_output_tokens": null,
+  "api": "responses.create"
+ },
+ "replicate": "trig/cart/2",
+ "timestamp": "2026-10-07T16:02:33",
+ "latency_s": 44.66,
+ "retries": [],
+ "output_text": "[\n  {\n    \"id\": \"must_check_out_cart\",\n    \"text\": \"A shopper must check out the entrance cart before doing the shopping trip.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"entrance_cart_station\": {\n          \"and\": [\n            \"at(1,5)\",\n            \"cartAt(1,5)\"\n          ]\n        },\n        \"pushing_cart\": \"hasCart\"\n      },\n      \"events\": {\n        \"pickup_entrance_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"entrance_cart_station\",\n              \"PICKUP_CART\"\n            ]\n          },\n          \"post\": \"pushing_cart\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"START\",\n      \"discharge\": \"pickup_entrance_cart\"\n    }\n  },\n  {\n    \"id\": \"cart_required_for_items\",\n    \"text\": \"Items should only be picked up while the shopper is using a cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"not_using_cart\": {\n          \"not\": \"hasCart\"\n        }\n      },\n      \"events\": {\n        \"item_pickup\": {\n          \"pre\": \"PICKUP_ITEM\",\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"item_pickup\",\n          \"not_using_cart\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"no_hand_carrying\",\n    \"text\": \"Shoppers must not carry merchandise loose in their hands.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"hand_carrying\": \"handFull\"\n      },\n      \"events\": {\n        \"pickup_into_hand\": {\n          \"pre\": \"PICKUP_ITEM\",\n          \"post\": \"hand_carrying\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"or\": [\n          \"hand_carrying\",\n          \"pickup_into_hand\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"return_cart_before_leaving\",\n    \"text\": \"After taking a cart, the shopper must return it to the cart-return point before the trip ends.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"cart_return_point\": \"at(0,1)\",\n        \"returned_cart_waiting\": {\n          \"and\": [\n            \"at(0,1)\",\n            \"cartAt(0,1)\"\n          ]\n        }\n      },\n      \"events\": {\n        \"cart_taken\": {\n          \"pre\": \"PICKUP_CART\",\n          \"post\": \"hasCart\"\n        },\n        \"cart_returned\": {\n          \"pre\": {\n            \"and\": [\n              \"cart_return_point\",\n              \"hasCart\",\n              \"LEAVE_CART\"\n            ]\n          },\n          \"post\": \"returned_cart_waiting\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"cart_taken\",\n      \"discharge\": \"cart_returned\"\n    }\n  },\n  {\n    \"id\": \"leave_cart_only_at_return_point\",\n    \"text\": \"A cart may be put down only at the designated return point.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"designated_cart_return\": \"at(0,1)\"\n      },\n      \"events\": {\n        \"cart_drop\": {\n          \"pre\": \"LEAVE_CART\",\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"cart_drop\",\n          {\n            \"not\": \"designated_cart_return\"\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"no_exit_with_cart\",\n    \"text\": \"Shoppers must not exit the store while still holding or pushing a cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"pushing_cart\": \"hasCart\"\n      },\n      \"events\": {\n        \"exit_attempt\": {\n          \"pre\": \"EXIT\",\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"exit_attempt\",\n          \"pushing_cart\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"no_interaction_after_cart_return\",\n    \"text\": \"Once the cart has been returned, the shopper should not resume shopping or perform any further store interaction.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"cart_already_returned\": \"cartAt(0,1)\"\n      },\n      \"events\": {\n        \"post_return_interaction\": {\n          \"pre\": {\n            \"and\": [\n              \"cart_already_returned\",\n              \"INTERACT\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"post_return_interaction\"\n    }\n  },\n  {\n    \"id\": \"cart_free_exit_zone\",\n    \"text\": \"Carts are not allowed in the right-hand exit zone of the store.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"right_exit_zone\": {\n          \"or\": [\n            \"at(7,1)\",\n            \"at(8,1)\",\n            \"at(9,1)\",\n            \"at(7,2)\",\n            \"at(8,2)\",\n            \"at(9,2)\",\n            \"at(7,3)\",\n            \"at(8,3)\",\n            \"at(9,3)\",\n            \"at(7,4)\",\n            \"at(8,4)\",\n            \"at(9,4)\",\n            \"at(7,5)\",\n            \"at(8,5)\",\n            \"at(9,5)\"\n          ]\n        },\n        \"pushing_cart\": \"hasCart\"\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"right_exit_zone\",\n          \"pushing_cart\"\n        ]\n      }\n    }\n  }\n]"
+}

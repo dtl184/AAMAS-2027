@@ -1,0 +1,38 @@
+{
+ "cache_key": "1bf8a688c737fb1d235a91bcf22d73fbdd5f58a8004414e27f25e405cd2a5379",
+ "requested_model": "gpt-5.5",
+ "returned_model": "gpt-5.5-2026-04-23",
+ "response_id": "resp_0c8951c8bdc19f3a006ac6a61a543487d185ef7a5702f16a5e",
+ "status": "completed",
+ "incomplete_details": null,
+ "usage": {
+  "input_tokens": 7078,
+  "input_tokens_details": {
+   "cached_tokens": 4864,
+   "cache_write_tokens": 0
+  },
+  "output_tokens": 4121,
+  "output_tokens_details": {
+   "reasoning_tokens": 2588
+  },
+  "total_tokens": 11199
+ },
+ "settings": {
+  "model": "gpt-5.5",
+  "temperature": null,
+  "reasoning_effort": null,
+  "max_output_tokens": null,
+  "api": "responses.create"
+ },
+ "replicate": "trig/cart/4",
+ "timestamp": "2026-10-07T16:06:26",
+ "latency_s": 39.84,
+ "retries": [
+  {
+   "attempt": 0,
+   "error": "RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
+   "at": "2026-10-07T16:05:41"
+  }
+ ],
+ "output_text": "[\n  {\n    \"id\": \"take_cart_at_start\",\n    \"text\": \"A shopper is obliged to take the available cart from the entrance cart station before completing the trip.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"at_cart_station\": \"at(1,5)\",\n        \"cart_waiting_at_station\": \"cartAt(1,5)\",\n        \"pushing_cart\": \"hasCart\"\n      },\n      \"events\": {\n        \"take_entrance_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"at_cart_station\",\n              \"cart_waiting_at_station\",\n              \"PICKUP_CART\"\n            ]\n          },\n          \"post\": \"pushing_cart\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"START\",\n      \"discharge\": \"take_entrance_cart\"\n    }\n  },\n  {\n    \"id\": \"no_hand_shopping\",\n    \"text\": \"A shopper is prohibited from carrying groceries by hand or picking up an item without already having the cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"pushing_cart\": \"hasCart\",\n        \"carrying_by_hand\": \"handFull\"\n      },\n      \"events\": {\n        \"pickup_without_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"PICKUP_ITEM\",\n              {\n                \"not\": \"pushing_cart\"\n              }\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"or\": [\n          \"carrying_by_hand\",\n          \"pickup_without_cart\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"return_cart_to_bay\",\n    \"text\": \"After taking a cart, the shopper is obliged to return it to the designated cart-return bay before the trajectory ends.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"at_cart_station\": \"at(1,5)\",\n        \"cart_waiting_at_station\": \"cartAt(1,5)\",\n        \"pushing_cart\": \"hasCart\",\n        \"at_return_bay\": \"at(0,1)\",\n        \"cart_parked_in_return_bay\": \"cartAt(0,1)\"\n      },\n      \"events\": {\n        \"take_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"at_cart_station\",\n              \"cart_waiting_at_station\",\n              \"PICKUP_CART\"\n            ]\n          },\n          \"post\": \"pushing_cart\"\n        },\n        \"return_cart_to_bay\": {\n          \"pre\": {\n            \"and\": [\n              \"at_return_bay\",\n              \"pushing_cart\",\n              \"LEAVE_CART\"\n            ]\n          },\n          \"post\": \"cart_parked_in_return_bay\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"take_cart\",\n      \"discharge\": \"return_cart_to_bay\"\n    }\n  },\n  {\n    \"id\": \"leave_cart_only_at_bay\",\n    \"text\": \"Putting the cart down is prohibited unless the shopper is at the designated cart-return bay.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"at_return_bay\": \"at(0,1)\",\n        \"pushing_cart\": \"hasCart\"\n      },\n      \"events\": {\n        \"leave_cart_somewhere\": {\n          \"pre\": {\n            \"and\": [\n              \"pushing_cart\",\n              \"LEAVE_CART\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"leave_cart_somewhere\",\n          {\n            \"not\": \"at_return_bay\"\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"no_exit_before_cart_return\",\n    \"text\": \"A shopper is prohibited from exiting the store while still pushing the cart or before the cart is parked in the return bay.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"pushing_cart\": \"hasCart\",\n        \"cart_parked_in_return_bay\": \"cartAt(0,1)\"\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"EXIT\",\n          {\n            \"or\": [\n              \"pushing_cart\",\n              {\n                \"not\": \"cart_parked_in_return_bay\"\n              }\n            ]\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"no_interactions_after_return\",\n    \"text\": \"Once the cart is parked in the return bay, further object interactions are prohibited; the shopper should only walk to the exit.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"cart_parked_in_return_bay\": \"cartAt(0,1)\"\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"cart_parked_in_return_bay\",\n          \"INTERACT\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"no_carts_in_exit_zone\",\n    \"text\": \"Carts are prohibited in the checkout and exit-side zone of the store, so the shopper must park the cart before entering that area.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"pushing_cart\": \"hasCart\",\n        \"exit_zone\": {\n          \"or\": [\n            \"at(7,2)\",\n            \"at(8,2)\",\n            \"at(9,2)\",\n            \"at(7,3)\",\n            \"at(8,3)\",\n            \"at(9,3)\",\n            \"at(7,4)\",\n            \"at(8,4)\",\n            \"at(9,4)\",\n            \"at(7,5)\",\n            \"at(8,5)\",\n            \"at(9,5)\"\n          ]\n        }\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"pushing_cart\",\n          \"exit_zone\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"must_drop_cart_at_bay\",\n    \"text\": \"When a shopper reaches the return bay while pushing the cart, moving away with the cart is prohibited; the next interaction should be leaving the cart there.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"at_return_bay\": \"at(0,1)\",\n        \"pushing_cart\": \"hasCart\"\n      },\n      \"events\": {\n        \"move_away_from_return_bay_with_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"at_return_bay\",\n              \"pushing_cart\",\n              \"MOVE\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"move_away_from_return_bay_with_cart\"\n    }\n  }\n]"
+}

@@ -1,0 +1,32 @@
+{
+ "cache_key": "5d3bfaf5b64fdab8667427ca5488d76d9570a6d472d53a5c68f488fcd24dcb98",
+ "requested_model": "gpt-5.5",
+ "returned_model": "gpt-5.5-2026-04-23",
+ "response_id": "resp_0033e515f05749e6006ac6a496c14487d1aefd81b7a87c980f",
+ "status": "completed",
+ "incomplete_details": null,
+ "usage": {
+  "input_tokens": 10608,
+  "input_tokens_details": {
+   "cached_tokens": 8960,
+   "cache_write_tokens": 0
+  },
+  "output_tokens": 3894,
+  "output_tokens_details": {
+   "reasoning_tokens": 2588
+  },
+  "total_tokens": 14502
+ },
+ "settings": {
+  "model": "gpt-5.5",
+  "temperature": null,
+  "reasoning_effort": null,
+  "max_output_tokens": null,
+  "api": "responses.create"
+ },
+ "replicate": "trig/cart/1",
+ "timestamp": "2026-10-07T15:59:58",
+ "latency_s": 39.47,
+ "retries": [],
+ "output_text": "[\n  {\n    \"id\": \"take_cart_at_depot\",\n    \"text\": \"Customers are obliged to pick up the available cart at the cart depot before doing their shopping.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"cart_depot\": \"at(1,5)\",\n        \"cart_available_at_depot\": \"cartAt(1,5)\"\n      },\n      \"events\": {\n        \"pickup_cart_at_depot\": {\n          \"pre\": {\n            \"and\": [\n              \"cart_depot\",\n              \"cart_available_at_depot\",\n              \"PICKUP_CART\"\n            ]\n          },\n          \"post\": \"hasCart\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"START\",\n      \"discharge\": \"pickup_cart_at_depot\"\n    }\n  },\n  {\n    \"id\": \"no_bypass_cart_depot\",\n    \"text\": \"A customer must not walk east past the cart depot while the depot cart is still there and they do not have it.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"cart_depot\": \"at(1,5)\",\n        \"without_cart\": {\n          \"not\": \"hasCart\"\n        },\n        \"cart_still_at_depot\": \"cartAt(1,5)\"\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"cart_depot\",\n          \"cart_still_at_depot\",\n          \"without_cart\",\n          \"E\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"no_hand_carrying\",\n    \"text\": \"Items should not be carried by hand inside the supermarket; they should be transported in the cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"carrying_item_by_hand\": \"handFull\"\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"carrying_item_by_hand\"\n    }\n  },\n  {\n    \"id\": \"pickup_items_only_with_cart\",\n    \"text\": \"A customer may pick up shelf items only while in possession of the shopping cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"without_cart\": {\n          \"not\": \"hasCart\"\n        }\n      },\n      \"events\": {\n        \"shelf_pickup\": {\n          \"pre\": \"PICKUP_ITEM\",\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"shelf_pickup\",\n          \"without_cart\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"return_cart_after_item\",\n    \"text\": \"After any item has been collected into the cart, the cart must eventually be returned at the counter cell before leaving.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"counter_cell\": \"at(0,1)\"\n      },\n      \"events\": {\n        \"item_collected_with_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"hasCart\",\n              \"PICKUP_ITEM\"\n            ]\n          },\n          \"post\": \"hasCart\"\n        },\n        \"return_cart_at_counter\": {\n          \"pre\": {\n            \"and\": [\n              \"counter_cell\",\n              \"hasCart\",\n              \"LEAVE_CART\"\n            ]\n          },\n          \"post\": \"cartAt(0,1)\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"item_collected_with_cart\",\n      \"discharge\": \"return_cart_at_counter\"\n    }\n  },\n  {\n    \"id\": \"leave_cart_only_at_counter\",\n    \"text\": \"A cart may be put down only at the designated counter location at cell (0,1).\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"counter_cell\": \"at(0,1)\",\n        \"not_counter_cell\": {\n          \"not\": \"counter_cell\"\n        }\n      },\n      \"events\": {\n        \"leave_cart\": {\n          \"pre\": \"LEAVE_CART\",\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"leave_cart\",\n          \"not_counter_cell\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"exit_only_on_foot\",\n    \"text\": \"Customers must exit on foot, without still pushing the cart or carrying items by hand.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"encumbered\": {\n          \"or\": [\n            \"hasCart\",\n            \"handFull\"\n          ]\n        }\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"EXIT\",\n          \"encumbered\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"no_cart_into_right_lower_aisle\",\n    \"text\": \"Carts are not allowed to continue into the lower-right aisle beyond the egg shelf, so from cell (6,4) a cart must not be pushed east or south.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"egg_shelf_end\": \"at(6,4)\",\n        \"restricted_lower_right_cells\": {\n          \"or\": [\n            \"at(7,4)\",\n            \"at(8,4)\"\n          ]\n        },\n        \"pushing_cart\": \"hasCart\"\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"pushing_cart\",\n          {\n            \"or\": [\n              {\n                \"and\": [\n                  \"egg_shelf_end\",\n                  {\n                    \"or\": [\n                      \"E\",\n                      \"S\"\n                    ]\n                  }\n                ]\n              },\n              \"restricted_lower_right_cells\"\n            ]\n          }\n        ]\n      }\n    }\n  }\n]"
+}

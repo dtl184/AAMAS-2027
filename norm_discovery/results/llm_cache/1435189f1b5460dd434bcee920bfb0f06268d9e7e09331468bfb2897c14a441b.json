@@ -1,0 +1,32 @@
+{
+ "cache_key": "1435189f1b5460dd434bcee920bfb0f06268d9e7e09331468bfb2897c14a441b",
+ "requested_model": "gpt-5.5",
+ "returned_model": "gpt-5.5-2026-04-23",
+ "response_id": "resp_0578d9a2fc6b5e36006ac6a4e66b6487d182f1cf8a31c13827",
+ "status": "completed",
+ "incomplete_details": null,
+ "usage": {
+  "input_tokens": 5946,
+  "input_tokens_details": {
+   "cached_tokens": 3840,
+   "cache_write_tokens": 0
+  },
+  "output_tokens": 3345,
+  "output_tokens_details": {
+   "reasoning_tokens": 2070
+  },
+  "total_tokens": 9291
+ },
+ "settings": {
+  "model": "gpt-5.5",
+  "temperature": null,
+  "reasoning_effort": null,
+  "max_output_tokens": null,
+  "api": "responses.create"
+ },
+ "replicate": "trig/cart/2",
+ "timestamp": "2026-10-07T16:01:14",
+ "latency_s": 36.6,
+ "retries": [],
+ "output_text": "[\n  {\n    \"id\": \"return_cart_to_front_bay\",\n    \"text\": \"A shopper who uses a cart is obliged to return it to the front cart-return bay before leaving the store.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"front_cart_return_bay\": \"at(0,1)\",\n        \"cart_parked_in_front_bay\": \"cartAt(0,1)\"\n      },\n      \"events\": {\n        \"return_cart_to_front_bay\": {\n          \"pre\": {\n            \"and\": [\n              \"front_cart_return_bay\",\n              \"hasCart\",\n              \"LEAVE_CART\"\n            ]\n          },\n          \"post\": \"cart_parked_in_front_bay\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"START\",\n      \"discharge\": \"return_cart_to_front_bay\"\n    }\n  },\n  {\n    \"id\": \"no_exit_with_cart\",\n    \"text\": \"It is prohibited to exit the supermarket while still holding or pushing a cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"pushing_cart\": \"hasCart\"\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"EXIT\",\n          \"pushing_cart\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"exit_only_after_cart_returned\",\n    \"text\": \"A shopper may exit only after the cart has been parked in the front return bay.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"cart_returned\": \"cartAt(0,1)\"\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"EXIT\",\n          {\n            \"not\": \"cart_returned\"\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"do_not_abandon_cart_elsewhere\",\n    \"text\": \"Leaving a cart anywhere except the designated front return bay is prohibited.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"front_cart_return_bay\": \"at(0,1)\"\n      },\n      \"events\": {\n        \"leave_cart_somewhere\": {\n          \"pre\": {\n            \"and\": [\n              \"hasCart\",\n              \"LEAVE_CART\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"leave_cart_somewhere\",\n          {\n            \"not\": \"front_cart_return_bay\"\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"must_take_entrance_cart\",\n    \"text\": \"At the start of a shopping trip, the shopper is obliged to collect the available cart from the entrance cart station.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"entrance_cart_station\": {\n          \"and\": [\n            \"at(1,5)\",\n            \"cartAt(1,5)\"\n          ]\n        }\n      },\n      \"events\": {\n        \"pick_up_entrance_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"entrance_cart_station\",\n              \"PICKUP_CART\"\n            ]\n          },\n          \"post\": \"hasCart\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"START\",\n      \"discharge\": \"pick_up_entrance_cart\"\n    }\n  },\n  {\n    \"id\": \"items_must_go_in_cart\",\n    \"text\": \"Picking up shelf items without a cart is prohibited, so required items must be placed into the cart rather than carried loose by hand.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"without_cart\": {\n          \"not\": \"hasCart\"\n        }\n      },\n      \"events\": {\n        \"take_shelf_item_without_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"PICKUP_ITEM\",\n              \"without_cart\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"take_shelf_item_without_cart\"\n    }\n  },\n  {\n    \"id\": \"no_hand_carrying_items\",\n    \"text\": \"It is prohibited to carry grocery items by hand inside the store.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"carrying_item_by_hand\": \"handFull\"\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"carrying_item_by_hand\"\n    }\n  },\n  {\n    \"id\": \"checkout_lanes_are_cart_free_eastbound\",\n    \"text\": \"Carts may not be pushed eastward through the front checkout or exit lanes after reaching the return area.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"front_checkout_lane\": {\n          \"or\": [\n            \"at(0,1)\",\n            \"at(1,1)\",\n            \"at(2,1)\",\n            \"at(3,1)\",\n            \"at(4,1)\",\n            \"at(5,1)\",\n            \"at(6,1)\",\n            \"at(7,1)\",\n            \"at(8,1)\",\n            \"at(9,1)\"\n          ]\n        },\n        \"pushing_cart\": \"hasCart\"\n      },\n      \"events\": {\n        \"push_cart_east_in_checkout_lane\": {\n          \"pre\": {\n            \"and\": [\n              \"front_checkout_lane\",\n              \"pushing_cart\",\n              \"E\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"push_cart_east_in_checkout_lane\"\n    }\n  }\n]"
+}

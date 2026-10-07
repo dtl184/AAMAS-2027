@@ -1,0 +1,32 @@
+{
+ "cache_key": "1ba9235f3b3a51ed1ef14936879b7c354bd21fa7749f3002c9a8e87a282e916a",
+ "requested_model": "gpt-5.5",
+ "returned_model": "gpt-5.5-2026-04-23",
+ "response_id": "resp_0962dde8467d48a3006ac6a41ee8bc87d1813c6fd6129d42b2",
+ "status": "completed",
+ "incomplete_details": null,
+ "usage": {
+  "input_tokens": 12315,
+  "input_tokens_details": {
+   "cached_tokens": 9984,
+   "cache_write_tokens": 0
+  },
+  "output_tokens": 4743,
+  "output_tokens_details": {
+   "reasoning_tokens": 3624
+  },
+  "total_tokens": 17058
+ },
+ "settings": {
+  "model": "gpt-5.5",
+  "temperature": null,
+  "reasoning_effort": null,
+  "max_output_tokens": null,
+  "api": "responses.create"
+ },
+ "replicate": "trig/cart/0",
+ "timestamp": "2026-10-07T15:58:06",
+ "latency_s": 47.39,
+ "retries": [],
+ "output_text": "[\n  {\n    \"id\": \"must_take_entrance_cart\",\n    \"text\": \"The shopper is obliged to take the entrance cart before completing the trip.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"entrance_cart_rack\": {\n          \"and\": [\n            \"at(1,5)\",\n            \"cartAt(1,5)\"\n          ]\n        },\n        \"cart_in_use\": \"hasCart\"\n      },\n      \"events\": {\n        \"take_entrance_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"entrance_cart_rack\",\n              \"PICKUP_CART\"\n            ]\n          },\n          \"post\": \"cart_in_use\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"START\",\n      \"discharge\": \"take_entrance_cart\"\n    }\n  },\n  {\n    \"id\": \"must_return_cart_bay\",\n    \"text\": \"The shopper is obliged to return the cart to the front-left cart bay at cell (0,1).\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"front_cart_bay\": \"at(0,1)\",\n        \"cart_parked_in_bay\": \"cartAt(0,1)\",\n        \"cart_in_use\": \"hasCart\"\n      },\n      \"events\": {\n        \"return_cart_to_bay\": {\n          \"pre\": {\n            \"and\": [\n              \"front_cart_bay\",\n              \"cart_in_use\",\n              \"LEAVE_CART\"\n            ]\n          },\n          \"post\": \"cart_parked_in_bay\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"START\",\n      \"discharge\": \"return_cart_to_bay\"\n    }\n  },\n  {\n    \"id\": \"no_exit_before_cart_returned\",\n    \"text\": \"The shopper is prohibited from exiting unless the cart has already been parked in the front-left cart bay.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"cart_parked_in_bay\": \"cartAt(0,1)\"\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"EXIT\",\n          {\n            \"not\": \"cart_parked_in_bay\"\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"no_exit_with_cart\",\n    \"text\": \"The shopper is prohibited from leaving the supermarket while still pushing or holding a cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"cart_in_use\": \"hasCart\"\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"EXIT\",\n          \"cart_in_use\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"leave_cart_only_at_bay\",\n    \"text\": \"The shopper is prohibited from putting the cart down anywhere except the designated cart bay at (0,1).\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"front_cart_bay\": \"at(0,1)\"\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"LEAVE_CART\",\n          {\n            \"not\": \"front_cart_bay\"\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"pickup_items_only_with_cart\",\n    \"text\": \"The shopper is prohibited from picking up shelf items unless they currently have the cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"cart_in_use\": \"hasCart\"\n      },\n      \"events\": {\n        \"shelf_item_pickup\": {\n          \"pre\": \"PICKUP_ITEM\",\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"shelf_item_pickup\",\n          {\n            \"not\": \"cart_in_use\"\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"no_hand_carrying_goods\",\n    \"text\": \"The shopper is prohibited from carrying shopping items by hand.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"carrying_item_by_hand\": \"handFull\"\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"carrying_item_by_hand\"\n    }\n  },\n  {\n    \"id\": \"no_more_interactions_after_return\",\n    \"text\": \"Once the cart is parked in the front-left bay, the shopper is prohibited from performing any further store interaction before exiting.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"cart_parked_in_bay\": \"cartAt(0,1)\"\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"cart_parked_in_bay\",\n          \"INTERACT\"\n        ]\n      }\n    }\n  }\n]"
+}

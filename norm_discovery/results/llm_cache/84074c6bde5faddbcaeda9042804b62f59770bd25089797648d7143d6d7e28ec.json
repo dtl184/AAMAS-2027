@@ -1,0 +1,32 @@
+{
+ "cache_key": "84074c6bde5faddbcaeda9042804b62f59770bd25089797648d7143d6d7e28ec",
+ "requested_model": "gpt-5.5",
+ "returned_model": "gpt-5.5-2026-04-23",
+ "response_id": "resp_0c550fe119100617006ac6a4dcbf2c87d1b8cf5acb80e1ac77",
+ "status": "completed",
+ "incomplete_details": null,
+ "usage": {
+  "input_tokens": 5321,
+  "input_tokens_details": {
+   "cached_tokens": 1792,
+   "cache_write_tokens": 0
+  },
+  "output_tokens": 3902,
+  "output_tokens_details": {
+   "reasoning_tokens": 2588
+  },
+  "total_tokens": 9223
+ },
+ "settings": {
+  "model": "gpt-5.5",
+  "temperature": null,
+  "reasoning_effort": null,
+  "max_output_tokens": null,
+  "api": "responses.create"
+ },
+ "replicate": "trig/cart/2",
+ "timestamp": "2026-10-07T16:01:09",
+ "latency_s": 41.36,
+ "retries": [],
+ "output_text": "[\n  {\n    \"id\": \"pickup_cart_at_entrance\",\n    \"text\": \"Before shopping, the agent is obliged to take the cart from the entrance cart station rather than merely checking in there.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"entrance_cart_station\": \"at(1,5)\",\n        \"cart_available_at_entrance\": \"cartAt(1,5)\"\n      },\n      \"events\": {\n        \"pickup_entrance_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"entrance_cart_station\",\n              \"cart_available_at_entrance\",\n              \"PICKUP_CART\"\n            ]\n          },\n          \"post\": \"hasCart\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"START\",\n      \"discharge\": \"pickup_entrance_cart\"\n    }\n  },\n  {\n    \"id\": \"return_cart_to_bay\",\n    \"text\": \"After taking a cart, the agent is obliged to return it to the cart-return bay at (0,1) before the trajectory ends.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"return_bay\": \"at(0,1)\",\n        \"cart_parked_in_return_bay\": \"cartAt(0,1)\"\n      },\n      \"events\": {\n        \"cart_taken\": {\n          \"pre\": \"PICKUP_CART\",\n          \"post\": \"hasCart\"\n        },\n        \"return_cart_to_bay\": {\n          \"pre\": {\n            \"and\": [\n              \"return_bay\",\n              \"hasCart\",\n              \"LEAVE_CART\"\n            ]\n          },\n          \"post\": \"cart_parked_in_return_bay\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"cart_taken\",\n      \"discharge\": \"return_cart_to_bay\"\n    }\n  },\n  {\n    \"id\": \"no_exit_with_cart\",\n    \"text\": \"The agent is forbidden to leave the store while still holding or pushing a cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"pushing_cart\": \"hasCart\"\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"EXIT\",\n          \"pushing_cart\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"only_leave_cart_at_return_bay\",\n    \"text\": \"The agent is forbidden to put down a cart anywhere except the designated cart-return bay at (0,1).\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"return_bay\": \"at(0,1)\",\n        \"outside_return_bay\": {\n          \"not\": \"return_bay\"\n        }\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"LEAVE_CART\",\n          \"outside_return_bay\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"cart_required_for_item_pickup\",\n    \"text\": \"The agent is forbidden to pick up shelf items unless they currently have the shopping cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"without_cart\": {\n          \"not\": \"hasCart\"\n        }\n      },\n      \"events\": {\n        \"item_pickup\": {\n          \"pre\": \"PICKUP_ITEM\",\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"item_pickup\",\n          \"without_cart\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"no_hand_carrying_merchandise\",\n    \"text\": \"The agent is forbidden to carry merchandise by hand instead of using the cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"carrying_by_hand\": \"handFull\"\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"carrying_by_hand\"\n    }\n  },\n  {\n    \"id\": \"no_noncart_interaction_after_return\",\n    \"text\": \"Once the cart has been returned, the agent should proceed to the exit without further object interactions.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"cart_parked_in_return_bay\": \"cartAt(0,1)\",\n        \"without_cart\": {\n          \"not\": \"hasCart\"\n        }\n      },\n      \"events\": {\n        \"post_return_interaction\": {\n          \"pre\": {\n            \"and\": [\n              \"cart_parked_in_return_bay\",\n              \"without_cart\",\n              \"INTERACT\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"post_return_interaction\"\n    }\n  },\n  {\n    \"id\": \"top_corridor_cart_one_way_to_return\",\n    \"text\": \"When pushing a cart in the top service corridor, the agent is forbidden to move eastward away from the cart-return bay.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"top_service_corridor\": {\n          \"or\": [\n            \"at(0,1)\",\n            \"at(1,1)\",\n            \"at(2,1)\",\n            \"at(3,1)\",\n            \"at(4,1)\",\n            \"at(5,1)\",\n            \"at(6,1)\",\n            \"at(7,1)\",\n            \"at(8,1)\",\n            \"at(9,1)\"\n          ]\n        },\n        \"pushing_cart_in_top_corridor\": {\n          \"and\": [\n            \"hasCart\",\n            \"top_service_corridor\"\n          ]\n        }\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"pushing_cart_in_top_corridor\",\n          \"E\"\n        ]\n      }\n    }\n  }\n]"
+}

@@ -18,13 +18,19 @@ import numpy as np
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RESULTS = os.path.join(ROOT, "results")
-FIGURES = os.path.join(ROOT, "figures")
+FIGURES = os.path.join(ROOT, "figures", "deterministic_proposals")   # deterministic-proposal ablation figures
 ZCACHE = os.path.join(RESULTS, "zcache")
+LLM_CACHE = os.path.join(RESULTS, "llm_cache")
 
 DEFAULTS = {
     # paper hyper-parameters (Section V.A)
     "beta": 2.0, "lam": 0.2, "gamma": 0.2, "w_max": 30.0, "w_step": 0.5, "rho": 0.1,
     "prior_mode": "joint", "dl_coding": "nodes",
+    # hypothesis proposal: "deterministic" (template ablation) | "openai" (actual LLM through the OpenAI API)
+    "provider": "deterministic", "openai_model": "gpt-5.5", "llm_n_hypotheses": 8,
+    # the paper used temperature 0.2; the API rejects "temperature" for gpt-5.5 (smoke test), so it is left unset
+    "openai_temperature": None, "openai_reasoning_effort": None, "openai_max_output_tokens": None,
+    "llm_max_parse_retries": 1, "openai_max_retries": 3, "gpt_runs": 10,
     # MLCI
     "mlci_epsilon": "log_candidates", "mlci_max_constraints": 30, "mlci_top_k": 5, "mlci_geometry": False,
     # Experiment 1 (threshold sensitivity)
@@ -114,8 +120,23 @@ def run_metadata(experiment: str, cfg: Dict) -> Dict:
             "environments": envs}
 
 
+def provider_dir(cfg: Dict) -> str:
+    """Results of different proposal providers are kept strictly separate."""
+    if cfg.get("provider", "deterministic") == "deterministic":
+        return "deterministic_proposals"
+    if cfg["provider"] == "openai":
+        return "gpt" + "".join(ch for ch in cfg["openai_model"].split("gpt", 1)[-1] if ch.isalnum())
+    raise ValueError(cfg["provider"])
+
+
+def fig_dir(cfg: Dict) -> str:
+    d = os.path.join(ROOT, "figures", provider_dir(cfg))
+    os.makedirs(d, exist_ok=True)
+    return d
+
+
 def out_dir(cfg: Dict, name: str) -> str:
-    d = cfg.get("_args", {}).get("out") or os.path.join(RESULTS, name)
+    d = cfg.get("_args", {}).get("out") or os.path.join(RESULTS, provider_dir(cfg), name)
     os.makedirs(d, exist_ok=True)
     return d
 
@@ -169,9 +190,28 @@ def make_zc(spec, cfg: Dict):
     return ZComputer(spec.domain, lc.beta, lc.W, cache_dir=ZCACHE)
 
 
+def make_provider(cfg: Dict, replicate: object = 0, run_info: Optional[Dict] = None):
+    """Proposal provider chosen by cfg["provider"].  No fallback between providers."""
+    if cfg["provider"] == "deterministic":
+        from proposals.deterministic import DeterministicProposalProvider
+        return DeterministicProposalProvider()
+    if cfg["provider"] == "openai":
+        from proposals.llm_stub import LLMProposalProvider
+        from proposals.openai_provider import OpenAICompletion
+        comp = OpenAICompletion(model=cfg["openai_model"], temperature=cfg["openai_temperature"],
+                                reasoning_effort=cfg["openai_reasoning_effort"],
+                                max_output_tokens=cfg["openai_max_output_tokens"], cache_dir=LLM_CACHE,
+                                replicate=replicate, max_retries=cfg["openai_max_retries"])
+        return LLMProposalProvider(comp, n_hypotheses=cfg["llm_n_hypotheses"],
+                                   max_parse_retries=cfg["llm_max_parse_retries"],
+                                   run_info={"model": cfg["openai_model"], "replicate": replicate, **(run_info or {})})
+    raise ValueError(f"unknown provider {cfg['provider']!r}")
+
+
 def run_method(spec, method: str, demos, cfg: Dict, rho: Optional[float] = None, baseline: str = "min",
-               record_prefix_eval: bool = False) -> Dict:
-    """Run one method on a demonstration sequence; returns a flat result dict (+ trace)."""
+               record_prefix_eval: bool = False, replicate: object = 0, run_info: Optional[Dict] = None,
+               record_posteriors: bool = False) -> Dict:
+    """Run one method on a demonstration sequence; returns a flat result dict (+ trace, + LLM transcript)."""
     t0 = time.time()
     if method == "mlci":
         from baselines.mlci import MLCI, MLCIConfig
@@ -183,17 +223,32 @@ def run_method(spec, method: str, demos, cfg: Dict, rho: Optional[float] = None,
                 "n_refinements": None, "n_hypotheses": ev["n_constraints"], "runtime_s": time.time() - t0,
                 "trace": m.history}
     from inference.refinement import NormLearner, method_config
-    from proposals.deterministic import DeterministicProposalProvider
     kw = learner_kwargs(cfg)
     if rho is not None:
         kw["rho"] = rho
     lc = method_config(method, **kw)
     lc.baseline = baseline
-    L = NormLearner(spec, DeterministicProposalProvider(), lc, make_zc(spec, cfg))
-    r = L.run(demos, record_prefix_eval=record_prefix_eval)
+    lc.record_posteriors = record_posteriors
+    provider = make_provider(cfg, replicate, run_info)
+    L = NormLearner(spec, provider, lc, make_zc(spec, cfg))
+    out = {"method": method, "provider": cfg["provider"],
+           "model": cfg["openai_model"] if cfg["provider"] == "openai" else None}
+    try:
+        r = L.run(demos, record_prefix_eval=record_prefix_eval)
+    except Exception as e:      # recorded, never replaced by another provider
+        out.update({"error": f"{type(e).__name__}: {e}", "runtime_s": time.time() - t0,
+                    "transcript": getattr(provider, "transcript", None), "llm_calls": _llm_calls(provider)})
+        return out
     f = r["final"]
     f["runtime_s"] = time.time() - t0
-    return {"method": method, **f, "trace": r["trace"]}
+    out.update({**f, "trace": r["trace"], "transcript": getattr(provider, "transcript", None),
+                "llm_calls": _llm_calls(provider), "error": None})
+    return out
+
+
+def _llm_calls(provider):
+    comp = getattr(provider, "complete", None)
+    return [{k: v for k, v in c.items() if k != "output_text"} for c in getattr(comp, "calls", [])]
 
 
 SCALAR_KEYS = ["method", "accuracy", "violation_f1", "unseen_accuracy", "precision", "recall", "map_id", "map_is_intended", "map_equivalent_on_heldout",

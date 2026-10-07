@@ -1,0 +1,43 @@
+{
+ "cache_key": "fb73c54b072e938021e45380b5a16f7f9f78545f51b30e86b1f309a15d689f5f",
+ "requested_model": "gpt-5.5",
+ "returned_model": "gpt-5.5-2026-04-23",
+ "response_id": "resp_05e4abc07b8cf345006ac66903b28487d18e12cb89c8fbfe72",
+ "status": "completed",
+ "incomplete_details": null,
+ "usage": {
+  "input_tokens": 2967,
+  "input_tokens_details": {
+   "cached_tokens": 1792,
+   "cache_write_tokens": 0
+  },
+  "output_tokens": 2493,
+  "output_tokens_details": {
+   "reasoning_tokens": 1034
+  },
+  "total_tokens": 5460
+ },
+ "settings": {
+  "model": "gpt-5.5",
+  "temperature": null,
+  "reasoning_effort": null,
+  "max_output_tokens": null,
+  "api": "responses.create"
+ },
+ "replicate": "ident/cart/8",
+ "timestamp": "2026-10-07T11:45:34",
+ "latency_s": 26.61,
+ "retries": [
+  {
+   "attempt": 0,
+   "error": "RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
+   "at": "2026-10-07T11:44:51"
+  },
+  {
+   "attempt": 1,
+   "error": "RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
+   "at": "2026-10-07T11:44:57"
+  }
+ ],
+ "output_text": "[\n  {\n    \"id\": \"return_cart_to_corral\",\n    \"text\": \"Anyone who takes a shopping cart is obliged to return it to the cart corral before leaving.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"cart_corral\": \"at(0,1)\",\n        \"with_cart\": \"hasCart\",\n        \"cart_parked_in_corral\": \"cartAt(0,1)\"\n      },\n      \"events\": {\n        \"take_cart\": {\n          \"pre\": \"PICKUP_CART\",\n          \"post\": \"hasCart\"\n        },\n        \"return_cart_to_corral\": {\n          \"pre\": {\n            \"and\": [\n              \"with_cart\",\n              \"cart_corral\",\n              \"LEAVE_CART\"\n            ]\n          },\n          \"post\": \"cart_parked_in_corral\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"take_cart\",\n      \"discharge\": \"return_cart_to_corral\"\n    }\n  },\n  {\n    \"id\": \"no_exit_with_cart\",\n    \"text\": \"Customers are forbidden from leaving the supermarket while still pushing a cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"with_cart\": \"hasCart\",\n        \"at_exit\": \"at(9,5)\"\n      },\n      \"events\": {\n        \"exit_store\": {\n          \"pre\": {\n            \"and\": [\n              \"at_exit\",\n              \"EXIT\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"with_cart\",\n          \"exit_store\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"do_not_take_cart_into_exit_corridor\",\n    \"text\": \"Carts must not be pushed through the exit corridor; they should be left before walking to the exit.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"with_cart\": \"hasCart\",\n        \"exit_corridor\": {\n          \"or\": [\n            \"at(2,5)\",\n            \"at(3,5)\",\n            \"at(4,5)\",\n            \"at(5,5)\",\n            \"at(6,5)\",\n            \"at(7,5)\",\n            \"at(8,5)\",\n            \"at(9,5)\"\n          ]\n        }\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"with_cart\",\n          \"exit_corridor\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"only_leave_cart_at_corral\",\n    \"text\": \"A shopping cart may only be put down at the designated cart corral.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"cart_corral\": \"at(0,1)\",\n        \"not_cart_corral\": {\n          \"not\": \"cart_corral\"\n        }\n      },\n      \"events\": {\n        \"put_down_cart\": {\n          \"pre\": \"LEAVE_CART\",\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"put_down_cart\",\n          \"not_cart_corral\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"items_must_be_collected_with_cart\",\n    \"text\": \"Required items should be picked up only while the customer has a shopping cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"with_cart\": \"hasCart\",\n        \"without_cart\": {\n          \"not\": \"with_cart\"\n        }\n      },\n      \"events\": {\n        \"pick_up_item\": {\n          \"pre\": \"PICKUP_ITEM\",\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"pick_up_item\",\n          \"without_cart\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"hands_should_remain_free\",\n    \"text\": \"Customers should not carry shopping items by hand when shopping or leaving.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"carrying_by_hand\": \"handFull\"\n      },\n      \"events\": {\n        \"move_or_exit\": {\n          \"pre\": {\n            \"or\": [\n              \"MOVE\",\n              \"EXIT\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"carrying_by_hand\",\n          \"move_or_exit\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"return_cart_after_item_collection\",\n    \"text\": \"After collecting any item using a cart, the customer is obliged to return the cart to the corral before exiting.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"with_cart\": \"hasCart\",\n        \"cart_corral\": \"at(0,1)\",\n        \"cart_parked_in_corral\": \"cartAt(0,1)\"\n      },\n      \"events\": {\n        \"cart_item_pickup\": {\n          \"pre\": {\n            \"and\": [\n              \"with_cart\",\n              \"PICKUP_ITEM\"\n            ]\n          },\n          \"post\": null\n        },\n        \"return_cart_to_corral\": {\n          \"pre\": {\n            \"and\": [\n              \"with_cart\",\n              \"cart_corral\",\n              \"LEAVE_CART\"\n            ]\n          },\n          \"post\": \"cart_parked_in_corral\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"cart_item_pickup\",\n      \"discharge\": \"return_cart_to_corral\"\n    }\n  },\n  {\n    \"id\": \"start_by_taking_available_cart\",\n    \"text\": \"At the start of a shopping trip, the customer is obliged to take the available cart before collecting items or leaving.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"at_cart_rack\": \"at(1,5)\",\n        \"cart_available_at_rack\": \"cartAt(1,5)\",\n        \"with_cart\": \"hasCart\"\n      },\n      \"events\": {\n        \"take_rack_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"at_cart_rack\",\n              \"cart_available_at_rack\",\n              \"PICKUP_CART\"\n            ]\n          },\n          \"post\": \"with_cart\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"START\",\n      \"discharge\": \"take_rack_cart\"\n    }\n  }\n]"
+}

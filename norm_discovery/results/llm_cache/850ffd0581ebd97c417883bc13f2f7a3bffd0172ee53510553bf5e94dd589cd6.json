@@ -1,0 +1,43 @@
+{
+ "cache_key": "850ffd0581ebd97c417883bc13f2f7a3bffd0172ee53510553bf5e94dd589cd6",
+ "requested_model": "gpt-5.5",
+ "returned_model": "gpt-5.5-2026-04-23",
+ "response_id": "resp_0b106e6ce07849cc006ac66913c8b087d18adbae7ce08783df",
+ "status": "completed",
+ "incomplete_details": null,
+ "usage": {
+  "input_tokens": 3058,
+  "input_tokens_details": {
+   "cached_tokens": 1792,
+   "cache_write_tokens": 0
+  },
+  "output_tokens": 5013,
+  "output_tokens_details": {
+   "reasoning_tokens": 3624
+  },
+  "total_tokens": 8071
+ },
+ "settings": {
+  "model": "gpt-5.5",
+  "temperature": null,
+  "reasoning_effort": null,
+  "max_output_tokens": null,
+  "api": "responses.create"
+ },
+ "replicate": "ident/cart/9",
+ "timestamp": "2026-10-07T11:46:22",
+ "latency_s": 58.55,
+ "retries": [
+  {
+   "attempt": 0,
+   "error": "RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
+   "at": "2026-10-07T11:45:07"
+  },
+  {
+   "attempt": 1,
+   "error": "RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
+   "at": "2026-10-07T11:45:13"
+  }
+ ],
+ "output_text": "[\n  {\n    \"id\": \"items_must_go_in_cart\",\n    \"text\": \"Required items may not be picked up unless the shopper is currently holding or pushing a cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"without_cart\": {\n          \"not\": \"hasCart\"\n        }\n      },\n      \"events\": {\n        \"pickup_item_without_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"PICKUP_ITEM\",\n              \"without_cart\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"pickup_item_without_cart\"\n    }\n  },\n  {\n    \"id\": \"keep_hands_free\",\n    \"text\": \"The shopper must not walk around the store while carrying an item by hand.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"carrying_by_hand\": \"handFull\"\n      },\n      \"events\": {\n        \"move_with_hand_item\": {\n          \"pre\": {\n            \"and\": [\n              \"MOVE\",\n              \"carrying_by_hand\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"move_with_hand_item\"\n    }\n  },\n  {\n    \"id\": \"return_cart_to_front_bay\",\n    \"text\": \"After taking a cart, the shopper is obliged to return it to the front cart-return bay.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"front_return_bay\": \"at(0,1)\",\n        \"cart_parked_in_front_return_bay\": \"cartAt(0,1)\"\n      },\n      \"events\": {\n        \"take_cart\": {\n          \"pre\": \"PICKUP_CART\",\n          \"post\": \"hasCart\"\n        },\n        \"return_cart_to_front_bay\": {\n          \"pre\": {\n            \"and\": [\n              \"LEAVE_CART\",\n              \"front_return_bay\"\n            ]\n          },\n          \"post\": \"cart_parked_in_front_return_bay\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"take_cart\",\n      \"discharge\": \"return_cart_to_front_bay\"\n    }\n  },\n  {\n    \"id\": \"do_not_abandon_cart_elsewhere\",\n    \"text\": \"A cart may only be left at the designated front cart-return bay.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"front_return_bay\": \"at(0,1)\"\n      },\n      \"events\": {\n        \"leave_cart_outside_return_bay\": {\n          \"pre\": {\n            \"and\": [\n              \"LEAVE_CART\",\n              {\n                \"not\": \"front_return_bay\"\n              }\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"leave_cart_outside_return_bay\"\n    }\n  },\n  {\n    \"id\": \"no_exit_with_cart\",\n    \"text\": \"The shopper is prohibited from exiting the supermarket while still possessing the cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"exit_cell\": \"at(9,5)\"\n      },\n      \"events\": {\n        \"exit_with_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"EXIT\",\n              \"hasCart\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"exit_with_cart\"\n    }\n  },\n  {\n    \"id\": \"cart_free_exit_aisle\",\n    \"text\": \"Carts are not allowed on the bottom exit aisle beyond the cart rack, so shoppers must leave the cart before walking to the exit.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"bottom_exit_aisle\": {\n          \"or\": [\n            \"at(2,5)\",\n            \"at(3,5)\",\n            \"at(4,5)\",\n            \"at(5,5)\",\n            \"at(6,5)\",\n            \"at(7,5)\",\n            \"at(8,5)\",\n            \"at(9,5)\"\n          ]\n        },\n        \"cart_in_possession_on_exit_aisle\": {\n          \"and\": [\n            \"hasCart\",\n            \"bottom_exit_aisle\"\n          ]\n        }\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"cart_in_possession_on_exit_aisle\"\n    }\n  },\n  {\n    \"id\": \"no_southbound_cart_traffic\",\n    \"text\": \"Shopping carts may not be moved southward through the store.\",\n    \"abstraction\": {\n      \"state_properties\": {},\n      \"events\": {\n        \"south_move_with_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"S\",\n              \"hasCart\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"south_move_with_cart\"\n    }\n  },\n  {\n    \"id\": \"east_section_before_west_check\",\n    \"text\": \"After collecting an item from the eastern part of the product aisle, the shopper must collect or check an item station in the western part of that aisle before leaving.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"eastern_product_section\": {\n          \"or\": [\n            \"at(5,2)\",\n            \"at(6,2)\"\n          ]\n        },\n        \"western_product_section\": {\n          \"or\": [\n            \"at(2,2)\",\n            \"at(3,2)\"\n          ]\n        }\n      },\n      \"events\": {\n        \"pickup_in_eastern_section\": {\n          \"pre\": {\n            \"and\": [\n              \"PICKUP_ITEM\",\n              \"eastern_product_section\"\n            ]\n          },\n          \"post\": null\n        },\n        \"pickup_in_western_section\": {\n          \"pre\": {\n            \"and\": [\n              \"PICKUP_ITEM\",\n              \"western_product_section\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"pickup_in_eastern_section\",\n      \"discharge\": \"pickup_in_western_section\"\n    }\n  }\n]"
+}

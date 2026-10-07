@@ -1,0 +1,32 @@
+{
+ "cache_key": "ef5b05916ef3b8dd34f81e11773b2ea85817819b8586bd6ea5c22c5b8a8c87af",
+ "requested_model": "gpt-5.5",
+ "returned_model": "gpt-5.5-2026-04-23",
+ "response_id": "resp_04dc975d628b6df2006ac6699a01e887d18f1d93fec8f506fe",
+ "status": "completed",
+ "incomplete_details": null,
+ "usage": {
+  "input_tokens": 2100,
+  "input_tokens_details": {
+   "cached_tokens": 0,
+   "cache_write_tokens": 0
+  },
+  "output_tokens": 4942,
+  "output_tokens_details": {
+   "reasoning_tokens": 3624
+  },
+  "total_tokens": 7042
+ },
+ "settings": {
+  "model": "gpt-5.5",
+  "temperature": null,
+  "reasoning_effort": null,
+  "max_output_tokens": null,
+  "api": "responses.create"
+ },
+ "replicate": "noise/cart/1",
+ "timestamp": "2026-10-07T11:48:36",
+ "latency_s": 58.54,
+ "retries": [],
+ "output_text": "[\n  {\n    \"id\": \"cart_required_for_items\",\n    \"text\": \"A shopper is prohibited from picking up shelf items unless they are currently using a cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"without_cart\": {\n          \"not\": \"hasCart\"\n        }\n      },\n      \"events\": {\n        \"item_pickup_without_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"PICKUP_ITEM\",\n              \"without_cart\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"item_pickup_without_cart\"\n    }\n  },\n  {\n    \"id\": \"no_hand_carrying\",\n    \"text\": \"A shopper is prohibited from carrying merchandise by hand rather than placing it in a cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"carrying_item_by_hand\": \"handFull\"\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"carrying_item_by_hand\"\n    }\n  },\n  {\n    \"id\": \"must_take_entry_cart\",\n    \"text\": \"Before leaving the store, a shopper is obliged to take the cart stationed at the entry cart point.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"entry_cart_point\": \"at(1,5)\"\n      },\n      \"events\": {\n        \"take_entry_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"entry_cart_point\",\n              \"PICKUP_CART\"\n            ]\n          },\n          \"post\": \"hasCart\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"START\",\n      \"discharge\": \"take_entry_cart\"\n    }\n  },\n  {\n    \"id\": \"return_cart_after_item\",\n    \"text\": \"After collecting any item while using a cart, the shopper is obliged to return the cart to the return bay.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"return_bay\": \"at(0,1)\"\n      },\n      \"events\": {\n        \"take_item_with_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"hasCart\",\n              \"PICKUP_ITEM\"\n            ]\n          },\n          \"post\": null\n        },\n        \"return_cart_to_bay\": {\n          \"pre\": {\n            \"and\": [\n              \"hasCart\",\n              \"return_bay\",\n              \"LEAVE_CART\"\n            ]\n          },\n          \"post\": \"cartAt(0,1)\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"take_item_with_cart\",\n      \"discharge\": \"return_cart_to_bay\"\n    }\n  },\n  {\n    \"id\": \"no_exit_with_cart\",\n    \"text\": \"A shopper is prohibited from exiting the store while still holding or pushing a cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"currently_using_cart\": \"hasCart\"\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"EXIT\",\n          \"currently_using_cart\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"leave_cart_only_return_bay\",\n    \"text\": \"A shopper is prohibited from putting down a cart anywhere except the designated return bay.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"return_bay\": \"at(0,1)\",\n        \"not_at_return_bay\": {\n          \"not\": \"return_bay\"\n        }\n      },\n      \"events\": {\n        \"leave_cart_outside_return_bay\": {\n          \"pre\": {\n            \"and\": [\n              \"LEAVE_CART\",\n              \"not_at_return_bay\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"leave_cart_outside_return_bay\"\n    }\n  },\n  {\n    \"id\": \"cart_free_exit_corridor\",\n    \"text\": \"Carts are prohibited in the lower checkout and exit corridor, so shoppers must traverse that corridor without a cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"exit_corridor\": {\n          \"or\": [\n            \"at(2,4)\",\n            \"at(3,4)\",\n            \"at(4,4)\",\n            \"at(5,4)\",\n            \"at(6,4)\",\n            \"at(7,4)\",\n            \"at(8,4)\",\n            \"at(9,4)\",\n            \"at(0,5)\",\n            \"at(2,5)\",\n            \"at(3,5)\",\n            \"at(4,5)\",\n            \"at(5,5)\",\n            \"at(6,5)\",\n            \"at(7,5)\",\n            \"at(8,5)\",\n            \"at(9,5)\"\n          ]\n        },\n        \"cart_in_exit_corridor\": {\n          \"and\": [\n            \"hasCart\",\n            \"exit_corridor\"\n          ]\n        }\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"cart_in_exit_corridor\"\n    }\n  },\n  {\n    \"id\": \"taken_cart_must_be_used\",\n    \"text\": \"Once a shopper takes a cart, they are obliged to use that cart to collect at least one required item.\",\n    \"abstraction\": {\n      \"state_properties\": {},\n      \"events\": {\n        \"take_cart\": {\n          \"pre\": \"PICKUP_CART\",\n          \"post\": \"hasCart\"\n        },\n        \"collect_item_with_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"hasCart\",\n              \"PICKUP_ITEM\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"take_cart\",\n      \"discharge\": \"collect_item_with_cart\"\n    }\n  }\n]"
+}

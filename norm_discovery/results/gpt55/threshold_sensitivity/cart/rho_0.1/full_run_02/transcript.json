@@ -1,0 +1,455 @@
+{
+  "llm_calls": [
+    {
+      "cache_key": "6b96942ac4542324c173b2e8f1969aee0bbb4e80a5ad1df2c5ea739a60848a2c",
+      "requested_model": "gpt-5.5",
+      "returned_model": "gpt-5.5-2026-04-23",
+      "response_id": "resp_0b0dc9ac92ff6ae9006ac65e48ef2487d1ab957ab4676db0f3",
+      "status": "completed",
+      "incomplete_details": null,
+      "usage": {
+        "input_tokens": 1004,
+        "input_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0
+        },
+        "output_tokens": 4393,
+        "output_tokens_details": {
+          "reasoning_tokens": 3473
+        },
+        "total_tokens": 5397
+      },
+      "settings": {
+        "model": "gpt-5.5",
+        "temperature": null,
+        "reasoning_effort": null,
+        "max_output_tokens": null,
+        "api": "responses.create"
+      },
+      "replicate": "orig/cart/2",
+      "timestamp": "2026-10-07T11:00:10",
+      "latency_s": 49.82,
+      "retries": [],
+      "cache_hit": true
+    }
+  ],
+  "proposals": [
+    {
+      "index": 0,
+      "kind": "initial",
+      "level": 0,
+      "n_demos_shown": 1,
+      "timestamp": "2026-10-07T11:12:29",
+      "model": "gpt-5.5",
+      "replicate": "orig/cart/2",
+      "experiment": "threshold_sensitivity",
+      "domain": "cart",
+      "run_index": 2,
+      "condition": "rho_0.1",
+      "prompt": "Agents in a supermarket gridworld must collect their required items and leave through the exit. Every action costs the same, so demonstrators prefer short trajectories -- unless an unknown social norm makes them behave otherwise. Your task is to propose candidate norms (obligations or prohibitions) that could explain the demonstrated behaviour.\nEach demonstration is listed step by step as  `k: {atoms true in the state} action`.\n\nAvailable atoms:\n- at(x,y) -- the agent is at cell (x,y); x = column (0 = left), y = row (0 = top); N decreases y, S increases y, E increases x, W decreases x\n- actions N, S, E, W, MOVE (any of the four moves), INTERACT (any interaction with an object: the different kinds of interaction are NOT distinguished), EXIT (leave the store; always the last action)\n\nDemonstration 1 (required items: apple, milk):\n  0: {at(0,5)} E\n  1: {at(1,5)} INTERACT\n  2: {at(1,5)} N\n  3: {at(1,4)} N\n  4: {at(1,3)} N\n  5: {at(1,2)} E\n  6: {at(2,2)} E\n  7: {at(3,2)} E\n  8: {at(4,2)} E\n  9: {at(5,2)} INTERACT\n 10: {at(5,2)} W\n 11: {at(4,2)} W\n 12: {at(3,2)} W\n 13: {at(2,2)} INTERACT\n 14: {at(2,2)} N\n 15: {at(2,1)} W\n 16: {at(1,1)} W\n 17: {at(0,1)} INTERACT\n 18: {at(0,1)} S\n 19: {at(0,2)} S\n 20: {at(0,3)} S\n 21: {at(0,4)} S\n 22: {at(0,5)} E\n 23: {at(1,5)} E\n 24: {at(2,5)} E\n 25: {at(3,5)} E\n 26: {at(4,5)} E\n 27: {at(5,5)} E\n 28: {at(6,5)} E\n 29: {at(7,5)} E\n 30: {at(8,5)} E\n 31: {at(9,5)} EXIT\n 32: {at(9,5)} <terminal>\n\nPropose norms using ONLY the atoms listed above. Do NOT define any new state properties or events: \"abstraction\" must be {}.\nPropose 8 diverse candidate hypotheses.\n\nOutput format: return ONLY a JSON list (no prose, no code fences). Each element:\n{\"id\": short_name, \"text\": one-sentence natural-language statement of the norm,\n \"abstraction\": {\"state_properties\": {name: FORMULA, ...},\n                 \"events\": {name: {\"pre\": FORMULA, \"post\": FORMULA or null}, ...}},\n \"norm\": {\"type\": \"prohibition\", \"condition\": FORMULA}\n       | {\"type\": \"obligation\", \"trigger\": FORMULA or \"START\", \"discharge\": FORMULA}}\nFORMULA := atom | name of a property/event defined in this hypothesis | {\"not\": F} | {\"and\": [F, ...]}\n         | {\"or\": [F, ...]} | {\"le\"|\"lt\"|\"ge\"|\"gt\"|\"eq\": [numeric_feature, integer]}\nSemantics.  A trajectory is a sequence of steps (state s_k, action a_k).  A step's label contains the atoms true in\ns_k and the action a_k.  A state property is a formula over state atoms (no actions).  An event\n{\"pre\": P, \"post\": Q} occurs at step k when P holds for the label of step k and Q holds in the next state s_{k+1}\n(post may be null).  A prohibition counts one violation for every step whose label (including events occurring at\nthat step) satisfies the condition.  An obligation becomes pending at any step satisfying the trigger (\"START\" =\npending from the beginning) and is fulfilled by a later (or the same) step satisfying the discharge; it can be\ntriggered again; it is violated if it is still pending when the trajectory ends.",
+      "raw_response": "[\n  {\n    \"id\": \"must_visit_sample_22\",\n    \"text\": \"Before leaving, the shopper is obliged to interact at cell (2,2), as if a sample or checkpoint there must be acknowledged.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"START\",\n      \"discharge\": {\n        \"and\": [\n          \"at(2,2)\",\n          \"INTERACT\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"must_visit_service_01\",\n    \"text\": \"Before leaving, the shopper is obliged to interact at cell (0,1), as if a service desk or courtesy point must be visited.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"START\",\n      \"discharge\": {\n        \"and\": [\n          \"at(0,1)\",\n          \"INTERACT\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"milk_then_sample\",\n    \"text\": \"After interacting at cell (5,2), the shopper is obliged to interact at cell (2,2).\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": {\n        \"and\": [\n          \"at(5,2)\",\n          \"INTERACT\"\n        ]\n      },\n      \"discharge\": {\n        \"and\": [\n          \"at(2,2)\",\n          \"INTERACT\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"sample_then_service\",\n    \"text\": \"After interacting at cell (2,2), the shopper is obliged to interact at cell (0,1).\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": {\n        \"and\": [\n          \"at(2,2)\",\n          \"INTERACT\"\n        ]\n      },\n      \"discharge\": {\n        \"and\": [\n          \"at(0,1)\",\n          \"INTERACT\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"service_then_bottom_left\",\n    \"text\": \"After interacting at cell (0,1), the shopper is obliged to return to cell (0,5) and proceed east from there.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": {\n        \"and\": [\n          \"at(0,1)\",\n          \"INTERACT\"\n        ]\n      },\n      \"discharge\": {\n        \"and\": [\n          \"at(0,5)\",\n          \"E\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"apple_before_milk_order\",\n    \"text\": \"After interacting at cell (1,5), the shopper is obliged to interact at cell (5,2) before leaving.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": {\n        \"and\": [\n          \"at(1,5)\",\n          \"INTERACT\"\n        ]\n      },\n      \"discharge\": {\n        \"and\": [\n          \"at(5,2)\",\n          \"INTERACT\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"no_south_middle_aisle\",\n    \"text\": \"The shopper is prohibited from moving south from the middle aisle cells (1,2) through (5,2).\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"S\",\n          {\n            \"or\": [\n              \"at(1,2)\",\n              \"at(2,2)\",\n              \"at(3,2)\",\n              \"at(4,2)\",\n              \"at(5,2)\"\n            ]\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"no_east_from_milk\",\n    \"text\": \"The shopper is prohibited from moving east from cell (5,2), forcing them to turn back after visiting that location.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"at(5,2)\",\n          \"E\"\n        ]\n      }\n    }\n  }\n]",
+      "parsed": [
+        {
+          "id": "must_visit_sample_22",
+          "text": "Before leaving, the shopper is obliged to interact at cell (2,2), as if a sample or checkpoint there must be acknowledged.",
+          "abstraction": {},
+          "norm": {
+            "type": "obligation",
+            "trigger": "START",
+            "discharge": {
+              "and": [
+                "at(2,2)",
+                "INTERACT"
+              ]
+            }
+          }
+        },
+        {
+          "id": "must_visit_service_01",
+          "text": "Before leaving, the shopper is obliged to interact at cell (0,1), as if a service desk or courtesy point must be visited.",
+          "abstraction": {},
+          "norm": {
+            "type": "obligation",
+            "trigger": "START",
+            "discharge": {
+              "and": [
+                "at(0,1)",
+                "INTERACT"
+              ]
+            }
+          }
+        },
+        {
+          "id": "milk_then_sample",
+          "text": "After interacting at cell (5,2), the shopper is obliged to interact at cell (2,2).",
+          "abstraction": {},
+          "norm": {
+            "type": "obligation",
+            "trigger": {
+              "and": [
+                "at(5,2)",
+                "INTERACT"
+              ]
+            },
+            "discharge": {
+              "and": [
+                "at(2,2)",
+                "INTERACT"
+              ]
+            }
+          }
+        },
+        {
+          "id": "sample_then_service",
+          "text": "After interacting at cell (2,2), the shopper is obliged to interact at cell (0,1).",
+          "abstraction": {},
+          "norm": {
+            "type": "obligation",
+            "trigger": {
+              "and": [
+                "at(2,2)",
+                "INTERACT"
+              ]
+            },
+            "discharge": {
+              "and": [
+                "at(0,1)",
+                "INTERACT"
+              ]
+            }
+          }
+        },
+        {
+          "id": "service_then_bottom_left",
+          "text": "After interacting at cell (0,1), the shopper is obliged to return to cell (0,5) and proceed east from there.",
+          "abstraction": {},
+          "norm": {
+            "type": "obligation",
+            "trigger": {
+              "and": [
+                "at(0,1)",
+                "INTERACT"
+              ]
+            },
+            "discharge": {
+              "and": [
+                "at(0,5)",
+                "E"
+              ]
+            }
+          }
+        },
+        {
+          "id": "apple_before_milk_order",
+          "text": "After interacting at cell (1,5), the shopper is obliged to interact at cell (5,2) before leaving.",
+          "abstraction": {},
+          "norm": {
+            "type": "obligation",
+            "trigger": {
+              "and": [
+                "at(1,5)",
+                "INTERACT"
+              ]
+            },
+            "discharge": {
+              "and": [
+                "at(5,2)",
+                "INTERACT"
+              ]
+            }
+          }
+        },
+        {
+          "id": "no_south_middle_aisle",
+          "text": "The shopper is prohibited from moving south from the middle aisle cells (1,2) through (5,2).",
+          "abstraction": {},
+          "norm": {
+            "type": "prohibition",
+            "condition": {
+              "and": [
+                "S",
+                {
+                  "or": [
+                    "at(1,2)",
+                    "at(2,2)",
+                    "at(3,2)",
+                    "at(4,2)",
+                    "at(5,2)"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "no_east_from_milk",
+          "text": "The shopper is prohibited from moving east from cell (5,2), forcing them to turn back after visiting that location.",
+          "abstraction": {},
+          "norm": {
+            "type": "prohibition",
+            "condition": {
+              "and": [
+                "at(5,2)",
+                "E"
+              ]
+            }
+          }
+        }
+      ],
+      "attempts": [
+        {
+          "attempt": 0,
+          "prompt": "Agents in a supermarket gridworld must collect their required items and leave through the exit. Every action costs the same, so demonstrators prefer short trajectories -- unless an unknown social norm makes them behave otherwise. Your task is to propose candidate norms (obligations or prohibitions) that could explain the demonstrated behaviour.\nEach demonstration is listed step by step as  `k: {atoms true in the state} action`.\n\nAvailable atoms:\n- at(x,y) -- the agent is at cell (x,y); x = column (0 = left), y = row (0 = top); N decreases y, S increases y, E increases x, W decreases x\n- actions N, S, E, W, MOVE (any of the four moves), INTERACT (any interaction with an object: the different kinds of interaction are NOT distinguished), EXIT (leave the store; always the last action)\n\nDemonstration 1 (required items: apple, milk):\n  0: {at(0,5)} E\n  1: {at(1,5)} INTERACT\n  2: {at(1,5)} N\n  3: {at(1,4)} N\n  4: {at(1,3)} N\n  5: {at(1,2)} E\n  6: {at(2,2)} E\n  7: {at(3,2)} E\n  8: {at(4,2)} E\n  9: {at(5,2)} INTERACT\n 10: {at(5,2)} W\n 11: {at(4,2)} W\n 12: {at(3,2)} W\n 13: {at(2,2)} INTERACT\n 14: {at(2,2)} N\n 15: {at(2,1)} W\n 16: {at(1,1)} W\n 17: {at(0,1)} INTERACT\n 18: {at(0,1)} S\n 19: {at(0,2)} S\n 20: {at(0,3)} S\n 21: {at(0,4)} S\n 22: {at(0,5)} E\n 23: {at(1,5)} E\n 24: {at(2,5)} E\n 25: {at(3,5)} E\n 26: {at(4,5)} E\n 27: {at(5,5)} E\n 28: {at(6,5)} E\n 29: {at(7,5)} E\n 30: {at(8,5)} E\n 31: {at(9,5)} EXIT\n 32: {at(9,5)} <terminal>\n\nPropose norms using ONLY the atoms listed above. Do NOT define any new state properties or events: \"abstraction\" must be {}.\nPropose 8 diverse candidate hypotheses.\n\nOutput format: return ONLY a JSON list (no prose, no code fences). Each element:\n{\"id\": short_name, \"text\": one-sentence natural-language statement of the norm,\n \"abstraction\": {\"state_properties\": {name: FORMULA, ...},\n                 \"events\": {name: {\"pre\": FORMULA, \"post\": FORMULA or null}, ...}},\n \"norm\": {\"type\": \"prohibition\", \"condition\": FORMULA}\n       | {\"type\": \"obligation\", \"trigger\": FORMULA or \"START\", \"discharge\": FORMULA}}\nFORMULA := atom | name of a property/event defined in this hypothesis | {\"not\": F} | {\"and\": [F, ...]}\n         | {\"or\": [F, ...]} | {\"le\"|\"lt\"|\"ge\"|\"gt\"|\"eq\": [numeric_feature, integer]}\nSemantics.  A trajectory is a sequence of steps (state s_k, action a_k).  A step's label contains the atoms true in\ns_k and the action a_k.  A state property is a formula over state atoms (no actions).  An event\n{\"pre\": P, \"post\": Q} occurs at step k when P holds for the label of step k and Q holds in the next state s_{k+1}\n(post may be null).  A prohibition counts one violation for every step whose label (including events occurring at\nthat step) satisfies the condition.  An obligation becomes pending at any step satisfying the trigger (\"START\" =\npending from the beginning) and is fulfilled by a later (or the same) step satisfying the discharge; it can be\ntriggered again; it is violated if it is still pending when the trajectory ends.",
+          "raw_response": "[\n  {\n    \"id\": \"must_visit_sample_22\",\n    \"text\": \"Before leaving, the shopper is obliged to interact at cell (2,2), as if a sample or checkpoint there must be acknowledged.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"START\",\n      \"discharge\": {\n        \"and\": [\n          \"at(2,2)\",\n          \"INTERACT\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"must_visit_service_01\",\n    \"text\": \"Before leaving, the shopper is obliged to interact at cell (0,1), as if a service desk or courtesy point must be visited.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"START\",\n      \"discharge\": {\n        \"and\": [\n          \"at(0,1)\",\n          \"INTERACT\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"milk_then_sample\",\n    \"text\": \"After interacting at cell (5,2), the shopper is obliged to interact at cell (2,2).\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": {\n        \"and\": [\n          \"at(5,2)\",\n          \"INTERACT\"\n        ]\n      },\n      \"discharge\": {\n        \"and\": [\n          \"at(2,2)\",\n          \"INTERACT\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"sample_then_service\",\n    \"text\": \"After interacting at cell (2,2), the shopper is obliged to interact at cell (0,1).\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": {\n        \"and\": [\n          \"at(2,2)\",\n          \"INTERACT\"\n        ]\n      },\n      \"discharge\": {\n        \"and\": [\n          \"at(0,1)\",\n          \"INTERACT\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"service_then_bottom_left\",\n    \"text\": \"After interacting at cell (0,1), the shopper is obliged to return to cell (0,5) and proceed east from there.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": {\n        \"and\": [\n          \"at(0,1)\",\n          \"INTERACT\"\n        ]\n      },\n      \"discharge\": {\n        \"and\": [\n          \"at(0,5)\",\n          \"E\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"apple_before_milk_order\",\n    \"text\": \"After interacting at cell (1,5), the shopper is obliged to interact at cell (5,2) before leaving.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": {\n        \"and\": [\n          \"at(1,5)\",\n          \"INTERACT\"\n        ]\n      },\n      \"discharge\": {\n        \"and\": [\n          \"at(5,2)\",\n          \"INTERACT\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"no_south_middle_aisle\",\n    \"text\": \"The shopper is prohibited from moving south from the middle aisle cells (1,2) through (5,2).\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"S\",\n          {\n            \"or\": [\n              \"at(1,2)\",\n              \"at(2,2)\",\n              \"at(3,2)\",\n              \"at(4,2)\",\n              \"at(5,2)\"\n            ]\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"no_east_from_milk\",\n    \"text\": \"The shopper is prohibited from moving east from cell (5,2), forcing them to turn back after visiting that location.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"at(5,2)\",\n          \"E\"\n        ]\n      }\n    }\n  }\n]",
+          "parsed": [
+            {
+              "id": "must_visit_sample_22",
+              "text": "Before leaving, the shopper is obliged to interact at cell (2,2), as if a sample or checkpoint there must be acknowledged.",
+              "abstraction": {},
+              "norm": {
+                "type": "obligation",
+                "trigger": "START",
+                "discharge": {
+                  "and": [
+                    "at(2,2)",
+                    "INTERACT"
+                  ]
+                }
+              }
+            },
+            {
+              "id": "must_visit_service_01",
+              "text": "Before leaving, the shopper is obliged to interact at cell (0,1), as if a service desk or courtesy point must be visited.",
+              "abstraction": {},
+              "norm": {
+                "type": "obligation",
+                "trigger": "START",
+                "discharge": {
+                  "and": [
+                    "at(0,1)",
+                    "INTERACT"
+                  ]
+                }
+              }
+            },
+            {
+              "id": "milk_then_sample",
+              "text": "After interacting at cell (5,2), the shopper is obliged to interact at cell (2,2).",
+              "abstraction": {},
+              "norm": {
+                "type": "obligation",
+                "trigger": {
+                  "and": [
+                    "at(5,2)",
+                    "INTERACT"
+                  ]
+                },
+                "discharge": {
+                  "and": [
+                    "at(2,2)",
+                    "INTERACT"
+                  ]
+                }
+              }
+            },
+            {
+              "id": "sample_then_service",
+              "text": "After interacting at cell (2,2), the shopper is obliged to interact at cell (0,1).",
+              "abstraction": {},
+              "norm": {
+                "type": "obligation",
+                "trigger": {
+                  "and": [
+                    "at(2,2)",
+                    "INTERACT"
+                  ]
+                },
+                "discharge": {
+                  "and": [
+                    "at(0,1)",
+                    "INTERACT"
+                  ]
+                }
+              }
+            },
+            {
+              "id": "service_then_bottom_left",
+              "text": "After interacting at cell (0,1), the shopper is obliged to return to cell (0,5) and proceed east from there.",
+              "abstraction": {},
+              "norm": {
+                "type": "obligation",
+                "trigger": {
+                  "and": [
+                    "at(0,1)",
+                    "INTERACT"
+                  ]
+                },
+                "discharge": {
+                  "and": [
+                    "at(0,5)",
+                    "E"
+                  ]
+                }
+              }
+            },
+            {
+              "id": "apple_before_milk_order",
+              "text": "After interacting at cell (1,5), the shopper is obliged to interact at cell (5,2) before leaving.",
+              "abstraction": {},
+              "norm": {
+                "type": "obligation",
+                "trigger": {
+                  "and": [
+                    "at(1,5)",
+                    "INTERACT"
+                  ]
+                },
+                "discharge": {
+                  "and": [
+                    "at(5,2)",
+                    "INTERACT"
+                  ]
+                }
+              }
+            },
+            {
+              "id": "no_south_middle_aisle",
+              "text": "The shopper is prohibited from moving south from the middle aisle cells (1,2) through (5,2).",
+              "abstraction": {},
+              "norm": {
+                "type": "prohibition",
+                "condition": {
+                  "and": [
+                    "S",
+                    {
+                      "or": [
+                        "at(1,2)",
+                        "at(2,2)",
+                        "at(3,2)",
+                        "at(4,2)",
+                        "at(5,2)"
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "no_east_from_milk",
+              "text": "The shopper is prohibited from moving east from cell (5,2), forcing them to turn back after visiting that location.",
+              "abstraction": {},
+              "norm": {
+                "type": "prohibition",
+                "condition": {
+                  "and": [
+                    "at(5,2)",
+                    "E"
+                  ]
+                }
+              }
+            }
+          ],
+          "call": {
+            "cache_key": "6b96942ac4542324c173b2e8f1969aee0bbb4e80a5ad1df2c5ea739a60848a2c",
+            "requested_model": "gpt-5.5",
+            "returned_model": "gpt-5.5-2026-04-23",
+            "response_id": "resp_0b0dc9ac92ff6ae9006ac65e48ef2487d1ab957ab4676db0f3",
+            "status": "completed",
+            "incomplete_details": null,
+            "usage": {
+              "input_tokens": 1004,
+              "input_tokens_details": {
+                "cached_tokens": 0,
+                "cache_write_tokens": 0
+              },
+              "output_tokens": 4393,
+              "output_tokens_details": {
+                "reasoning_tokens": 3473
+              },
+              "total_tokens": 5397
+            },
+            "settings": {
+              "model": "gpt-5.5",
+              "temperature": null,
+              "reasoning_effort": null,
+              "max_output_tokens": null,
+              "api": "responses.create"
+            },
+            "replicate": "orig/cart/2",
+            "timestamp": "2026-10-07T11:00:10",
+            "latency_s": 49.82,
+            "retries": [],
+            "cache_hit": true
+          }
+        }
+      ],
+      "accepted": [
+        {
+          "id": "g0_must_visit_sample_22",
+          "description": "[g0_must_visit_sample_22] OBLIGED: after start, eventually (at(2,2) \u2227 INTERACT) (before exit)",
+          "L_alpha": 0,
+          "L_norm": 5,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        },
+        {
+          "id": "g0_must_visit_service_01",
+          "description": "[g0_must_visit_service_01] OBLIGED: after start, eventually (at(0,1) \u2227 INTERACT) (before exit)",
+          "L_alpha": 0,
+          "L_norm": 5,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        },
+        {
+          "id": "g0_milk_then_sample",
+          "description": "[g0_milk_then_sample] OBLIGED: after (at(5,2) \u2227 INTERACT), eventually (at(2,2) \u2227 INTERACT) (before exit)",
+          "L_alpha": 0,
+          "L_norm": 7,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        },
+        {
+          "id": "g0_sample_then_service",
+          "description": "[g0_sample_then_service] OBLIGED: after (at(2,2) \u2227 INTERACT), eventually (at(0,1) \u2227 INTERACT) (before exit)",
+          "L_alpha": 0,
+          "L_norm": 7,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        },
+        {
+          "id": "g0_service_then_bottom_left",
+          "description": "[g0_service_then_bottom_left] OBLIGED: after (at(0,1) \u2227 INTERACT), eventually (at(0,5) \u2227 E) (before exit)",
+          "L_alpha": 0,
+          "L_norm": 7,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        },
+        {
+          "id": "g0_apple_before_milk_order",
+          "description": "[g0_apple_before_milk_order] OBLIGED: after (at(1,5) \u2227 INTERACT), eventually (at(5,2) \u2227 INTERACT) (before exit)",
+          "L_alpha": 0,
+          "L_norm": 7,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        },
+        {
+          "id": "g0_no_south_middle_aisle",
+          "description": "[g0_no_south_middle_aisle] FORBIDDEN: (S \u2227 (at(1,2) \u2228 at(2,2) \u2228 at(3,2) \u2228 at(4,2) \u2228 at(5,2)))",
+          "L_alpha": 0,
+          "L_norm": 9,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        },
+        {
+          "id": "g0_no_east_from_milk",
+          "description": "[g0_no_east_from_milk] FORBIDDEN: (at(5,2) \u2227 E)",
+          "L_alpha": 0,
+          "L_norm": 4,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        }
+      ],
+      "rejected": []
+    }
+  ]
+}

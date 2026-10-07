@@ -1,0 +1,538 @@
+{
+  "domain": "aisle",
+  "run_index": 0,
+  "error": null,
+  "n_hypotheses": 16,
+  "n_rejected": 0,
+  "equivalent_found": {
+    "H_null": [
+      "g0_obtain_cart_once",
+      "g0_retrieve_cart_after_item",
+      "g0_exit_with_cart",
+      "g1_retrieve_cart_after_parking",
+      "g1_retrieve_cart_after_on_foot_shelf_pick"
+    ],
+    "B0_cells": [
+      "g0_no_cart_in_north_aisle"
+    ],
+    "B0_pickcells": [],
+    "B0_interact_cells": [
+      "g0_no_shelf_interaction_with_cart"
+    ],
+    "S_inAisle": [
+      "g1_no_carts_in_single_file_side_aisles"
+    ],
+    "S_corridor": [],
+    "S_nearShelf": [],
+    "S_noShelfInteractWithCart": [],
+    "S_memorised": []
+  },
+  "proposed": {
+    "H_null": true,
+    "B0_cells": true,
+    "B0_pickcells": false,
+    "B0_interact_cells": true,
+    "S_inAisle": true,
+    "S_corridor": false,
+    "S_nearShelf": false,
+    "S_noShelfInteractWithCart": false,
+    "S_memorised": false
+  },
+  "hypotheses": [
+    {
+      "id": "g0_take_cart_on_entry",
+      "level": 0,
+      "template": "llm_initial",
+      "text": "A shopper must not go north from the entrance cart area at (1,7) unless they already have a cart.",
+      "abstraction": {
+        "state_properties": {},
+        "events": {}
+      },
+      "norm": {
+        "type": "prohibition",
+        "condition": {
+          "and": [
+            "at(1,7)",
+            "N",
+            {
+              "not": "hasCart"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "g0_obtain_cart_once",
+      "level": 0,
+      "template": "llm_initial",
+      "text": "Every shopping trip is obliged to obtain a cart at least once.",
+      "abstraction": {
+        "state_properties": {},
+        "events": {}
+      },
+      "norm": {
+        "type": "obligation",
+        "trigger": "START",
+        "discharge": "hasCart"
+      }
+    },
+    {
+      "id": "g0_no_cart_in_north_aisle",
+      "level": 0,
+      "template": "llm_initial",
+      "text": "Carts are prohibited in the north aisle cells at (3,1) and (3,2).",
+      "abstraction": {
+        "state_properties": {},
+        "events": {}
+      },
+      "norm": {
+        "type": "prohibition",
+        "condition": {
+          "and": [
+            "hasCart",
+            {
+              "or": [
+                "at(3,1)",
+                "at(3,2)"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "g0_no_push_cart_north_from_33",
+      "level": 0,
+      "template": "llm_initial",
+      "text": "A shopper must not push a cart north from cell (3,3).",
+      "abstraction": {
+        "state_properties": {},
+        "events": {}
+      },
+      "norm": {
+        "type": "prohibition",
+        "condition": {
+          "and": [
+            "at(3,3)",
+            "hasCart",
+            "N"
+          ]
+        }
+      }
+    },
+    {
+      "id": "g0_no_shelf_interaction_with_cart",
+      "level": 0,
+      "template": "llm_initial",
+      "text": "A shopper is prohibited from interacting at shelf cell (3,1) while holding a cart.",
+      "abstraction": {
+        "state_properties": {},
+        "events": {}
+      },
+      "norm": {
+        "type": "prohibition",
+        "condition": {
+          "and": [
+            "at(3,1)",
+            "hasCart",
+            "INTERACT"
+          ]
+        }
+      }
+    },
+    {
+      "id": "g0_retrieve_cart_after_item",
+      "level": 0,
+      "template": "llm_initial",
+      "text": "After interacting at item cell (3,1), the shopper is obliged to return to cell (3,3) with a cart.",
+      "abstraction": {
+        "state_properties": {},
+        "events": {}
+      },
+      "norm": {
+        "type": "obligation",
+        "trigger": {
+          "and": [
+            "at(3,1)",
+            "INTERACT"
+          ]
+        },
+        "discharge": {
+          "and": [
+            "at(3,3)",
+            "hasCart"
+          ]
+        }
+      }
+    },
+    {
+      "id": "g0_dont_leave_33_south_without_cart",
+      "level": 0,
+      "template": "llm_initial",
+      "text": "A shopper must not leave cell (3,3) to the south unless they have a cart.",
+      "abstraction": {
+        "state_properties": {},
+        "events": {}
+      },
+      "norm": {
+        "type": "prohibition",
+        "condition": {
+          "and": [
+            "at(3,3)",
+            "S",
+            {
+              "not": "hasCart"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "g0_exit_with_cart",
+      "level": 0,
+      "template": "llm_initial",
+      "text": "A shopper is prohibited from exiting the store without a cart.",
+      "abstraction": {
+        "state_properties": {},
+        "events": {}
+      },
+      "norm": {
+        "type": "prohibition",
+        "condition": {
+          "and": [
+            "EXIT",
+            {
+              "not": "hasCart"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "g1_no_carts_in_single_file_side_aisles",
+      "level": 1,
+      "template": "llm_refinement",
+      "text": "Shopping carts are prohibited in single-file aisles flanked by shelves on both sides.",
+      "abstraction": {
+        "state_properties": {
+          "sideShelfAisle": {
+            "and": [
+              "singleFileAisle",
+              "shelfE",
+              "shelfW"
+            ]
+          },
+          "singleFileAisle": {
+            "le": [
+              "freeWidthH",
+              1
+            ]
+          }
+        },
+        "events": {}
+      },
+      "norm": {
+        "type": "prohibition",
+        "condition": {
+          "and": [
+            "hasCart",
+            "sideShelfAisle"
+          ]
+        }
+      }
+    },
+    {
+      "id": "g1_no_push_cart_into_person_only_aisle",
+      "level": 1,
+      "template": "llm_refinement",
+      "text": "A shopper must not push a cart from a wide aisle into a person-only single-file shelf aisle.",
+      "abstraction": {
+        "state_properties": {
+          "personOnlyAisle": {
+            "and": [
+              {
+                "le": [
+                  "freeWidthH",
+                  1
+                ]
+              },
+              "shelfE",
+              "shelfW"
+            ]
+          },
+          "wideAisle": {
+            "gt": [
+              "freeWidthH",
+              1
+            ]
+          }
+        },
+        "events": {
+          "enterPersonOnlyAisle": {
+            "pre": {
+              "and": [
+                "wideAisle",
+                {
+                  "or": [
+                    "N",
+                    "S",
+                    "E",
+                    "W"
+                  ]
+                }
+              ]
+            },
+            "post": "personOnlyAisle"
+          }
+        }
+      },
+      "norm": {
+        "type": "prohibition",
+        "condition": {
+          "and": [
+            "hasCart",
+            "enterPersonOnlyAisle"
+          ]
+        }
+      }
+    },
+    {
+      "id": "g1_cart_shelf_service_only_from_wide_aisles",
+      "level": 1,
+      "template": "llm_refinement",
+      "text": "Shelf interactions while holding a cart are allowed only from wide aisles, not from cramped shelf corridors.",
+      "abstraction": {
+        "state_properties": {
+          "crampedShelfPosition": {
+            "and": [
+              "adjShelf",
+              {
+                "not": "wideCartAisle"
+              }
+            ]
+          },
+          "wideCartAisle": {
+            "gt": [
+              "freeWidthH",
+              1
+            ]
+          }
+        },
+        "events": {}
+      },
+      "norm": {
+        "type": "prohibition",
+        "condition": {
+          "and": [
+            "hasCart",
+            "INTERACT",
+            "crampedShelfPosition"
+          ]
+        }
+      }
+    },
+    {
+      "id": "g1_drop_cart_only_at_person_aisle_mouth",
+      "level": 1,
+      "template": "llm_refinement",
+      "text": "A cart may be put down only at the wide mouth of a person-only aisle.",
+      "abstraction": {
+        "state_properties": {
+          "personOnlyAisleMouth": {
+            "or": [
+              "at(3,3)",
+              "at(6,3)"
+            ]
+          }
+        },
+        "events": {
+          "dropCart": {
+            "pre": {
+              "and": [
+                "hasCart",
+                "INTERACT"
+              ]
+            },
+            "post": {
+              "not": "hasCart"
+            }
+          }
+        }
+      },
+      "norm": {
+        "type": "prohibition",
+        "condition": {
+          "and": [
+            "dropCart",
+            {
+              "not": "personOnlyAisleMouth"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "g1_cartless_walking_restricted",
+      "level": 1,
+      "template": "llm_refinement",
+      "text": "A shopper without a cart may walk only in the entry/cart area, at a cart-parking mouth, or inside a person-only aisle.",
+      "abstraction": {
+        "state_properties": {
+          "cartParkingMouth": {
+            "or": [
+              "at(3,3)",
+              "at(6,3)"
+            ]
+          },
+          "cartlessAllowedZone": {
+            "or": [
+              "entryCartArea",
+              "personOnlyAisle",
+              "cartParkingMouth"
+            ]
+          },
+          "entryCartArea": {
+            "or": [
+              "at(0,7)",
+              "at(1,7)"
+            ]
+          },
+          "personOnlyAisle": {
+            "and": [
+              {
+                "le": [
+                  "freeWidthH",
+                  1
+                ]
+              },
+              "shelfE",
+              "shelfW"
+            ]
+          }
+        },
+        "events": {}
+      },
+      "norm": {
+        "type": "prohibition",
+        "condition": {
+          "and": [
+            {
+              "not": "hasCart"
+            },
+            {
+              "or": [
+                "N",
+                "S",
+                "E",
+                "W"
+              ]
+            },
+            {
+              "not": "cartlessAllowedZone"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "g1_retrieve_cart_after_parking",
+      "level": 1,
+      "template": "llm_refinement",
+      "text": "After parking a cart to enter a narrow aisle, the shopper is obliged to retrieve a cart before the trajectory ends.",
+      "abstraction": {
+        "state_properties": {},
+        "events": {
+          "dropCart": {
+            "pre": {
+              "and": [
+                "hasCart",
+                "INTERACT"
+              ]
+            },
+            "post": {
+              "not": "hasCart"
+            }
+          }
+        }
+      },
+      "norm": {
+        "type": "obligation",
+        "trigger": "dropCart",
+        "discharge": "hasCart"
+      }
+    },
+    {
+      "id": "g1_retrieve_cart_after_on_foot_shelf_pick",
+      "level": 1,
+      "template": "llm_refinement",
+      "text": "If an item is taken from a shelf while the shopper is on foot, the shopper must later return to a cart.",
+      "abstraction": {
+        "state_properties": {
+          "shelfPosition": "adjShelf"
+        },
+        "events": {
+          "onFootShelfInteraction": {
+            "pre": {
+              "and": [
+                {
+                  "not": "hasCart"
+                },
+                "INTERACT",
+                "shelfPosition"
+              ]
+            },
+            "post": null
+          }
+        }
+      },
+      "norm": {
+        "type": "obligation",
+        "trigger": "onFootShelfInteraction",
+        "discharge": "hasCart"
+      }
+    },
+    {
+      "id": "g1_do_not_park_cart_for_wide_shelf_access",
+      "level": 1,
+      "template": "llm_refinement",
+      "text": "A shopper should not abandon the cart when the relevant shelf can be accessed directly from a wide aisle.",
+      "abstraction": {
+        "state_properties": {
+          "wideShelfAccess": {
+            "and": [
+              "adjShelf",
+              {
+                "gt": [
+                  "freeWidthH",
+                  1
+                ]
+              }
+            ]
+          }
+        },
+        "events": {
+          "dropCart": {
+            "pre": {
+              "and": [
+                "hasCart",
+                "INTERACT"
+              ]
+            },
+            "post": {
+              "not": "hasCart"
+            }
+          }
+        }
+      },
+      "norm": {
+        "type": "prohibition",
+        "condition": {
+          "and": [
+            "dropCart",
+            "wideShelfAccess"
+          ]
+        }
+      }
+    }
+  ]
+}

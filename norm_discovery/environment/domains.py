@@ -114,6 +114,75 @@ class DomainSpec:
     def sample_pool_task(self, rng: np.random.Generator) -> Task:
         return self.pool_tasks[int(rng.integers(len(self.pool_tasks)))]
 
+    # -------------------------------------------------------------- behavioural equivalence
+    def probe_set(self) -> List[Trajectory]:
+        """A fixed, broad set of valid trajectories used ONLY to decide whether a proposed hypothesis is
+        behaviourally equivalent to the intended norm (an LLM may express it in any syntax).  It contains
+        compliant, violating, inefficient and random trajectories over many task contexts (including
+        non-standard initial cart locations and the unseen aisle).  Built deterministically and cached."""
+        if getattr(self, "_probes", None) is not None:
+            return self._probes
+        import json as _json
+        import os as _os
+        from experiments.common import RESULTS
+        path = _os.path.join(RESULTS, "probe_sets", f"{self.key}.json")
+        if _os.path.exists(path):
+            with open(path) as f:
+                self._probes = [Trajectory.from_dict(self.domain, x) for x in _json.load(f)]
+            return self._probes
+        d, L = self.domain, self.domain.layout
+        rng = np.random.default_rng(424242)
+        import itertools
+        items = d.item_names
+        tasks = [d.make_task(c) for k in (0, 1, 2) for c in itertools.combinations(items, k)]
+        if self.key == "cart":
+            starts = [None] + [(d.entrance_idx, L.cell_index[c], 0, 0)
+                               for c in [(0, 1), (3, 2), (4, 4), (8, 5), (6, 1), (1, 3)]]
+            tasks = [d.make_task(t.items, st) for t in tasks for st in starts]
+        # every free cell as a start with the cart held (covers regions no shopping task visits)
+        tasks += [d.make_task((), (L.cell_index[c], CART_HELD, 0, 0)) for c in L.free_cells]
+        probes = []
+        for task in tasks:
+            for hyp in (self.true_hypothesis, None):
+                try:
+                    probes.append(plan_optimal(d, task, hyp, rng=rng))
+                except ValueError:
+                    pass
+            for _ in range(2):           # random prefix of any valid actions, then shortest completion
+                s, acts = task.start, []
+                for _k in range(int(rng.integers(3, 15))):
+                    succ = [(a, n) for a, n in d.successors(s, task) if n is not None]
+                    a, n = succ[int(rng.integers(len(succ)))]
+                    acts.append(a)
+                    s = n
+                try:
+                    rest = plan_optimal(d, Task(items=task.items, start=s), None, rng=rng).actions
+                except ValueError:
+                    continue
+                probes.append(Trajectory(task=task, actions=acts + rest))
+        for t in self.training + self.heldout:
+            probes.append(t)
+        for t in probes:
+            assert is_valid(d, t)[0]
+        _os.makedirs(_os.path.dirname(path), exist_ok=True)
+        with open(path, "w") as f:
+            _json.dump([t.to_dict(d) for t in probes], f)
+        self._probes = probes
+        return probes
+
+    def probe_labels(self, hyp) -> tuple:
+        cache = self.__dict__.setdefault("_probe_label_cache", {})
+        k = hyp.key
+        if k not in cache:
+            cache[k] = tuple(count_violations(self.domain, hyp, t) > 0 for t in self.probe_set())
+        return cache[k]
+
+    def equivalent(self, h1, h2) -> bool:
+        return self.probe_labels(h1) == self.probe_labels(h2)
+
+    def is_intended(self, hyp) -> bool:
+        return self.equivalent(hyp, self.true_hypothesis)
+
 
 # ====================================================================================== Exp 1
 def make_cart_spec() -> DomainSpec:

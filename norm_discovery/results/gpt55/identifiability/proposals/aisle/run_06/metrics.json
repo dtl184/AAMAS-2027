@@ -1,0 +1,612 @@
+{
+  "domain": "aisle",
+  "run_index": 6,
+  "error": null,
+  "n_hypotheses": 16,
+  "n_rejected": 0,
+  "equivalent_found": {
+    "H_null": [
+      "g0_must_get_cart",
+      "g0_no_exit_without_cart",
+      "g0_exit_with_cart_required",
+      "g0_retrieve_cart_if_cartless",
+      "g1_cart_interaction_at_mouth_means_parking",
+      "g1_retrieve_parked_cart"
+    ],
+    "B0_cells": [],
+    "B0_pickcells": [
+      "g0_cart_banned_at_item_cell"
+    ],
+    "B0_interact_cells": [
+      "g0_no_item_interact_with_cart",
+      "g0_return_after_item_interact"
+    ],
+    "S_inAisle": [
+      "g1_no_carts_in_single_file_shelf_aisles"
+    ],
+    "S_corridor": [],
+    "S_nearShelf": [],
+    "S_noShelfInteractWithCart": [],
+    "S_memorised": []
+  },
+  "proposed": {
+    "H_null": true,
+    "B0_cells": false,
+    "B0_pickcells": true,
+    "B0_interact_cells": true,
+    "S_inAisle": true,
+    "S_corridor": false,
+    "S_nearShelf": false,
+    "S_noShelfInteractWithCart": false,
+    "S_memorised": false
+  },
+  "hypotheses": [
+    {
+      "id": "g0_must_get_cart",
+      "level": 0,
+      "template": "llm_initial",
+      "text": "The shopper is obliged to obtain a cart at some point during the trip.",
+      "abstraction": {
+        "state_properties": {},
+        "events": {}
+      },
+      "norm": {
+        "type": "obligation",
+        "trigger": "START",
+        "discharge": "hasCart"
+      }
+    },
+    {
+      "id": "g0_no_exit_without_cart",
+      "level": 0,
+      "template": "llm_initial",
+      "text": "The shopper is prohibited from exiting the store without a cart.",
+      "abstraction": {
+        "state_properties": {},
+        "events": {}
+      },
+      "norm": {
+        "type": "prohibition",
+        "condition": {
+          "and": [
+            "EXIT",
+            {
+              "not": "hasCart"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "g0_exit_with_cart_required",
+      "level": 0,
+      "template": "llm_initial",
+      "text": "The shopper is obliged to leave from the exit while holding a cart.",
+      "abstraction": {
+        "state_properties": {},
+        "events": {}
+      },
+      "norm": {
+        "type": "obligation",
+        "trigger": "START",
+        "discharge": {
+          "and": [
+            "at(11,7)",
+            "hasCart",
+            "EXIT"
+          ]
+        }
+      }
+    },
+    {
+      "id": "g0_cart_banned_at_item_cell",
+      "level": 0,
+      "template": "llm_initial",
+      "text": "The shopper is prohibited from being at cell (3,1) while holding a cart.",
+      "abstraction": {
+        "state_properties": {},
+        "events": {}
+      },
+      "norm": {
+        "type": "prohibition",
+        "condition": {
+          "and": [
+            "at(3,1)",
+            "hasCart"
+          ]
+        }
+      }
+    },
+    {
+      "id": "g0_no_cart_north_from_33",
+      "level": 0,
+      "template": "llm_initial",
+      "text": "The shopper is prohibited from moving north from cell (3,3) while holding a cart.",
+      "abstraction": {
+        "state_properties": {},
+        "events": {}
+      },
+      "norm": {
+        "type": "prohibition",
+        "condition": {
+          "and": [
+            "at(3,3)",
+            "hasCart",
+            "N"
+          ]
+        }
+      }
+    },
+    {
+      "id": "g0_no_item_interact_with_cart",
+      "level": 0,
+      "template": "llm_initial",
+      "text": "The shopper is prohibited from interacting at cell (3,1) while holding a cart.",
+      "abstraction": {
+        "state_properties": {},
+        "events": {}
+      },
+      "norm": {
+        "type": "prohibition",
+        "condition": {
+          "and": [
+            "at(3,1)",
+            "hasCart",
+            "INTERACT"
+          ]
+        }
+      }
+    },
+    {
+      "id": "g0_retrieve_cart_if_cartless",
+      "level": 0,
+      "template": "llm_initial",
+      "text": "Whenever the shopper is without a cart, they are obliged to later have a cart again.",
+      "abstraction": {
+        "state_properties": {},
+        "events": {}
+      },
+      "norm": {
+        "type": "obligation",
+        "trigger": {
+          "not": "hasCart"
+        },
+        "discharge": "hasCart"
+      }
+    },
+    {
+      "id": "g0_return_after_item_interact",
+      "level": 0,
+      "template": "llm_initial",
+      "text": "After interacting at cell (3,1), the shopper is obliged to return to cell (3,3) and interact there.",
+      "abstraction": {
+        "state_properties": {},
+        "events": {}
+      },
+      "norm": {
+        "type": "obligation",
+        "trigger": {
+          "and": [
+            "at(3,1)",
+            "INTERACT"
+          ]
+        },
+        "discharge": {
+          "and": [
+            "at(3,3)",
+            "INTERACT"
+          ]
+        }
+      }
+    },
+    {
+      "id": "g1_no_carts_in_single_file_shelf_aisles",
+      "level": 1,
+      "template": "llm_refinement",
+      "text": "Shopping carts are forbidden in single-file shelf aisles, i.e. narrow passages flanked by shelves on both sides.",
+      "abstraction": {
+        "state_properties": {
+          "singleFileShelfAisle": {
+            "and": [
+              {
+                "le": [
+                  "freeWidthH",
+                  1
+                ]
+              },
+              "shelfE",
+              "shelfW"
+            ]
+          }
+        },
+        "events": {}
+      },
+      "norm": {
+        "type": "prohibition",
+        "condition": {
+          "and": [
+            "singleFileShelfAisle",
+            "hasCart"
+          ]
+        }
+      }
+    },
+    {
+      "id": "g1_no_entering_single_file_with_cart",
+      "level": 1,
+      "template": "llm_refinement",
+      "text": "A shopper must not move from an open area into a single-file shelf aisle while still holding a cart.",
+      "abstraction": {
+        "state_properties": {
+          "singleFileShelfAisle": {
+            "and": [
+              {
+                "le": [
+                  "freeWidthH",
+                  1
+                ]
+              },
+              "shelfE",
+              "shelfW"
+            ]
+          }
+        },
+        "events": {
+          "enterSingleFileWithCart": {
+            "pre": {
+              "and": [
+                "hasCart",
+                "MOVE"
+              ]
+            },
+            "post": {
+              "and": [
+                "hasCart",
+                "singleFileShelfAisle"
+              ]
+            }
+          }
+        }
+      },
+      "norm": {
+        "type": "prohibition",
+        "condition": "enterSingleFileWithCart"
+      }
+    },
+    {
+      "id": "g1_cart_interaction_at_mouth_means_parking",
+      "level": 1,
+      "template": "llm_refinement",
+      "text": "When a shopper with a cart interacts at the mouth of a single-file shelf aisle, the interaction must be a cart-parking action.",
+      "abstraction": {
+        "state_properties": {
+          "singleFileAisleMouth": {
+            "and": [
+              "wideOpenAisle",
+              {
+                "or": [
+                  "at(3,3)",
+                  "at(6,3)"
+                ]
+              }
+            ]
+          },
+          "wideOpenAisle": {
+            "and": [
+              {
+                "ge": [
+                  "freeWidthH",
+                  6
+                ]
+              },
+              {
+                "not": "adjShelf"
+              }
+            ]
+          }
+        },
+        "events": {
+          "cartDropAtMouth": {
+            "pre": {
+              "and": [
+                "singleFileAisleMouth",
+                "hasCart",
+                "INTERACT"
+              ]
+            },
+            "post": {
+              "not": "hasCart"
+            }
+          },
+          "mouthCartInteraction": {
+            "pre": {
+              "and": [
+                "singleFileAisleMouth",
+                "hasCart",
+                "INTERACT"
+              ]
+            },
+            "post": null
+          }
+        }
+      },
+      "norm": {
+        "type": "obligation",
+        "trigger": "mouthCartInteraction",
+        "discharge": "cartDropAtMouth"
+      }
+    },
+    {
+      "id": "g1_retrieve_parked_cart",
+      "level": 1,
+      "template": "llm_refinement",
+      "text": "After parking a cart to enter a narrow shelf aisle, the shopper is obliged to retrieve a cart before leaving the store.",
+      "abstraction": {
+        "state_properties": {
+          "wideOpenParkingZone": {
+            "and": [
+              {
+                "ge": [
+                  "freeWidthH",
+                  6
+                ]
+              },
+              {
+                "not": "adjShelf"
+              }
+            ]
+          }
+        },
+        "events": {
+          "cartDrop": {
+            "pre": {
+              "and": [
+                "wideOpenParkingZone",
+                "hasCart",
+                "INTERACT"
+              ]
+            },
+            "post": {
+              "not": "hasCart"
+            }
+          },
+          "cartRetrieve": {
+            "pre": {
+              "and": [
+                "wideOpenParkingZone",
+                {
+                  "not": "hasCart"
+                },
+                "INTERACT"
+              ]
+            },
+            "post": "hasCart"
+          }
+        }
+      },
+      "norm": {
+        "type": "obligation",
+        "trigger": "cartDrop",
+        "discharge": "cartRetrieve"
+      }
+    },
+    {
+      "id": "g1_return_to_mouth_after_narrow_item",
+      "level": 1,
+      "template": "llm_refinement",
+      "text": "After interacting with an item inside a single-file shelf aisle, the shopper must return cartless to a wide aisle mouth.",
+      "abstraction": {
+        "state_properties": {
+          "singleFileShelfAisle": {
+            "and": [
+              {
+                "le": [
+                  "freeWidthH",
+                  1
+                ]
+              },
+              "shelfE",
+              "shelfW"
+            ]
+          },
+          "wideOpenAisle": {
+            "and": [
+              {
+                "ge": [
+                  "freeWidthH",
+                  6
+                ]
+              },
+              {
+                "not": "adjShelf"
+              }
+            ]
+          }
+        },
+        "events": {
+          "exitNarrowAisleCartless": {
+            "pre": {
+              "and": [
+                "singleFileShelfAisle",
+                {
+                  "not": "hasCart"
+                },
+                "MOVE"
+              ]
+            },
+            "post": {
+              "and": [
+                "wideOpenAisle",
+                {
+                  "not": "hasCart"
+                }
+              ]
+            }
+          },
+          "narrowAisleItemInteraction": {
+            "pre": {
+              "and": [
+                "singleFileShelfAisle",
+                {
+                  "not": "hasCart"
+                },
+                "INTERACT"
+              ]
+            },
+            "post": null
+          }
+        }
+      },
+      "norm": {
+        "type": "obligation",
+        "trigger": "narrowAisleItemInteraction",
+        "discharge": "exitNarrowAisleCartless"
+      }
+    },
+    {
+      "id": "g1_only_park_carts_in_wide_open_zones",
+      "level": 1,
+      "template": "llm_refinement",
+      "text": "A shopper may set down a cart only in a wide open aisle zone, not beside shelf faces or inside narrow shelf aisles.",
+      "abstraction": {
+        "state_properties": {
+          "cartParkingZone": {
+            "and": [
+              {
+                "ge": [
+                  "freeWidthH",
+                  6
+                ]
+              },
+              {
+                "not": "adjShelf"
+              }
+            ]
+          }
+        },
+        "events": {
+          "cartDrop": {
+            "pre": {
+              "and": [
+                "hasCart",
+                "INTERACT"
+              ]
+            },
+            "post": {
+              "not": "hasCart"
+            }
+          }
+        }
+      },
+      "norm": {
+        "type": "prohibition",
+        "condition": {
+          "and": [
+            "cartDrop",
+            {
+              "not": "cartParkingZone"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "g1_no_cartless_movement_past_open_shelf_faces",
+      "level": 1,
+      "template": "llm_refinement",
+      "text": "A shopper without a cart must not move along a wide shelf-facing aisle, although cartless movement inside narrow shelf aisles is allowed.",
+      "abstraction": {
+        "state_properties": {
+          "singleFileShelfAisle": {
+            "and": [
+              {
+                "le": [
+                  "freeWidthH",
+                  1
+                ]
+              },
+              "shelfE",
+              "shelfW"
+            ]
+          },
+          "wideShelfFacingAisle": {
+            "and": [
+              {
+                "ge": [
+                  "freeWidthH",
+                  2
+                ]
+              },
+              "adjShelf",
+              {
+                "not": "singleFileShelfAisle"
+              }
+            ]
+          }
+        },
+        "events": {}
+      },
+      "norm": {
+        "type": "prohibition",
+        "condition": {
+          "and": [
+            {
+              "not": "hasCart"
+            },
+            "MOVE",
+            "wideShelfFacingAisle"
+          ]
+        }
+      }
+    },
+    {
+      "id": "g1_open_shelf_interactions_require_cart",
+      "level": 1,
+      "template": "llm_refinement",
+      "text": "Items reachable from open shelf-facing aisles should be collected while keeping the cart, unlike items inside single-file shelf aisles.",
+      "abstraction": {
+        "state_properties": {
+          "openShelfFace": {
+            "and": [
+              "adjShelf",
+              {
+                "ge": [
+                  "freeWidthH",
+                  2
+                ]
+              },
+              {
+                "not": "singleFileShelfAisle"
+              }
+            ]
+          },
+          "singleFileShelfAisle": {
+            "and": [
+              {
+                "le": [
+                  "freeWidthH",
+                  1
+                ]
+              },
+              "shelfE",
+              "shelfW"
+            ]
+          }
+        },
+        "events": {}
+      },
+      "norm": {
+        "type": "prohibition",
+        "condition": {
+          "and": [
+            "openShelfFace",
+            "INTERACT",
+            {
+              "not": "hasCart"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

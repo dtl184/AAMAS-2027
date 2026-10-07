@@ -1,0 +1,43 @@
+{
+ "cache_key": "64b1e5727522493ce0c8add8ad8b2b23e0766b630b788e7f80bf733a9632f833",
+ "requested_model": "gpt-5.5",
+ "returned_model": "gpt-5.5-2026-04-23",
+ "response_id": "resp_000399ca9c274d92006ac669b3f8b087d1837b2f6af30152d7",
+ "status": "completed",
+ "incomplete_details": null,
+ "usage": {
+  "input_tokens": 7358,
+  "input_tokens_details": {
+   "cached_tokens": 0,
+   "cache_write_tokens": 0
+  },
+  "output_tokens": 5587,
+  "output_tokens_details": {
+   "reasoning_tokens": 4142
+  },
+  "total_tokens": 12945
+ },
+ "settings": {
+  "model": "gpt-5.5",
+  "temperature": null,
+  "reasoning_effort": null,
+  "max_output_tokens": null,
+  "api": "responses.create"
+ },
+ "replicate": "noise/cart/1",
+ "timestamp": "2026-10-07T11:49:07",
+ "latency_s": 63.32,
+ "retries": [
+  {
+   "attempt": 0,
+   "error": "RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
+   "at": "2026-10-07T11:47:48"
+  },
+  {
+   "attempt": 1,
+   "error": "RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
+   "at": "2026-10-07T11:47:53"
+  }
+ ],
+ "output_text": "[\n  {\n    \"id\": \"pickup_entry_cart\",\n    \"text\": \"A shopper should check in by taking the entry cart at the cart station before doing the shopping.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"entry_cart_bay\": \"at(1,5)\"\n      },\n      \"events\": {\n        \"pickup_entry_cart_event\": {\n          \"pre\": {\n            \"and\": [\n              \"entry_cart_bay\",\n              \"PICKUP_CART\"\n            ]\n          },\n          \"post\": \"hasCart\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"START\",\n      \"discharge\": \"pickup_entry_cart_event\"\n    }\n  },\n  {\n    \"id\": \"no_hand_carrying\",\n    \"text\": \"Items should not be carried by hand; a shopper must have a cart whenever taking shelf items.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"carrying_by_hand\": \"handFull\",\n        \"without_cart\": {\n          \"not\": \"hasCart\"\n        }\n      },\n      \"events\": {\n        \"pickup_item_without_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"PICKUP_ITEM\",\n              \"without_cart\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"or\": [\n          \"carrying_by_hand\",\n          \"pickup_item_without_cart\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"pickup_only_at_product_spots\",\n    \"text\": \"Shelf-item pickup interactions are permitted only at recognized product pickup positions, not at arbitrary interaction cells.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"product_pickup_cell\": {\n          \"or\": [\n            \"at(1,3)\",\n            \"at(2,2)\",\n            \"at(3,2)\",\n            \"at(5,2)\",\n            \"at(6,2)\",\n            \"at(2,4)\",\n            \"at(3,4)\",\n            \"at(5,4)\",\n            \"at(6,4)\"\n          ]\n        }\n      },\n      \"events\": {\n        \"product_pickup\": {\n          \"pre\": \"PICKUP_ITEM\",\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"PICKUP_ITEM\",\n          {\n            \"not\": \"product_pickup_cell\"\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"return_cart_to_bay\",\n    \"text\": \"After taking the cart, the shopper must return it to the cart-return bay at cell (0,1) before the trip ends.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"entry_cart_bay\": \"at(1,5)\",\n        \"cart_return_bay\": \"at(0,1)\"\n      },\n      \"events\": {\n        \"pickup_entry_cart_event\": {\n          \"pre\": {\n            \"and\": [\n              \"entry_cart_bay\",\n              \"PICKUP_CART\"\n            ]\n          },\n          \"post\": \"hasCart\"\n        },\n        \"return_cart_to_bay_event\": {\n          \"pre\": {\n            \"and\": [\n              \"cart_return_bay\",\n              \"hasCart\",\n              \"LEAVE_CART\"\n            ]\n          },\n          \"post\": \"cartAt(0,1)\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"pickup_entry_cart_event\",\n      \"discharge\": \"return_cart_to_bay_event\"\n    }\n  },\n  {\n    \"id\": \"leave_cart_only_at_return_bay\",\n    \"text\": \"A shopper may put down the cart only in the designated return bay at cell (0,1).\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"cart_return_bay\": \"at(0,1)\"\n      },\n      \"events\": {\n        \"leave_cart\": {\n          \"pre\": \"LEAVE_CART\",\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"LEAVE_CART\",\n          {\n            \"not\": \"cart_return_bay\"\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"exit_without_cart\",\n    \"text\": \"The shopper must leave the store on foot rather than exiting while still pushing the cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"pushing_cart\": \"hasCart\"\n      },\n      \"events\": {\n        \"exit_with_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"EXIT\",\n              \"pushing_cart\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"exit_with_cart\"\n    }\n  },\n  {\n    \"id\": \"no_cart_in_checkout_lane\",\n    \"text\": \"Carts are not allowed in the bottom checkout corridor from cells (4,5) through (9,5).\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"bottom_checkout_corridor\": {\n          \"or\": [\n            \"at(4,5)\",\n            \"at(5,5)\",\n            \"at(6,5)\",\n            \"at(7,5)\",\n            \"at(8,5)\",\n            \"at(9,5)\"\n          ]\n        },\n        \"cart_in_bottom_checkout_corridor\": {\n          \"and\": [\n            \"hasCart\",\n            \"bottom_checkout_corridor\"\n          ]\n        }\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"cart_in_bottom_checkout_corridor\"\n    }\n  },\n  {\n    \"id\": \"no_cart_east_from_3_5\",\n    \"text\": \"When pushing a cart at cell (3,5), the shopper must not continue east into the checkout corridor.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"cart_at_checkout_threshold\": {\n          \"and\": [\n            \"hasCart\",\n            \"at(3,5)\"\n          ]\n        }\n      },\n      \"events\": {\n        \"push_cart_east_from_threshold\": {\n          \"pre\": {\n            \"and\": [\n              \"cart_at_checkout_threshold\",\n              \"E\"\n            ]\n          },\n          \"post\": \"at(4,5)\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"push_cart_east_from_threshold\"\n    }\n  }\n]"
+}

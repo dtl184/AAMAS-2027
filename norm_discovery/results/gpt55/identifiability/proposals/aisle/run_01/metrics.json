@@ -1,0 +1,221 @@
+{
+  "domain": "aisle",
+  "run_index": 1,
+  "error": "LLMCallError: OpenAI call failed after 4 attempts: [{'attempt': 0, 'error': \"RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}\", 'at': '2026-10-07T11:46:06'}, {'attempt': 1, 'error': \"RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}\", 'at': '2026-10-07T11:46:12'}, {'attempt': 2, 'error': \"RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}\", 'at': '2026-10-07T11:46:23'}, {'attempt': 3, 'error': \"RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}\", 'at': '2026-10-07T11:46:44'}]",
+  "n_hypotheses": 8,
+  "n_rejected": 0,
+  "equivalent_found": {
+    "H_null": [
+      "g0_must_get_cart",
+      "g0_exit_with_cart",
+      "g0_recover_cart_after_item"
+    ],
+    "B0_cells": [
+      "g0_no_cart_in_narrow_aisle"
+    ],
+    "B0_pickcells": [],
+    "B0_interact_cells": [
+      "g0_no_item_interact_with_cart"
+    ],
+    "S_inAisle": [],
+    "S_corridor": [],
+    "S_nearShelf": [],
+    "S_noShelfInteractWithCart": [],
+    "S_memorised": []
+  },
+  "proposed": {
+    "H_null": true,
+    "B0_cells": true,
+    "B0_pickcells": false,
+    "B0_interact_cells": true,
+    "S_inAisle": false,
+    "S_corridor": false,
+    "S_nearShelf": false,
+    "S_noShelfInteractWithCart": false,
+    "S_memorised": false
+  },
+  "hypotheses": [
+    {
+      "id": "g0_must_get_cart",
+      "level": 0,
+      "template": "llm_initial",
+      "text": "The shopper is obliged to obtain or use a cart during the trip.",
+      "abstraction": {
+        "state_properties": {},
+        "events": {}
+      },
+      "norm": {
+        "type": "obligation",
+        "trigger": "START",
+        "discharge": "hasCart"
+      }
+    },
+    {
+      "id": "g0_exit_with_cart",
+      "level": 0,
+      "template": "llm_initial",
+      "text": "The shopper is prohibited from leaving the store without a cart.",
+      "abstraction": {
+        "state_properties": {},
+        "events": {}
+      },
+      "norm": {
+        "type": "prohibition",
+        "condition": {
+          "and": [
+            "EXIT",
+            {
+              "not": "hasCart"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "g0_no_cart_in_narrow_aisle",
+      "level": 0,
+      "template": "llm_initial",
+      "text": "The shopper is prohibited from taking a cart into the narrow aisle at cells (3,1) or (3,2).",
+      "abstraction": {
+        "state_properties": {},
+        "events": {}
+      },
+      "norm": {
+        "type": "prohibition",
+        "condition": {
+          "and": [
+            "hasCart",
+            {
+              "or": [
+                "at(3,1)",
+                "at(3,2)"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "g0_no_cart_north_from_bay",
+      "level": 0,
+      "template": "llm_initial",
+      "text": "A shopper with a cart is prohibited from moving north from the cart bay at (3,3).",
+      "abstraction": {
+        "state_properties": {},
+        "events": {}
+      },
+      "norm": {
+        "type": "prohibition",
+        "condition": {
+          "and": [
+            "hasCart",
+            "at(3,3)",
+            "N"
+          ]
+        }
+      }
+    },
+    {
+      "id": "g0_no_item_interact_with_cart",
+      "level": 0,
+      "template": "llm_initial",
+      "text": "The shopper is prohibited from interacting with the item location at (3,1) while holding a cart.",
+      "abstraction": {
+        "state_properties": {},
+        "events": {}
+      },
+      "norm": {
+        "type": "prohibition",
+        "condition": {
+          "and": [
+            "hasCart",
+            "at(3,1)",
+            "INTERACT"
+          ]
+        }
+      }
+    },
+    {
+      "id": "g0_recover_cart_after_item",
+      "level": 0,
+      "template": "llm_initial",
+      "text": "After interacting at the item location (3,1), the shopper is obliged to recover a cart.",
+      "abstraction": {
+        "state_properties": {},
+        "events": {}
+      },
+      "norm": {
+        "type": "obligation",
+        "trigger": {
+          "and": [
+            "at(3,1)",
+            "INTERACT"
+          ]
+        },
+        "discharge": "hasCart"
+      }
+    },
+    {
+      "id": "g0_retrieve_at_cart_bay",
+      "level": 0,
+      "template": "llm_initial",
+      "text": "Whenever the shopper is at the cart bay at (3,3) without a cart, they are obliged to interact there.",
+      "abstraction": {
+        "state_properties": {},
+        "events": {}
+      },
+      "norm": {
+        "type": "obligation",
+        "trigger": {
+          "and": [
+            "at(3,3)",
+            {
+              "not": "hasCart"
+            }
+          ]
+        },
+        "discharge": {
+          "and": [
+            "at(3,3)",
+            "INTERACT"
+          ]
+        }
+      }
+    },
+    {
+      "id": "g0_cart_required_exit_corridor",
+      "level": 0,
+      "template": "llm_initial",
+      "text": "The shopper is prohibited from moving along the exit corridor from (2,7) through (11,7) without a cart.",
+      "abstraction": {
+        "state_properties": {},
+        "events": {}
+      },
+      "norm": {
+        "type": "prohibition",
+        "condition": {
+          "and": [
+            {
+              "not": "hasCart"
+            },
+            "MOVE",
+            {
+              "or": [
+                "at(2,7)",
+                "at(3,7)",
+                "at(4,7)",
+                "at(5,7)",
+                "at(6,7)",
+                "at(7,7)",
+                "at(8,7)",
+                "at(9,7)",
+                "at(10,7)",
+                "at(11,7)"
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

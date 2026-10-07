@@ -1,0 +1,223 @@
+{
+  "domain": "aisle",
+  "run_index": 4,
+  "error": "LLMCallError: OpenAI call failed after 4 attempts: [{'attempt': 0, 'error': \"RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}\", 'at': '2026-10-07T11:47:04'}, {'attempt': 1, 'error': \"RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}\", 'at': '2026-10-07T11:47:10'}, {'attempt': 2, 'error': \"RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}\", 'at': '2026-10-07T11:47:21'}, {'attempt': 3, 'error': \"RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}\", 'at': '2026-10-07T11:47:42'}]",
+  "n_hypotheses": 8,
+  "n_rejected": 0,
+  "equivalent_found": {
+    "H_null": [
+      "g0_must_take_cart",
+      "g0_exit_with_cart",
+      "g0_no_exit_before_cart_return"
+    ],
+    "B0_cells": [
+      "g0_no_cart_in_north_aisle"
+    ],
+    "B0_pickcells": [
+      "g0_no_cart_in_item_cell"
+    ],
+    "B0_interact_cells": [
+      "g0_retrieve_cart_after_item"
+    ],
+    "S_inAisle": [],
+    "S_corridor": [],
+    "S_nearShelf": [],
+    "S_noShelfInteractWithCart": [],
+    "S_memorised": []
+  },
+  "proposed": {
+    "H_null": true,
+    "B0_cells": true,
+    "B0_pickcells": true,
+    "B0_interact_cells": true,
+    "S_inAisle": false,
+    "S_corridor": false,
+    "S_nearShelf": false,
+    "S_noShelfInteractWithCart": false,
+    "S_memorised": false
+  },
+  "hypotheses": [
+    {
+      "id": "g0_must_take_cart",
+      "level": 0,
+      "template": "llm_initial",
+      "text": "Shoppers are obliged to obtain a shopping cart at some point during the trip.",
+      "abstraction": {
+        "state_properties": {},
+        "events": {}
+      },
+      "norm": {
+        "type": "obligation",
+        "trigger": "START",
+        "discharge": "hasCart"
+      }
+    },
+    {
+      "id": "g0_exit_with_cart",
+      "level": 0,
+      "template": "llm_initial",
+      "text": "Shoppers are prohibited from leaving the store unless they have a shopping cart.",
+      "abstraction": {
+        "state_properties": {},
+        "events": {}
+      },
+      "norm": {
+        "type": "prohibition",
+        "condition": {
+          "and": [
+            "EXIT",
+            {
+              "not": "hasCart"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "g0_no_cart_in_item_cell",
+      "level": 0,
+      "template": "llm_initial",
+      "text": "Shoppers are prohibited from being at the item location at column 3 row 1 while holding a cart.",
+      "abstraction": {
+        "state_properties": {},
+        "events": {}
+      },
+      "norm": {
+        "type": "prohibition",
+        "condition": {
+          "and": [
+            "at(3,1)",
+            "hasCart"
+          ]
+        }
+      }
+    },
+    {
+      "id": "g0_no_cart_in_north_aisle",
+      "level": 0,
+      "template": "llm_initial",
+      "text": "Shoppers are prohibited from taking a cart into the narrow aisle consisting of cells at column 3 rows 1 and 2.",
+      "abstraction": {
+        "state_properties": {},
+        "events": {}
+      },
+      "norm": {
+        "type": "prohibition",
+        "condition": {
+          "and": [
+            "hasCart",
+            {
+              "or": [
+                "at(3,1)",
+                "at(3,2)"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "g0_park_cart_before_aisle",
+      "level": 0,
+      "template": "llm_initial",
+      "text": "Shoppers who reach the cart-parking cell at column 3 row 3 with a cart are obliged to interact there before entering the aisle.",
+      "abstraction": {
+        "state_properties": {},
+        "events": {}
+      },
+      "norm": {
+        "type": "obligation",
+        "trigger": {
+          "and": [
+            "at(3,3)",
+            "hasCart"
+          ]
+        },
+        "discharge": {
+          "and": [
+            "at(3,3)",
+            "INTERACT"
+          ]
+        }
+      }
+    },
+    {
+      "id": "g0_retrieve_cart_after_item",
+      "level": 0,
+      "template": "llm_initial",
+      "text": "After interacting at the item location at column 3 row 1, shoppers are obliged to return to column 3 row 3 and interact there.",
+      "abstraction": {
+        "state_properties": {},
+        "events": {}
+      },
+      "norm": {
+        "type": "obligation",
+        "trigger": {
+          "and": [
+            "at(3,1)",
+            "INTERACT"
+          ]
+        },
+        "discharge": {
+          "and": [
+            "at(3,3)",
+            "INTERACT"
+          ]
+        }
+      }
+    },
+    {
+      "id": "g0_cart_required_on_south_exit_route",
+      "level": 0,
+      "template": "llm_initial",
+      "text": "Shoppers are prohibited from traveling along the bottom exit route without a cart.",
+      "abstraction": {
+        "state_properties": {},
+        "events": {}
+      },
+      "norm": {
+        "type": "prohibition",
+        "condition": {
+          "and": [
+            {
+              "not": "hasCart"
+            },
+            {
+              "or": [
+                "at(3,7)",
+                "at(4,7)",
+                "at(5,7)",
+                "at(6,7)",
+                "at(7,7)",
+                "at(8,7)",
+                "at(9,7)",
+                "at(10,7)",
+                "at(11,7)"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "g0_no_exit_before_cart_return",
+      "level": 0,
+      "template": "llm_initial",
+      "text": "Once a shopper has interacted at column 3 row 1, they are obliged to have a cart again before exiting.",
+      "abstraction": {
+        "state_properties": {},
+        "events": {}
+      },
+      "norm": {
+        "type": "obligation",
+        "trigger": {
+          "and": [
+            "at(3,1)",
+            "INTERACT"
+          ]
+        },
+        "discharge": "hasCart"
+      }
+    }
+  ]
+}

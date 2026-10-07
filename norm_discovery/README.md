@@ -1,5 +1,12 @@
 # Learning the Right Abstraction for Norm Discovery — reconstructed experimental code
 
+> **Two kinds of results live here, and are never mixed:**
+> * **Actual GPT-5.5 proposal experiments**: hypotheses are proposed and refined by `gpt-5.5` through the OpenAI
+>   API (`results/gpt55/`, `figures/gpt55/`, `python -m experiments.gpt55 ...`).
+> * **Deterministic-proposal ablation (inference only)**: an LLM-free template provider, used to study the
+>   Bayesian machinery in isolation (`results/deterministic_proposals/`, `figures/deterministic_proposals/`).
+>   These results are **not** GPT-5.5 results.
+
 This repository rebuilds the experimental setup of *"Learning the Right Abstraction for Norm Discovery"*
 (AAMAS 2027 submission) from the paper text, and adds three new experiments:
 
@@ -12,7 +19,49 @@ It was neither read nor modified, as instructed.
 Results are summarised in **`RESULTS_SUMMARY.md`**. The reconstruction report, with exact trajectories,
 hypotheses and sanity checks, is in **`results/reconstruction/RECONSTRUCTION_REPORT.md`**.
 
-## Quick start
+## GPT-5.5 experiments (OpenAI API)
+
+The key is read from `OPENAI_API_KEY`, which is exported in `~/.bashrc`. It is never written to disk. Run every
+command below in a shell where it is loaded:
+
+```bash
+source ~/.bashrc && test -n "$OPENAI_API_KEY" && echo "OPENAI_API_KEY is set"
+cd /home/train/norm_discovery && PY=/home/train/anaconda3/bin/python
+$PY -m experiments.gpt_smoke_test              # one real call; verifies the API reports gpt-5.5
+$PY -m experiments.gpt55 estimate              # dry run: expected calls / tokens (no API calls)
+$PY -m experiments.gpt55 original              # 10 GPT-5.5 runs per domain, original protocol, rho = 0.1
+$PY -m experiments.gpt55 threshold             # rho grid x 10 GPT-5.5 runs x 2 domains (original protocol)
+$PY -m experiments.gpt55 noise                 # noise experiment, 10 GPT-5.5 runs per condition
+$PY -m experiments.gpt55 identifiability       # (A) proposal quality, (B) Bayesian identifiability given GPT sets
+```
+
+How it works:
+* Provider: `experiments/common.py::make_provider` selects `cfg["provider"]` (`deterministic` | `openai`).
+  `openai` wraps the existing `LLMProposalProvider` (`proposals/llm_stub.py`) around
+  `proposals/openai_provider.py::OpenAICompletion`, which calls `client.responses.create`.
+* No fallback: an API error, an unparseable response (after one recorded format retry) or a model mismatch stops
+  that run and is recorded in its `metrics.json` (`error`). It never switches provider or model.
+* Model check: every call compares the model the API reports with the requested one. `gpt-5.5` matches only
+  `gpt-5.5` or a dated `gpt-5.5-YYYY-MM-DD` snapshot. The smoke test returned `gpt-5.5-2026-04-23`.
+* Generation settings: the paper used temperature 0.2, but the API rejects `temperature` for `gpt-5.5`
+  (HTTP 400, recorded in the first smoke test). It is therefore left unset (API default), and every run's
+  settings record this. Reasoning effort and max output tokens are also left at the API defaults.
+* Caching: responses are cached in `results/llm_cache/` under sha256(prompt, model, settings, replicate key).
+  Independent runs have different replicate keys, so they never share a response. The same run re-sending an
+  identical prompt (e.g. the same run at another rho) reuses its own response.
+* Transcripts: every run writes `transcript.json` (prompt, raw response, parsed JSON, accepted and rejected
+  hypotheses with validation errors, call kind, model, request id, token usage, retries, timestamps),
+  `metrics.json` (hyperparameters, metrics, the full hypothesis set) and `trace.json` (per demonstration: p_t,
+  b_t, ρ·b_t, p_t/b_t, trigger, P(h|D) for every hypothesis). These go under
+  `results/gpt55/<experiment>/<domain>/[<condition>/]<method>_run_XX/`.
+* "Intended" for LLM proposals: GPT may phrase the intended norm in any syntax. A proposal therefore counts as
+  intended if it assigns the same violation labels as the hidden norm to every trajectory in a fixed probe set
+  (`DomainSpec.probe_set`: 541 cart / 372 aisle trajectories, both compliant and violating, built
+  deterministically and cached in `results/probe_sets/`). The strict template match is kept as `*_exact`.
+* Initial proposals may not define new concepts: proposals at level 0 with a non-empty abstraction are rejected
+  and recorded.
+
+## Quick start (deterministic-proposal ablation)
 
 ```bash
 cd /home/train/norm_discovery

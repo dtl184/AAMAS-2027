@@ -1,15 +1,150 @@
 # Results summary
 
-All numbers come from the saved outputs of this repository. They are produced by `python -m experiments.run_all`,
-which is deterministic given `base_seed`. Brackets give 95% bootstrap CIs over seeds. "Full" means the abstraction
-discovery method of the paper with ρ = 0.1 and the running-minimum baseline, unless stated otherwise. The paper's
-LLM is replaced by a deterministic proposal provider (see README). These are therefore results about the
-*inference and refinement machinery* given a fixed, known set of proposals, not about LLM proposal quality.
-Formatted tables are in `results/tables/ALL_TABLES.md`.
+This file reports two kinds of experiments. They are kept strictly separate.
+
+* **Part I – actual GPT-5.5 proposal experiments.** Hypotheses are proposed and refined by `gpt-5.5` through the
+  OpenAI API. Every call returned model `gpt-5.5-2026-04-23`. Results: `results/gpt55/`, figures:
+  `figures/gpt55/`.
+* **Part II – deterministic-proposal ablation (inference only, NOT GPT-5.5).** An LLM-free template provider
+  isolates the Bayesian inference and refinement machinery. Results: `results/deterministic_proposals/`,
+  figures: `figures/deterministic_proposals/`.
+
+Brackets give 95% bootstrap CIs. ± gives the SD over runs. "Full" means the paper's method with ρ = 0.1 and the
+running-minimum baseline, unless stated otherwise.
 
 ---
 
-## 0. Reconstruction and sanity checks (`results/reconstruction/`)
+# Part I – Actual GPT-5.5 proposal experiments
+
+**Status.**
+* Done: smoke test, original reproduction (10 runs per domain), threshold sensitivity (10 runs per ρ and domain),
+  and identifiability (cart 10/10 runs).
+* Stopped: **the OpenAI account ran out of credits at 11:46** (HTTP 429 `insufficient_quota` /
+  `credit_balance_exhausted`). Identifiability for the aisle domain has only 4/10 runs; 6 failed with that error,
+  which is recorded in their `metrics.json`. **The GPT-5.5 noise experiment was not completed:** only about 10
+  cart full-method runs (out of 180 GPT runs) finished, so no noise results are reported for GPT-5.5. Per Section
+  12 of the instructions, nothing fell back to another provider or model.
+* Usage: 103 successful API calls, 264k input and 442k output tokens. All responses are cached in
+  `results/llm_cache/`, so re-running after topping up reuses them at no cost.
+
+Generation settings: the API rejects `temperature` for `gpt-5.5` (HTTP 400 in the first smoke test), so the
+paper's temperature of 0.2 could not be used. Temperature is unset (API default). Reasoning effort is the API
+default. Each call requests 8 hypotheses. Model identity was checked on every call.
+
+## I.1 Original protocol, 10 independent GPT-5.5 runs per domain (`results/gpt55/original/`)
+
+| Method | Exp.1 Acc. | Exp.1 Viol. F1 | Exp.2 Acc. | Exp.2 Viol. F1 | Exp.2 Unseen Acc. |
+|---|---|---|---|---|---|
+| Fixed abstraction (GPT-5.5 initial proposals) | 0.80 ± 0.00 | 0.80 ± 0.00 | 0.60 ± 0.00 | 0.33 ± 0.00 | 0.40 ± 0.00 |
+| MLCI (no LLM) | 0.60 | 0.75 | 0.50 | 0.00 | 0.40 |
+| **Ours – GPT-5.5** | **0.80 ± 0.00** | **0.80 ± 0.00** | **0.60 ± 0.00** | **0.33 ± 0.00** | **0.40 ± 0.00** |
+| Oracle abstraction (GPT-5.5 proposals over the refined vocabulary from t = 1) | 0.96 ± 0.08 | 0.96 ± 0.08 | 0.98 ± 0.06 | 0.98 ± 0.05 | 1.00 ± 0.00 |
+| *Paper, Ours – GPT-5.5* | *0.80 ± 0.00* | *0.80 ± 0.00* | *0.96 ± 0.08* | *1.00 ± 0.00* | *0.93 ± 0.14* |
+
+| Domain | Method | Refined | Intended proposed | Final MAP = intended | Mean P(intended) |
+|---|---|---|---|---|---|
+| cart | GPT-5.5 full | 0/10 | 0/10 | 0/10 | 0.00 |
+| cart | GPT-5.5 oracle | – | 7/10 | 5/10 | 0.56 |
+| aisle | GPT-5.5 full | 0/10 | 0/10 | 0/10 | 0.00 |
+| aisle | GPT-5.5 oracle | – | 10/10 | 7/10 | 0.47 |
+
+"Intended" means behaviourally equivalent to the hidden norm on a fixed probe set of 541 (cart) / 372 (aisle)
+trajectories. GPT phrases norms in its own syntax, so exact template matching would undercount. No proposals were
+rejected, except one level-1 aisle proposal in one run.
+
+**Refinement trigger with GPT-5.5 hypotheses.** The deterministic result carries over, and the GPT-5.5 margin is
+much larger. In all 20 runs, refinement did not trigger at ρ = 0.1:
+* Cart: log p₂ ≈ −26.9 and log p₃ ≈ −23.4, so p₃/b₃ ≈ 36.
+* Aisle: log p₂ ≈ −14.6 and log p₃ ≈ −5.0, so p₃/b₃ ≈ 1.4 × 10⁴.
+
+The reason is that GPT's initial proposals explain the demonstrations about equally well, or badly, at t = 2 and
+t = 3:
+* Cart: the MAP in 10/10 runs is "must INTERACT at (0,1) before exiting", an unconditional coordinate obligation.
+  It is a worse explanation than my template competitor (log p₂ −26.9 vs −11.8), but p₃ is not lower than p₂.
+* Aisle: coordinate rules such as "no cart at (3,1)/(3,2)" or "no N from (3,3) with the cart".
+
+Full traces (p_t, b_t, ρ·b_t, p_t/b_t, trigger, P(h|D) for every hypothesis) are in each run's `trace.json`. The
+paper's GPT-5.5 Exp. 2 numbers (0.96 / 1.00 / 0.93) are not reproduced. Exp. 1 matches numerically (0.80), but for
+a different reason: the paper attributes its 0.80 to an item-triggered competitor selected *after* refinement,
+whereas here refinement never happens.
+
+When GPT-5.5 is given the refined vocabulary directly (oracle), its proposals are good:
+* Aisle: "no cart between opposing shelves" (shelfE ∧ shelfW), in 10/10 runs.
+* Cart: "after taking a cart it must be returned to the bay", in 7/10 runs.
+
+The bottleneck is therefore the trigger, not GPT-5.5's ability to propose abstractions.
+
+## I.2 Refinement-threshold sensitivity with GPT-5.5 (`results/gpt55/threshold_sensitivity/`, `figures/gpt55/threshold_gpt55.png`)
+
+Original 3-demonstration protocol; ρ ∈ {0.01, …, 0.8}; 10 GPT-5.5 runs per ρ and domain (160 runs).
+* **No run refined at any ρ.** Accuracy is 0.80 (cart) and 0.60 (aisle, unseen 0.40) at every ρ, with
+  refinement rate 0 and P(intended) 0.
+* This follows from I.1. Every run has p₃/b₃ > 1, so the trigger p₃ < ρ·b₃ cannot fire for any ρ < 1. On this
+  protocol the outcome is invariant to ρ.
+* No new API calls were needed: every prompt equals the same run's prompt from I.1 and was reused from that run's
+  cache.
+
+## I.3 Noise robustness with GPT-5.5 — **not completed** (`results/gpt55/noise_robustness/`)
+
+The API credits ran out about 15 minutes into the sweep. The per-run directories that exist are partial: mostly
+the cart q = 0 condition, with 13 recorded credit errors. They are **not** analysed or reported. The dry-run
+estimate (`results/gpt55/estimate/estimate.json`) for the full sweep with 10 GPT runs per condition is at most
+656 calls, about 1.9M input and 2.4M output tokens. Re-run with `python -m experiments.gpt55 noise` after topping
+up; cached responses are reused.
+
+## I.4 Identifiability with GPT-5.5 (`results/gpt55/identifiability/`)
+
+**A. Proposal quality.** Per run: initial proposals from D1, then refinement proposals from D1–D3, with refinement
+forced so that proposal quality is measured independently of the trigger. The table counts runs in which some
+GPT-5.5 hypothesis is behaviourally equivalent to the reference hypothesis.
+
+| Domain | Reference hypothesis | Proposed in runs |
+|---|---|---|
+| cart | **H_int (intended)** | **7/10** |
+| cart | A0_interact_last (coordinate: "interact at (0,1) before exit") | 10/10 |
+| cart | H_noexit ("no exit while holding the cart") | 7/10 |
+| cart | A0_first_to_last (coordinate C→R obligation) | 2/10 |
+| cart | A0_any_to_last, A0_visit_last, H_item (paper's competitor), H_uncond, H_visit, H_leave | 0/10 |
+| aisle (4 runs; 6 failed on credits) | **S_inAisle (intended)** | **2/4** |
+| aisle | S_corridor (width-1 corridor) | 2/4 |
+| aisle | B0_cells / B0_pickcells (memorised cells) | 3/4 / 2/4 |
+| aisle | S_nearShelf, S_memorised, S_noShelfInteractWithCart | 0/4 |
+
+GPT-5.5 never proposed the paper's item-triggered competitor, nor the coordinate rule that dominated the
+deterministic ablation (`A0_any_to_last`).
+
+**B. Bayesian identifiability given each run's own GPT-5.5 hypothesis set** (cart; no extra API calls). Each set
+was combined with the diagnostic, control and reacquire sequences from Part II.
+
+| Sequence | P(intended) after D1 | after D5 | after D6 | after D8 | Mean accuracy at D8 |
+|---|---|---|---|---|---|
+| control (ordinary only) | 0.635 | 0.635 | 0.635 | 0.635 | 0.96 |
+| diagnostic (D6 = parked-cart context) | 0.635 | 0.635 | **0.700** | 0.700 | 0.96 |
+| reacquire (D6 = return–reacquire–return) | 0.635 | 0.635 | 0.635 | 0.635 | 0.96 |
+
+0.70 is the ceiling, because the intended norm is in the set in 7/10 runs.
+* In 6 of those 7 runs, the intended hypothesis already has P ≈ 1.00 after the first demonstration. GPT's
+  competitors (mostly unconditional "interact at (0,1)" rules) allow cheap loopholes and lose by the size
+  principle.
+* In the one ambiguous run (run 6, competitor "FORBIDDEN: EXIT ∧ ¬cart parked in return bay"), P(intended) is 0.35
+  after D5 and 1.00 after the diagnostic demonstration.
+* As in Part II, the reacquire demonstration changes nothing.
+
+**Proposal performance vs. statistical identifiability.**
+* With GPT-5.5's candidate sets, the identifiability problem of Part II is mostly absent. GPT rarely proposes the
+  near-equivalent coordinate competitor.
+* The limiting factor is whether GPT proposes the intended norm at all: 7/10 cart runs, 2/4 aisle runs.
+* The diagnostic-context mechanism still works when real ambiguity occurs (run 6).
+
+---
+
+# Part II – Deterministic-proposal ablation (inference only; NOT GPT-5.5)
+
+The paper's LLM is replaced by a deterministic template provider (see README). These results describe the
+*inference and refinement machinery* given a fixed, known set of proposals. They say nothing about LLM proposal
+quality.
+
+## 0. Reconstruction and sanity checks (`results/deterministic_proposals/reconstruction/`)
 
 ### Original protocol: 3 demonstrations, canonical order
 
@@ -62,7 +197,7 @@ numbers. MLCI drops to 0.39 [0.36, 0.42] in the cart domain, and the aisle oracl
 
 ---
 
-## 1. Refinement-threshold sensitivity (`results/threshold_sensitivity/`)
+## 1. Refinement-threshold sensitivity (`results/deterministic_proposals/threshold_sensitivity/`)
 
 **Protocol.**
 * Full method with ρ ∈ {0.01, 0.025, 0.05, **0.1**, 0.2, 0.4, 0.6, 0.8}, using the running-minimum baseline
@@ -118,7 +253,7 @@ Mean P(intended) for the cart domain rises from 0.03 (ρ = 0.1, min) to 0.47 (ρ
 
 ---
 
-## 2. Robustness to noisy demonstrations (`results/noise_robustness/`)
+## 2. Robustness to noisy demonstrations (`results/deterministic_proposals/noise_robustness/`)
 
 **Protocol.**
 * 2 domains × 2 noise types × q ∈ {0, 5, 10, 20, 30}% × 20 seeds × 4 methods = 1,440 runs.
@@ -172,7 +307,7 @@ accuracy: 0.90 → 0.63.
 
 ---
 
-## 3. Identifiability and disambiguating demonstrations (`results/identifiability/`)
+## 3. Identifiability and disambiguating demonstrations (`results/deterministic_proposals/identifiability/`)
 
 **Protocol.**
 * Cart domain, using the oracle hypothesis set (11 hypotheses, held fixed) so that identifiability is studied
@@ -231,7 +366,7 @@ posterior.
 
 ---
 
-## Supplement: description-length coding (`results/supplement_dl_coding/`)
+## Supplement: description-length coding (`results/deterministic_proposals/supplement_dl_coding/`)
 
 Added *after* the primary results, as a sensitivity analysis. The primary coding charges 1 unit for at(x,y).
 The token-consistent coding charges 3 (predicate + x + y), matching how numeric constants are already counted
@@ -272,7 +407,7 @@ substantive modelling choice to report.
 
 ---
 
-## Proposed paragraphs for the paper (based only on these results)
+## Proposed paragraphs for the paper (deterministic-proposal ablation; see the GPT-5.5 section for what changes)
 
 **Refinement-threshold sensitivity.** We varied the refinement threshold ρ from 0.01 to 0.8 on the original
 three demonstrations (all six orders) and on 20 independently generated sequences of 20 demonstrations. On the
@@ -317,20 +452,20 @@ the demonstrations that resolve it.
 ## Files
 
 Raw and summary results (CSV / JSON / JSONL):
-* `results/reconstruction/`: `report.json`, `RECONSTRUCTION_REPORT.md`, `sanity_checks.json`,
+* `results/deterministic_proposals/reconstruction/`: `report.json`, `RECONSTRUCTION_REPORT.md`, `sanity_checks.json`,
   `original_results.csv`, `original_runs.jsonl` (with traces), `randomized_original_runs.jsonl`,
   `randomized_original_summary.csv`, `mlci_epsilon_sensitivity.csv`, `metadata.json`
-* `results/threshold_sensitivity/`: `runs.jsonl` (per-run, with traces), `runs.csv`, `traces.csv`
+* `results/deterministic_proposals/threshold_sensitivity/`: `runs.jsonl` (per-run, with traces), `runs.csv`, `traces.csv`
   (p_t, b_t, p_t/b_t), `summary.csv`, `running_min_diagnostics.json`, `metadata.json`
-* `results/noise_robustness/`: `runs.jsonl` (per seed, including full training datasets), `runs.csv`,
+* `results/deterministic_proposals/noise_robustness/`: `runs.jsonl` (per seed, including full training datasets), `runs.csv`,
   `summary.csv`, `metadata.json`
-* `results/identifiability/`: `prefix_posteriors.csv`, `sequences.jsonl`, `context_scores_round1.csv`,
+* `results/deterministic_proposals/identifiability/`: `prefix_posteriors.csv`, `sequences.jsonl`, `context_scores_round1.csv`,
   `mi_landscape.csv`, `extra_demo_comparison.csv`, `extra_demo_summary.csv`, `long_control.csv`, `summary.json`,
   `metadata.json`
-* `results/supplement_dl_coding/`: `runs.jsonl`, `summary.csv`, `metadata.json`
-* `results/tables/`: `ALL_TABLES.md` plus one `.md` per experiment
+* `results/deterministic_proposals/supplement_dl_coding/`: `runs.jsonl`, `summary.csv`, `metadata.json`
+* `results/deterministic_proposals/tables/`: `ALL_TABLES.md` plus one `.md` per experiment
 
-Figures (`figures/`, PNG + PDF):
+Figures (`figures/deterministic_proposals/`, PNG + PDF):
 * `gridworld_cart`, `gridworld_aisle`
 * `threshold_accuracy`, `threshold_f1`, `threshold_refinements`, `threshold_p_intended`,
   `threshold_unseen_accuracy`, `threshold_traces`, `threshold_logp_vs_length`

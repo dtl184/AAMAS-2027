@@ -1,0 +1,1430 @@
+{
+  "llm_calls": [
+    {
+      "cache_key": "d57f813840dba5229839e85f817f7aee0facd47144834ec3d8f97e063df3124e",
+      "requested_model": "gpt-5.5",
+      "returned_model": "gpt-5.5-2026-04-23",
+      "response_id": "resp_0c221c7e925b2cbd006ac6a335419087d19f3392399c6d29b7",
+      "status": "completed",
+      "incomplete_details": null,
+      "usage": {
+        "input_tokens": 1051,
+        "input_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0
+        },
+        "output_tokens": 3783,
+        "output_tokens_details": {
+          "reasoning_tokens": 2970
+        },
+        "total_tokens": 4834
+      },
+      "settings": {
+        "model": "gpt-5.5",
+        "temperature": null,
+        "reasoning_effort": null,
+        "max_output_tokens": null,
+        "api": "responses.create"
+      },
+      "replicate": "trig/aisle/2",
+      "timestamp": "2026-10-07T15:54:03",
+      "latency_s": 38.13,
+      "retries": [],
+      "cache_hit": true
+    },
+    {
+      "cache_key": "d17efef3b92ebeb9794fbc650b7e396b4387605c8232345e5913e8c9935d271b",
+      "requested_model": "gpt-5.5",
+      "returned_model": "gpt-5.5-2026-04-23",
+      "response_id": "resp_01867fa65e933008006ac6d1c6193087d18f1d7a1fa4c51adc",
+      "status": "completed",
+      "incomplete_details": null,
+      "usage": {
+        "input_tokens": 8949,
+        "input_tokens_details": {
+          "cached_tokens": 5888,
+          "cache_write_tokens": 0
+        },
+        "output_tokens": 6602,
+        "output_tokens_details": {
+          "reasoning_tokens": 4501
+        },
+        "total_tokens": 15551
+      },
+      "settings": {
+        "model": "gpt-5.5",
+        "temperature": null,
+        "reasoning_effort": null,
+        "max_output_tokens": null,
+        "api": "responses.create"
+      },
+      "replicate": "trig/aisle/2",
+      "timestamp": "2026-10-07T19:13:11",
+      "latency_s": 65.36,
+      "retries": [],
+      "cache_hit": false
+    }
+  ],
+  "proposals": [
+    {
+      "index": 0,
+      "kind": "initial",
+      "level": 0,
+      "n_demos_shown": 1,
+      "timestamp": "2026-10-07T19:12:05",
+      "model": "gpt-5.5",
+      "replicate": "trig/aisle/2",
+      "experiment": "refinement_trigger_comparison",
+      "stage": "labels",
+      "domain": "aisle",
+      "protocol": "pool",
+      "run_index": 2,
+      "opportunity_t": 9,
+      "prompt": "Agents in a supermarket gridworld must collect their required items and leave through the exit. Every action costs the same, so demonstrators prefer short trajectories -- unless an unknown social norm makes them behave otherwise. Your task is to propose candidate norms (obligations or prohibitions) that could explain the demonstrated behaviour.\nEach demonstration is listed step by step as  `k: {atoms true in the state} action`.\n\nAvailable atoms:\n- at(x,y) -- the agent is at cell (x,y); x = column (0 = left), y = row (0 = top); N decreases y, S increases y, E increases x, W decreases x\n- hasCart -- the agent is holding/pushing a shopping cart\n- actions N, S, E, W, MOVE (any of the four moves), INTERACT (any interaction with an object: the different kinds of interaction are NOT distinguished), EXIT (leave the store; always the last action)\n\nDemonstration 1 (required items: a2, s1):\n  0: {at(0,7)} E\n  1: {at(1,7)} INTERACT\n  2: {at(1,7), hasCart} E\n  3: {at(2,7), hasCart} E\n  4: {at(3,7), hasCart} E\n  5: {at(4,7), hasCart} N\n  6: {at(4,6), hasCart} E\n  7: {at(5,6), hasCart} N\n  8: {at(5,5), hasCart} INTERACT\n  9: {at(5,5), hasCart} N\n 10: {at(5,4), hasCart} N\n 11: {at(5,3), hasCart} E\n 12: {at(6,3), hasCart} INTERACT\n 13: {at(6,3)} N\n 14: {at(6,2)} N\n 15: {at(6,1)} INTERACT\n 16: {at(6,1)} S\n 17: {at(6,2)} S\n 18: {at(6,3)} INTERACT\n 19: {at(6,3), hasCart} E\n 20: {at(7,3), hasCart} S\n 21: {at(7,4), hasCart} E\n 22: {at(8,4), hasCart} E\n 23: {at(9,4), hasCart} E\n 24: {at(10,4), hasCart} E\n 25: {at(11,4), hasCart} S\n 26: {at(11,5), hasCart} S\n 27: {at(11,6), hasCart} S\n 28: {at(11,7), hasCart} EXIT\n 29: {at(11,7), hasCart} <terminal>\n\nPropose norms using ONLY the atoms listed above. Do NOT define any new state properties or events: \"abstraction\" must be {}.\nPropose 8 diverse candidate hypotheses.\n\nOutput format: return ONLY a JSON list (no prose, no code fences). Each element:\n{\"id\": short_name, \"text\": one-sentence natural-language statement of the norm,\n \"abstraction\": {\"state_properties\": {name: FORMULA, ...},\n                 \"events\": {name: {\"pre\": FORMULA, \"post\": FORMULA or null}, ...}},\n \"norm\": {\"type\": \"prohibition\", \"condition\": FORMULA}\n       | {\"type\": \"obligation\", \"trigger\": FORMULA or \"START\", \"discharge\": FORMULA}}\nFORMULA := atom | name of a property/event defined in this hypothesis | {\"not\": F} | {\"and\": [F, ...]}\n         | {\"or\": [F, ...]} | {\"le\"|\"lt\"|\"ge\"|\"gt\"|\"eq\": [numeric_feature, integer]}\nSemantics.  A trajectory is a sequence of steps (state s_k, action a_k).  A step's label contains the atoms true in\ns_k and the action a_k.  A state property is a formula over state atoms (no actions).  An event\n{\"pre\": P, \"post\": Q} occurs at step k when P holds for the label of step k and Q holds in the next state s_{k+1}\n(post may be null).  A prohibition counts one violation for every step whose label (including events occurring at\nthat step) satisfies the condition.  An obligation becomes pending at any step satisfying the trigger (\"START\" =\npending from the beginning) and is fulfilled by a later (or the same) step satisfying the discharge; it can be\ntriggered again; it is violated if it is still pending when the trajectory ends.",
+      "raw_response": "[\n  {\n    \"id\": \"must_get_cart\",\n    \"text\": \"The shopper is obliged to obtain a cart at the start of the trip.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"START\",\n      \"discharge\": \"hasCart\"\n    }\n  },\n  {\n    \"id\": \"no_exit_without_cart\",\n    \"text\": \"The shopper is prohibited from leaving the store without a cart.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"EXIT\",\n          {\n            \"not\": \"hasCart\"\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"must_not_skip_cart_pickup\",\n    \"text\": \"The shopper is prohibited from moving east past the cart-pickup cell at (1,7) without a cart.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"at(1,7)\",\n          \"E\",\n          {\n            \"not\": \"hasCart\"\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"cart_required_for_most_movement\",\n    \"text\": \"The shopper is prohibited from moving without a cart except at the entrance/cart area or in the short cart-free aisle around column 6.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          {\n            \"or\": [\n              \"N\",\n              \"S\",\n              \"E\",\n              \"W\"\n            ]\n          },\n          {\n            \"not\": \"hasCart\"\n          },\n          {\n            \"not\": {\n              \"or\": [\n                \"at(0,7)\",\n                \"at(1,7)\",\n                \"at(6,3)\",\n                \"at(6,2)\",\n                \"at(6,1)\"\n              ]\n            }\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"no_cart_north_from_63\",\n    \"text\": \"The shopper is prohibited from moving north from (6,3) while holding a cart.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"at(6,3)\",\n          \"hasCart\",\n          \"N\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"no_cart_at_61\",\n    \"text\": \"The shopper is prohibited from being at cell (6,1) while holding a cart.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"at(6,1)\",\n          \"hasCart\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"recover_cart_after_61\",\n    \"text\": \"After interacting at (6,1), the shopper is obliged to recover a cart.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": {\n        \"and\": [\n          \"at(6,1)\",\n          \"INTERACT\"\n        ]\n      },\n      \"discharge\": \"hasCart\"\n    }\n  },\n  {\n    \"id\": \"cart_required_at_55\",\n    \"text\": \"The shopper is prohibited from interacting at (5,5) without a cart.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"at(5,5)\",\n          \"INTERACT\",\n          {\n            \"not\": \"hasCart\"\n          }\n        ]\n      }\n    }\n  }\n]",
+      "parsed": [
+        {
+          "id": "must_get_cart",
+          "text": "The shopper is obliged to obtain a cart at the start of the trip.",
+          "abstraction": {},
+          "norm": {
+            "type": "obligation",
+            "trigger": "START",
+            "discharge": "hasCart"
+          }
+        },
+        {
+          "id": "no_exit_without_cart",
+          "text": "The shopper is prohibited from leaving the store without a cart.",
+          "abstraction": {},
+          "norm": {
+            "type": "prohibition",
+            "condition": {
+              "and": [
+                "EXIT",
+                {
+                  "not": "hasCart"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "must_not_skip_cart_pickup",
+          "text": "The shopper is prohibited from moving east past the cart-pickup cell at (1,7) without a cart.",
+          "abstraction": {},
+          "norm": {
+            "type": "prohibition",
+            "condition": {
+              "and": [
+                "at(1,7)",
+                "E",
+                {
+                  "not": "hasCart"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "cart_required_for_most_movement",
+          "text": "The shopper is prohibited from moving without a cart except at the entrance/cart area or in the short cart-free aisle around column 6.",
+          "abstraction": {},
+          "norm": {
+            "type": "prohibition",
+            "condition": {
+              "and": [
+                {
+                  "or": [
+                    "N",
+                    "S",
+                    "E",
+                    "W"
+                  ]
+                },
+                {
+                  "not": "hasCart"
+                },
+                {
+                  "not": {
+                    "or": [
+                      "at(0,7)",
+                      "at(1,7)",
+                      "at(6,3)",
+                      "at(6,2)",
+                      "at(6,1)"
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "no_cart_north_from_63",
+          "text": "The shopper is prohibited from moving north from (6,3) while holding a cart.",
+          "abstraction": {},
+          "norm": {
+            "type": "prohibition",
+            "condition": {
+              "and": [
+                "at(6,3)",
+                "hasCart",
+                "N"
+              ]
+            }
+          }
+        },
+        {
+          "id": "no_cart_at_61",
+          "text": "The shopper is prohibited from being at cell (6,1) while holding a cart.",
+          "abstraction": {},
+          "norm": {
+            "type": "prohibition",
+            "condition": {
+              "and": [
+                "at(6,1)",
+                "hasCart"
+              ]
+            }
+          }
+        },
+        {
+          "id": "recover_cart_after_61",
+          "text": "After interacting at (6,1), the shopper is obliged to recover a cart.",
+          "abstraction": {},
+          "norm": {
+            "type": "obligation",
+            "trigger": {
+              "and": [
+                "at(6,1)",
+                "INTERACT"
+              ]
+            },
+            "discharge": "hasCart"
+          }
+        },
+        {
+          "id": "cart_required_at_55",
+          "text": "The shopper is prohibited from interacting at (5,5) without a cart.",
+          "abstraction": {},
+          "norm": {
+            "type": "prohibition",
+            "condition": {
+              "and": [
+                "at(5,5)",
+                "INTERACT",
+                {
+                  "not": "hasCart"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "attempts": [
+        {
+          "attempt": 0,
+          "prompt": "Agents in a supermarket gridworld must collect their required items and leave through the exit. Every action costs the same, so demonstrators prefer short trajectories -- unless an unknown social norm makes them behave otherwise. Your task is to propose candidate norms (obligations or prohibitions) that could explain the demonstrated behaviour.\nEach demonstration is listed step by step as  `k: {atoms true in the state} action`.\n\nAvailable atoms:\n- at(x,y) -- the agent is at cell (x,y); x = column (0 = left), y = row (0 = top); N decreases y, S increases y, E increases x, W decreases x\n- hasCart -- the agent is holding/pushing a shopping cart\n- actions N, S, E, W, MOVE (any of the four moves), INTERACT (any interaction with an object: the different kinds of interaction are NOT distinguished), EXIT (leave the store; always the last action)\n\nDemonstration 1 (required items: a2, s1):\n  0: {at(0,7)} E\n  1: {at(1,7)} INTERACT\n  2: {at(1,7), hasCart} E\n  3: {at(2,7), hasCart} E\n  4: {at(3,7), hasCart} E\n  5: {at(4,7), hasCart} N\n  6: {at(4,6), hasCart} E\n  7: {at(5,6), hasCart} N\n  8: {at(5,5), hasCart} INTERACT\n  9: {at(5,5), hasCart} N\n 10: {at(5,4), hasCart} N\n 11: {at(5,3), hasCart} E\n 12: {at(6,3), hasCart} INTERACT\n 13: {at(6,3)} N\n 14: {at(6,2)} N\n 15: {at(6,1)} INTERACT\n 16: {at(6,1)} S\n 17: {at(6,2)} S\n 18: {at(6,3)} INTERACT\n 19: {at(6,3), hasCart} E\n 20: {at(7,3), hasCart} S\n 21: {at(7,4), hasCart} E\n 22: {at(8,4), hasCart} E\n 23: {at(9,4), hasCart} E\n 24: {at(10,4), hasCart} E\n 25: {at(11,4), hasCart} S\n 26: {at(11,5), hasCart} S\n 27: {at(11,6), hasCart} S\n 28: {at(11,7), hasCart} EXIT\n 29: {at(11,7), hasCart} <terminal>\n\nPropose norms using ONLY the atoms listed above. Do NOT define any new state properties or events: \"abstraction\" must be {}.\nPropose 8 diverse candidate hypotheses.\n\nOutput format: return ONLY a JSON list (no prose, no code fences). Each element:\n{\"id\": short_name, \"text\": one-sentence natural-language statement of the norm,\n \"abstraction\": {\"state_properties\": {name: FORMULA, ...},\n                 \"events\": {name: {\"pre\": FORMULA, \"post\": FORMULA or null}, ...}},\n \"norm\": {\"type\": \"prohibition\", \"condition\": FORMULA}\n       | {\"type\": \"obligation\", \"trigger\": FORMULA or \"START\", \"discharge\": FORMULA}}\nFORMULA := atom | name of a property/event defined in this hypothesis | {\"not\": F} | {\"and\": [F, ...]}\n         | {\"or\": [F, ...]} | {\"le\"|\"lt\"|\"ge\"|\"gt\"|\"eq\": [numeric_feature, integer]}\nSemantics.  A trajectory is a sequence of steps (state s_k, action a_k).  A step's label contains the atoms true in\ns_k and the action a_k.  A state property is a formula over state atoms (no actions).  An event\n{\"pre\": P, \"post\": Q} occurs at step k when P holds for the label of step k and Q holds in the next state s_{k+1}\n(post may be null).  A prohibition counts one violation for every step whose label (including events occurring at\nthat step) satisfies the condition.  An obligation becomes pending at any step satisfying the trigger (\"START\" =\npending from the beginning) and is fulfilled by a later (or the same) step satisfying the discharge; it can be\ntriggered again; it is violated if it is still pending when the trajectory ends.",
+          "raw_response": "[\n  {\n    \"id\": \"must_get_cart\",\n    \"text\": \"The shopper is obliged to obtain a cart at the start of the trip.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"START\",\n      \"discharge\": \"hasCart\"\n    }\n  },\n  {\n    \"id\": \"no_exit_without_cart\",\n    \"text\": \"The shopper is prohibited from leaving the store without a cart.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"EXIT\",\n          {\n            \"not\": \"hasCart\"\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"must_not_skip_cart_pickup\",\n    \"text\": \"The shopper is prohibited from moving east past the cart-pickup cell at (1,7) without a cart.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"at(1,7)\",\n          \"E\",\n          {\n            \"not\": \"hasCart\"\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"cart_required_for_most_movement\",\n    \"text\": \"The shopper is prohibited from moving without a cart except at the entrance/cart area or in the short cart-free aisle around column 6.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          {\n            \"or\": [\n              \"N\",\n              \"S\",\n              \"E\",\n              \"W\"\n            ]\n          },\n          {\n            \"not\": \"hasCart\"\n          },\n          {\n            \"not\": {\n              \"or\": [\n                \"at(0,7)\",\n                \"at(1,7)\",\n                \"at(6,3)\",\n                \"at(6,2)\",\n                \"at(6,1)\"\n              ]\n            }\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"no_cart_north_from_63\",\n    \"text\": \"The shopper is prohibited from moving north from (6,3) while holding a cart.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"at(6,3)\",\n          \"hasCart\",\n          \"N\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"no_cart_at_61\",\n    \"text\": \"The shopper is prohibited from being at cell (6,1) while holding a cart.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"at(6,1)\",\n          \"hasCart\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"recover_cart_after_61\",\n    \"text\": \"After interacting at (6,1), the shopper is obliged to recover a cart.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": {\n        \"and\": [\n          \"at(6,1)\",\n          \"INTERACT\"\n        ]\n      },\n      \"discharge\": \"hasCart\"\n    }\n  },\n  {\n    \"id\": \"cart_required_at_55\",\n    \"text\": \"The shopper is prohibited from interacting at (5,5) without a cart.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"at(5,5)\",\n          \"INTERACT\",\n          {\n            \"not\": \"hasCart\"\n          }\n        ]\n      }\n    }\n  }\n]",
+          "parsed": [
+            {
+              "id": "must_get_cart",
+              "text": "The shopper is obliged to obtain a cart at the start of the trip.",
+              "abstraction": {},
+              "norm": {
+                "type": "obligation",
+                "trigger": "START",
+                "discharge": "hasCart"
+              }
+            },
+            {
+              "id": "no_exit_without_cart",
+              "text": "The shopper is prohibited from leaving the store without a cart.",
+              "abstraction": {},
+              "norm": {
+                "type": "prohibition",
+                "condition": {
+                  "and": [
+                    "EXIT",
+                    {
+                      "not": "hasCart"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "must_not_skip_cart_pickup",
+              "text": "The shopper is prohibited from moving east past the cart-pickup cell at (1,7) without a cart.",
+              "abstraction": {},
+              "norm": {
+                "type": "prohibition",
+                "condition": {
+                  "and": [
+                    "at(1,7)",
+                    "E",
+                    {
+                      "not": "hasCart"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "cart_required_for_most_movement",
+              "text": "The shopper is prohibited from moving without a cart except at the entrance/cart area or in the short cart-free aisle around column 6.",
+              "abstraction": {},
+              "norm": {
+                "type": "prohibition",
+                "condition": {
+                  "and": [
+                    {
+                      "or": [
+                        "N",
+                        "S",
+                        "E",
+                        "W"
+                      ]
+                    },
+                    {
+                      "not": "hasCart"
+                    },
+                    {
+                      "not": {
+                        "or": [
+                          "at(0,7)",
+                          "at(1,7)",
+                          "at(6,3)",
+                          "at(6,2)",
+                          "at(6,1)"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "no_cart_north_from_63",
+              "text": "The shopper is prohibited from moving north from (6,3) while holding a cart.",
+              "abstraction": {},
+              "norm": {
+                "type": "prohibition",
+                "condition": {
+                  "and": [
+                    "at(6,3)",
+                    "hasCart",
+                    "N"
+                  ]
+                }
+              }
+            },
+            {
+              "id": "no_cart_at_61",
+              "text": "The shopper is prohibited from being at cell (6,1) while holding a cart.",
+              "abstraction": {},
+              "norm": {
+                "type": "prohibition",
+                "condition": {
+                  "and": [
+                    "at(6,1)",
+                    "hasCart"
+                  ]
+                }
+              }
+            },
+            {
+              "id": "recover_cart_after_61",
+              "text": "After interacting at (6,1), the shopper is obliged to recover a cart.",
+              "abstraction": {},
+              "norm": {
+                "type": "obligation",
+                "trigger": {
+                  "and": [
+                    "at(6,1)",
+                    "INTERACT"
+                  ]
+                },
+                "discharge": "hasCart"
+              }
+            },
+            {
+              "id": "cart_required_at_55",
+              "text": "The shopper is prohibited from interacting at (5,5) without a cart.",
+              "abstraction": {},
+              "norm": {
+                "type": "prohibition",
+                "condition": {
+                  "and": [
+                    "at(5,5)",
+                    "INTERACT",
+                    {
+                      "not": "hasCart"
+                    }
+                  ]
+                }
+              }
+            }
+          ],
+          "call": {
+            "cache_key": "d57f813840dba5229839e85f817f7aee0facd47144834ec3d8f97e063df3124e",
+            "requested_model": "gpt-5.5",
+            "returned_model": "gpt-5.5-2026-04-23",
+            "response_id": "resp_0c221c7e925b2cbd006ac6a335419087d19f3392399c6d29b7",
+            "status": "completed",
+            "incomplete_details": null,
+            "usage": {
+              "input_tokens": 1051,
+              "input_tokens_details": {
+                "cached_tokens": 0,
+                "cache_write_tokens": 0
+              },
+              "output_tokens": 3783,
+              "output_tokens_details": {
+                "reasoning_tokens": 2970
+              },
+              "total_tokens": 4834
+            },
+            "settings": {
+              "model": "gpt-5.5",
+              "temperature": null,
+              "reasoning_effort": null,
+              "max_output_tokens": null,
+              "api": "responses.create"
+            },
+            "replicate": "trig/aisle/2",
+            "timestamp": "2026-10-07T15:54:03",
+            "latency_s": 38.13,
+            "retries": [],
+            "cache_hit": true
+          }
+        }
+      ],
+      "accepted": [
+        {
+          "id": "g0_must_get_cart",
+          "description": "[g0_must_get_cart] OBLIGED: after start, eventually hasCart (before exit)",
+          "L_alpha": 0,
+          "L_norm": 3,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        },
+        {
+          "id": "g0_no_exit_without_cart",
+          "description": "[g0_no_exit_without_cart] FORBIDDEN: (EXIT \u2227 \u00achasCart)",
+          "L_alpha": 0,
+          "L_norm": 5,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        },
+        {
+          "id": "g0_must_not_skip_cart_pickup",
+          "description": "[g0_must_not_skip_cart_pickup] FORBIDDEN: (at(1,7) \u2227 E \u2227 \u00achasCart)",
+          "L_alpha": 0,
+          "L_norm": 6,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        },
+        {
+          "id": "g0_cart_required_for_most_movement",
+          "description": "[g0_cart_required_for_most_movement] FORBIDDEN: ((N \u2228 S \u2228 E \u2228 W) \u2227 \u00achasCart \u2227 \u00ac(at(0,7) \u2228 at(1,7) \u2228 at(6,3) \u2228 at(6,2) \u2228 at(6,1)))",
+          "L_alpha": 0,
+          "L_norm": 16,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        },
+        {
+          "id": "g0_no_cart_north_from_63",
+          "description": "[g0_no_cart_north_from_63] FORBIDDEN: (at(6,3) \u2227 hasCart \u2227 N)",
+          "L_alpha": 0,
+          "L_norm": 5,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        },
+        {
+          "id": "g0_no_cart_at_61",
+          "description": "[g0_no_cart_at_61] FORBIDDEN: (at(6,1) \u2227 hasCart)",
+          "L_alpha": 0,
+          "L_norm": 4,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        },
+        {
+          "id": "g0_recover_cart_after_61",
+          "description": "[g0_recover_cart_after_61] OBLIGED: after (at(6,1) \u2227 INTERACT), eventually hasCart (before exit)",
+          "L_alpha": 0,
+          "L_norm": 5,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        },
+        {
+          "id": "g0_cart_required_at_55",
+          "description": "[g0_cart_required_at_55] FORBIDDEN: (at(5,5) \u2227 INTERACT \u2227 \u00achasCart)",
+          "L_alpha": 0,
+          "L_norm": 6,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        }
+      ],
+      "rejected": []
+    },
+    {
+      "index": 1,
+      "kind": "refinement",
+      "level": 1,
+      "n_demos_shown": 9,
+      "timestamp": "2026-10-07T19:13:11",
+      "model": "gpt-5.5",
+      "replicate": "trig/aisle/2",
+      "experiment": "refinement_trigger_comparison",
+      "stage": "labels",
+      "domain": "aisle",
+      "protocol": "pool",
+      "run_index": 2,
+      "opportunity_t": 9,
+      "prompt": "Agents in a supermarket gridworld must collect their required items and leave through the exit. Every action costs the same, so demonstrators prefer short trajectories -- unless an unknown social norm makes them behave otherwise. Your task is to propose candidate norms (obligations or prohibitions) that could explain the demonstrated behaviour.\nEach demonstration is listed step by step as  `k: {atoms true in the state} action`.\n\nAvailable atoms:\n- at(x,y) -- the agent is at cell (x,y); x = column (0 = left), y = row (0 = top); N decreases y, S increases y, E increases x, W decreases x\n- hasCart -- the agent is holding/pushing a shopping cart\n- actions N, S, E, W, MOVE (any of the four moves), INTERACT (any interaction with an object: the different kinds of interaction are NOT distinguished), EXIT (leave the store; always the last action)\n- free, adjShelf (some 4-neighbour of the agent's cell is a shelf), shelfN / shelfS / shelfE / shelfW (the neighbouring cell in that direction is a shelf); numeric features freeWidthH / freeWidthV (length of the horizontal / vertical run of free cells through the agent's cell), usable only inside comparisons such as {\"le\": [\"freeWidthH\", 2]}\n\nDemonstration 1 (required items: a2, s1):\n  0: {at(0,7), freeWidthH=12, freeWidthV=8} E\n  1: {at(1,7), freeWidthH=12, freeWidthV=8} INTERACT\n  2: {at(1,7), hasCart, freeWidthH=12, freeWidthV=8} E\n  3: {at(2,7), hasCart, freeWidthH=12, freeWidthV=5} E\n  4: {at(3,7), hasCart, freeWidthH=12, freeWidthV=8} E\n  5: {at(4,7), hasCart, freeWidthH=12, freeWidthV=5} N\n  6: {at(4,6), hasCart, freeWidthH=12, freeWidthV=5} E\n  7: {at(5,6), hasCart, freeWidthH=12, freeWidthV=5} N\n  8: {at(5,5), hasCart, adjShelf, shelfE, freeWidthH=6, freeWidthV=5} INTERACT\n  9: {at(5,5), hasCart, adjShelf, shelfE, freeWidthH=6, freeWidthV=5} N\n 10: {at(5,4), hasCart, freeWidthH=12, freeWidthV=5} N\n 11: {at(5,3), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=5} E\n 12: {at(6,3), hasCart, freeWidthH=12, freeWidthV=5} INTERACT\n 13: {at(6,3), freeWidthH=12, freeWidthV=5} N\n 14: {at(6,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} N\n 15: {at(6,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} INTERACT\n 16: {at(6,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} S\n 17: {at(6,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} S\n 18: {at(6,3), freeWidthH=12, freeWidthV=5} INTERACT\n 19: {at(6,3), hasCart, freeWidthH=12, freeWidthV=5} E\n 20: {at(7,3), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=5} S\n 21: {at(7,4), hasCart, freeWidthH=12, freeWidthV=5} E\n 22: {at(8,4), hasCart, freeWidthH=12, freeWidthV=5} E\n 23: {at(9,4), hasCart, adjShelf, shelfS, freeWidthH=12, freeWidthV=5} E\n 24: {at(10,4), hasCart, freeWidthH=12, freeWidthV=5} E\n 25: {at(11,4), hasCart, freeWidthH=12, freeWidthV=8} S\n 26: {at(11,5), hasCart, freeWidthH=2, freeWidthV=8} S\n 27: {at(11,6), hasCart, freeWidthH=12, freeWidthV=8} S\n 28: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} EXIT\n 29: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} <terminal>\n\nDemonstration 2 (required items: a1, a2):\n  0: {at(0,7), freeWidthH=12, freeWidthV=8} E\n  1: {at(1,7), freeWidthH=12, freeWidthV=8} INTERACT\n  2: {at(1,7), hasCart, freeWidthH=12, freeWidthV=8} N\n  3: {at(1,6), hasCart, freeWidthH=12, freeWidthV=8} N\n  4: {at(1,5), hasCart, freeWidthH=6, freeWidthV=8} N\n  5: {at(1,4), hasCart, freeWidthH=12, freeWidthV=8} N\n  6: {at(1,3), hasCart, freeWidthH=12, freeWidthV=8} E\n  7: {at(2,3), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=5} E\n  8: {at(3,3), hasCart, freeWidthH=12, freeWidthV=8} INTERACT\n  9: {at(3,3), freeWidthH=12, freeWidthV=8} N\n 10: {at(3,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} N\n 11: {at(3,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} INTERACT\n 12: {at(3,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} S\n 13: {at(3,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} S\n 14: {at(3,3), freeWidthH=12, freeWidthV=8} INTERACT\n 15: {at(3,3), hasCart, freeWidthH=12, freeWidthV=8} E\n 16: {at(4,3), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=5} E\n 17: {at(5,3), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=5} E\n 18: {at(6,3), hasCart, freeWidthH=12, freeWidthV=5} INTERACT\n 19: {at(6,3), freeWidthH=12, freeWidthV=5} N\n 20: {at(6,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} N\n 21: {at(6,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} INTERACT\n 22: {at(6,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} S\n 23: {at(6,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} S\n 24: {at(6,3), freeWidthH=12, freeWidthV=5} INTERACT\n 25: {at(6,3), hasCart, freeWidthH=12, freeWidthV=5} S\n 26: {at(6,4), hasCart, adjShelf, shelfS, freeWidthH=12, freeWidthV=5} E\n 27: {at(7,4), hasCart, freeWidthH=12, freeWidthV=5} S\n 28: {at(7,5), hasCart, adjShelf, shelfW, freeWidthH=2, freeWidthV=5} E\n 29: {at(8,5), hasCart, adjShelf, shelfE, freeWidthH=2, freeWidthV=5} S\n 30: {at(8,6), hasCart, freeWidthH=12, freeWidthV=5} E\n 31: {at(9,6), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=2} S\n 32: {at(9,7), hasCart, freeWidthH=12, freeWidthV=2} E\n 33: {at(10,7), hasCart, freeWidthH=12, freeWidthV=5} E\n 34: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} EXIT\n 35: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} <terminal>\n\nDemonstration 3 (required items: a1, a2):\n  0: {at(0,7), freeWidthH=12, freeWidthV=8} E\n  1: {at(1,7), freeWidthH=12, freeWidthV=8} INTERACT\n  2: {at(1,7), hasCart, freeWidthH=12, freeWidthV=8} E\n  3: {at(2,7), hasCart, freeWidthH=12, freeWidthV=5} N\n  4: {at(2,6), hasCart, freeWidthH=12, freeWidthV=5} N\n  5: {at(2,5), hasCart, freeWidthH=6, freeWidthV=5} E\n  6: {at(3,5), hasCart, freeWidthH=6, freeWidthV=8} N\n  7: {at(3,4), hasCart, freeWidthH=12, freeWidthV=8} N\n  8: {at(3,3), hasCart, freeWidthH=12, freeWidthV=8} INTERACT\n  9: {at(3,3), freeWidthH=12, freeWidthV=8} N\n 10: {at(3,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} N\n 11: {at(3,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} INTERACT\n 12: {at(3,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} S\n 13: {at(3,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} S\n 14: {at(3,3), freeWidthH=12, freeWidthV=8} INTERACT\n 15: {at(3,3), hasCart, freeWidthH=12, freeWidthV=8} E\n 16: {at(4,3), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=5} E\n 17: {at(5,3), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=5} E\n 18: {at(6,3), hasCart, freeWidthH=12, freeWidthV=5} INTERACT\n 19: {at(6,3), freeWidthH=12, freeWidthV=5} N\n 20: {at(6,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} N\n 21: {at(6,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} INTERACT\n 22: {at(6,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} S\n 23: {at(6,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} S\n 24: {at(6,3), freeWidthH=12, freeWidthV=5} INTERACT\n 25: {at(6,3), hasCart, freeWidthH=12, freeWidthV=5} S\n 26: {at(6,4), hasCart, adjShelf, shelfS, freeWidthH=12, freeWidthV=5} E\n 27: {at(7,4), hasCart, freeWidthH=12, freeWidthV=5} S\n 28: {at(7,5), hasCart, adjShelf, shelfW, freeWidthH=2, freeWidthV=5} S\n 29: {at(7,6), hasCart, freeWidthH=12, freeWidthV=5} S\n 30: {at(7,7), hasCart, freeWidthH=12, freeWidthV=5} E\n 31: {at(8,7), hasCart, freeWidthH=12, freeWidthV=5} E\n 32: {at(9,7), hasCart, freeWidthH=12, freeWidthV=2} E\n 33: {at(10,7), hasCart, freeWidthH=12, freeWidthV=5} E\n 34: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} EXIT\n 35: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} <terminal>\n\nDemonstration 4 (required items: a1, s1):\n  0: {at(0,7), freeWidthH=12, freeWidthV=8} E\n  1: {at(1,7), freeWidthH=12, freeWidthV=8} INTERACT\n  2: {at(1,7), hasCart, freeWidthH=12, freeWidthV=8} N\n  3: {at(1,6), hasCart, freeWidthH=12, freeWidthV=8} E\n  4: {at(2,6), hasCart, freeWidthH=12, freeWidthV=5} E\n  5: {at(3,6), hasCart, freeWidthH=12, freeWidthV=8} N\n  6: {at(3,5), hasCart, freeWidthH=6, freeWidthV=8} N\n  7: {at(3,4), hasCart, freeWidthH=12, freeWidthV=8} N\n  8: {at(3,3), hasCart, freeWidthH=12, freeWidthV=8} INTERACT\n  9: {at(3,3), freeWidthH=12, freeWidthV=8} N\n 10: {at(3,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} N\n 11: {at(3,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} INTERACT\n 12: {at(3,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} S\n 13: {at(3,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} S\n 14: {at(3,3), freeWidthH=12, freeWidthV=8} INTERACT\n 15: {at(3,3), hasCart, freeWidthH=12, freeWidthV=8} S\n 16: {at(3,4), hasCart, freeWidthH=12, freeWidthV=8} E\n 17: {at(4,4), hasCart, freeWidthH=12, freeWidthV=5} S\n 18: {at(4,5), hasCart, freeWidthH=6, freeWidthV=5} E\n 19: {at(5,5), hasCart, adjShelf, shelfE, freeWidthH=6, freeWidthV=5} INTERACT\n 20: {at(5,5), hasCart, adjShelf, shelfE, freeWidthH=6, freeWidthV=5} S\n 21: {at(5,6), hasCart, freeWidthH=12, freeWidthV=5} E\n 22: {at(6,6), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=2} E\n 23: {at(7,6), hasCart, freeWidthH=12, freeWidthV=5} E\n 24: {at(8,6), hasCart, freeWidthH=12, freeWidthV=5} E\n 25: {at(9,6), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=2} E\n 26: {at(10,6), hasCart, freeWidthH=12, freeWidthV=5} S\n 27: {at(10,7), hasCart, freeWidthH=12, freeWidthV=5} E\n 28: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} EXIT\n 29: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} <terminal>\n\nDemonstration 5 (required items: a1, s2):\n  0: {at(0,7), freeWidthH=12, freeWidthV=8} E\n  1: {at(1,7), freeWidthH=12, freeWidthV=8} INTERACT\n  2: {at(1,7), hasCart, freeWidthH=12, freeWidthV=8} N\n  3: {at(1,6), hasCart, freeWidthH=12, freeWidthV=8} N\n  4: {at(1,5), hasCart, freeWidthH=6, freeWidthV=8} N\n  5: {at(1,4), hasCart, freeWidthH=12, freeWidthV=8} N\n  6: {at(1,3), hasCart, freeWidthH=12, freeWidthV=8} E\n  7: {at(2,3), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=5} E\n  8: {at(3,3), hasCart, freeWidthH=12, freeWidthV=8} INTERACT\n  9: {at(3,3), freeWidthH=12, freeWidthV=8} N\n 10: {at(3,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} N\n 11: {at(3,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} INTERACT\n 12: {at(3,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} S\n 13: {at(3,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} S\n 14: {at(3,3), freeWidthH=12, freeWidthV=8} INTERACT\n 15: {at(3,3), hasCart, freeWidthH=12, freeWidthV=8} S\n 16: {at(3,4), hasCart, freeWidthH=12, freeWidthV=8} E\n 17: {at(4,4), hasCart, freeWidthH=12, freeWidthV=5} E\n 18: {at(5,4), hasCart, freeWidthH=12, freeWidthV=5} S\n 19: {at(5,5), hasCart, adjShelf, shelfE, freeWidthH=6, freeWidthV=5} S\n 20: {at(5,6), hasCart, freeWidthH=12, freeWidthV=5} E\n 21: {at(6,6), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=2} E\n 22: {at(7,6), hasCart, freeWidthH=12, freeWidthV=5} E\n 23: {at(8,6), hasCart, freeWidthH=12, freeWidthV=5} E\n 24: {at(9,6), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=2} INTERACT\n 25: {at(9,6), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=2} S\n 26: {at(9,7), hasCart, freeWidthH=12, freeWidthV=2} E\n 27: {at(10,7), hasCart, freeWidthH=12, freeWidthV=5} E\n 28: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} EXIT\n 29: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} <terminal>\n\nDemonstration 6 (required items: a2, s2):\n  0: {at(0,7), freeWidthH=12, freeWidthV=8} E\n  1: {at(1,7), freeWidthH=12, freeWidthV=8} INTERACT\n  2: {at(1,7), hasCart, freeWidthH=12, freeWidthV=8} E\n  3: {at(2,7), hasCart, freeWidthH=12, freeWidthV=5} E\n  4: {at(3,7), hasCart, freeWidthH=12, freeWidthV=8} N\n  5: {at(3,6), hasCart, freeWidthH=12, freeWidthV=8} E\n  6: {at(4,6), hasCart, freeWidthH=12, freeWidthV=5} E\n  7: {at(5,6), hasCart, freeWidthH=12, freeWidthV=5} N\n  8: {at(5,5), hasCart, adjShelf, shelfE, freeWidthH=6, freeWidthV=5} N\n  9: {at(5,4), hasCart, freeWidthH=12, freeWidthV=5} N\n 10: {at(5,3), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=5} E\n 11: {at(6,3), hasCart, freeWidthH=12, freeWidthV=5} INTERACT\n 12: {at(6,3), freeWidthH=12, freeWidthV=5} N\n 13: {at(6,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} N\n 14: {at(6,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} INTERACT\n 15: {at(6,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} S\n 16: {at(6,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} S\n 17: {at(6,3), freeWidthH=12, freeWidthV=5} INTERACT\n 18: {at(6,3), hasCart, freeWidthH=12, freeWidthV=5} S\n 19: {at(6,4), hasCart, adjShelf, shelfS, freeWidthH=12, freeWidthV=5} E\n 20: {at(7,4), hasCart, freeWidthH=12, freeWidthV=5} E\n 21: {at(8,4), hasCart, freeWidthH=12, freeWidthV=5} S\n 22: {at(8,5), hasCart, adjShelf, shelfE, freeWidthH=2, freeWidthV=5} INTERACT\n 23: {at(8,5), hasCart, adjShelf, shelfE, freeWidthH=2, freeWidthV=5} S\n 24: {at(8,6), hasCart, freeWidthH=12, freeWidthV=5} S\n 25: {at(8,7), hasCart, freeWidthH=12, freeWidthV=5} E\n 26: {at(9,7), hasCart, freeWidthH=12, freeWidthV=2} E\n 27: {at(10,7), hasCart, freeWidthH=12, freeWidthV=5} E\n 28: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} EXIT\n 29: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} <terminal>\n\nDemonstration 7 (required items: s2):\n  0: {at(0,7), freeWidthH=12, freeWidthV=8} E\n  1: {at(1,7), freeWidthH=12, freeWidthV=8} INTERACT\n  2: {at(1,7), hasCart, freeWidthH=12, freeWidthV=8} N\n  3: {at(1,6), hasCart, freeWidthH=12, freeWidthV=8} E\n  4: {at(2,6), hasCart, freeWidthH=12, freeWidthV=5} E\n  5: {at(3,6), hasCart, freeWidthH=12, freeWidthV=8} E\n  6: {at(4,6), hasCart, freeWidthH=12, freeWidthV=5} E\n  7: {at(5,6), hasCart, freeWidthH=12, freeWidthV=5} E\n  8: {at(6,6), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=2} E\n  9: {at(7,6), hasCart, freeWidthH=12, freeWidthV=5} E\n 10: {at(8,6), hasCart, freeWidthH=12, freeWidthV=5} E\n 11: {at(9,6), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=2} INTERACT\n 12: {at(9,6), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=2} S\n 13: {at(9,7), hasCart, freeWidthH=12, freeWidthV=2} E\n 14: {at(10,7), hasCart, freeWidthH=12, freeWidthV=5} E\n 15: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} EXIT\n 16: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} <terminal>\n\nDemonstration 8 (required items: a1, s2):\n  0: {at(0,7), freeWidthH=12, freeWidthV=8} E\n  1: {at(1,7), freeWidthH=12, freeWidthV=8} INTERACT\n  2: {at(1,7), hasCart, freeWidthH=12, freeWidthV=8} N\n  3: {at(1,6), hasCart, freeWidthH=12, freeWidthV=8} N\n  4: {at(1,5), hasCart, freeWidthH=6, freeWidthV=8} N\n  5: {at(1,4), hasCart, freeWidthH=12, freeWidthV=8} N\n  6: {at(1,3), hasCart, freeWidthH=12, freeWidthV=8} E\n  7: {at(2,3), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=5} E\n  8: {at(3,3), hasCart, freeWidthH=12, freeWidthV=8} INTERACT\n  9: {at(3,3), freeWidthH=12, freeWidthV=8} N\n 10: {at(3,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} N\n 11: {at(3,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} INTERACT\n 12: {at(3,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} S\n 13: {at(3,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} S\n 14: {at(3,3), freeWidthH=12, freeWidthV=8} INTERACT\n 15: {at(3,3), hasCart, freeWidthH=12, freeWidthV=8} S\n 16: {at(3,4), hasCart, freeWidthH=12, freeWidthV=8} E\n 17: {at(4,4), hasCart, freeWidthH=12, freeWidthV=5} S\n 18: {at(4,5), hasCart, freeWidthH=6, freeWidthV=5} E\n 19: {at(5,5), hasCart, adjShelf, shelfE, freeWidthH=6, freeWidthV=5} S\n 20: {at(5,6), hasCart, freeWidthH=12, freeWidthV=5} E\n 21: {at(6,6), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=2} E\n 22: {at(7,6), hasCart, freeWidthH=12, freeWidthV=5} E\n 23: {at(8,6), hasCart, freeWidthH=12, freeWidthV=5} E\n 24: {at(9,6), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=2} INTERACT\n 25: {at(9,6), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=2} S\n 26: {at(9,7), hasCart, freeWidthH=12, freeWidthV=2} E\n 27: {at(10,7), hasCart, freeWidthH=12, freeWidthV=5} E\n 28: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} EXIT\n 29: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} <terminal>\n\nDemonstration 9 (required items: a2, s2):\n  0: {at(0,7), freeWidthH=12, freeWidthV=8} E\n  1: {at(1,7), freeWidthH=12, freeWidthV=8} INTERACT\n  2: {at(1,7), hasCart, freeWidthH=12, freeWidthV=8} N\n  3: {at(1,6), hasCart, freeWidthH=12, freeWidthV=8} E\n  4: {at(2,6), hasCart, freeWidthH=12, freeWidthV=5} E\n  5: {at(3,6), hasCart, freeWidthH=12, freeWidthV=8} N\n  6: {at(3,5), hasCart, freeWidthH=6, freeWidthV=8} N\n  7: {at(3,4), hasCart, freeWidthH=12, freeWidthV=8} N\n  8: {at(3,3), hasCart, freeWidthH=12, freeWidthV=8} E\n  9: {at(4,3), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=5} E\n 10: {at(5,3), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=5} E\n 11: {at(6,3), hasCart, freeWidthH=12, freeWidthV=5} INTERACT\n 12: {at(6,3), freeWidthH=12, freeWidthV=5} N\n 13: {at(6,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} N\n 14: {at(6,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} INTERACT\n 15: {at(6,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} S\n 16: {at(6,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} S\n 17: {at(6,3), freeWidthH=12, freeWidthV=5} INTERACT\n 18: {at(6,3), hasCart, freeWidthH=12, freeWidthV=5} S\n 19: {at(6,4), hasCart, adjShelf, shelfS, freeWidthH=12, freeWidthV=5} E\n 20: {at(7,4), hasCart, freeWidthH=12, freeWidthV=5} E\n 21: {at(8,4), hasCart, freeWidthH=12, freeWidthV=5} S\n 22: {at(8,5), hasCart, adjShelf, shelfE, freeWidthH=2, freeWidthV=5} S\n 23: {at(8,6), hasCart, freeWidthH=12, freeWidthV=5} E\n 24: {at(9,6), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=2} INTERACT\n 25: {at(9,6), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=2} E\n 26: {at(10,6), hasCart, freeWidthH=12, freeWidthV=5} S\n 27: {at(10,7), hasCart, freeWidthH=12, freeWidthV=5} E\n 28: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} EXIT\n 29: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} <terminal>\n\nThe current hypotheses, expressed in a coarser representation, do not adequately explain the latest demonstration:\n- [g0_must_get_cart] OBLIGED: after start, eventually hasCart (before exit)\n- [g0_no_exit_without_cart] FORBIDDEN: (EXIT \u2227 \u00achasCart)\n- [g0_must_not_skip_cart_pickup] FORBIDDEN: (at(1,7) \u2227 E \u2227 \u00achasCart)\n- [g0_cart_required_for_most_movement] FORBIDDEN: ((N \u2228 S \u2228 E \u2228 W) \u2227 \u00achasCart \u2227 \u00ac(at(0,7) \u2228 at(1,7) \u2228 at(6,3) \u2228 at(6,2) \u2228 at(6,1)))\n- [g0_no_cart_north_from_63] FORBIDDEN: (at(6,3) \u2227 hasCart \u2227 N)\n- [g0_no_cart_at_61] FORBIDDEN: (at(6,1) \u2227 hasCart)\n- [g0_recover_cart_after_61] OBLIGED: after (at(6,1) \u2227 INTERACT), eventually hasCart (before exit)\n- [g0_cart_required_at_55] FORBIDDEN: (at(5,5) \u2227 INTERACT \u2227 \u00achasCart)\n\nThe demonstrations are now shown in a lower-level representation that exposes distinctions hidden before (newly available: geometry). Identify the hidden distinctions and use them to define higher-level state properties and/or events (in \"abstraction\"), possibly hierarchically, and propose norms expressed over them. Norms may also use the primitive atoms directly.\nPropose 8 diverse candidate hypotheses.\n\nOutput format: return ONLY a JSON list (no prose, no code fences). Each element:\n{\"id\": short_name, \"text\": one-sentence natural-language statement of the norm,\n \"abstraction\": {\"state_properties\": {name: FORMULA, ...},\n                 \"events\": {name: {\"pre\": FORMULA, \"post\": FORMULA or null}, ...}},\n \"norm\": {\"type\": \"prohibition\", \"condition\": FORMULA}\n       | {\"type\": \"obligation\", \"trigger\": FORMULA or \"START\", \"discharge\": FORMULA}}\nFORMULA := atom | name of a property/event defined in this hypothesis | {\"not\": F} | {\"and\": [F, ...]}\n         | {\"or\": [F, ...]} | {\"le\"|\"lt\"|\"ge\"|\"gt\"|\"eq\": [numeric_feature, integer]}\nSemantics.  A trajectory is a sequence of steps (state s_k, action a_k).  A step's label contains the atoms true in\ns_k and the action a_k.  A state property is a formula over state atoms (no actions).  An event\n{\"pre\": P, \"post\": Q} occurs at step k when P holds for the label of step k and Q holds in the next state s_{k+1}\n(post may be null).  A prohibition counts one violation for every step whose label (including events occurring at\nthat step) satisfies the condition.  An obligation becomes pending at any step satisfying the trigger (\"START\" =\npending from the beginning) and is fulfilled by a later (or the same) step satisfying the discharge; it can be\ntriggered again; it is violated if it is still pending when the trajectory ends.",
+      "raw_response": "[\n  {\n    \"id\": \"no_carts_in_single_file_aisles\",\n    \"text\": \"Shopping carts must not be taken into single-file shelf aisles where shelves border both sides.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"singleFileAisle\": {\n          \"and\": [\n            \"adjShelf\",\n            \"shelfE\",\n            \"shelfW\",\n            {\n              \"le\": [\n                \"freeWidthH\",\n                1\n              ]\n            }\n          ]\n        }\n      },\n      \"events\": {\n        \"enterSingleFileWithCart\": {\n          \"pre\": {\n            \"and\": [\n              \"hasCart\",\n              {\n                \"or\": [\n                  \"N\",\n                  \"S\",\n                  \"E\",\n                  \"W\"\n                ]\n              }\n            ]\n          },\n          \"post\": \"singleFileAisle\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"or\": [\n          {\n            \"and\": [\n              \"hasCart\",\n              \"singleFileAisle\"\n            ]\n          },\n          \"enterSingleFileWithCart\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"park_before_narrow_item_aisle\",\n    \"text\": \"At the mouth of a single-file item aisle, a shopper with a cart must not go north into the aisle without first parking the cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"pickupAisleMouth\": {\n          \"or\": [\n            \"at(3,3)\",\n            \"at(6,3)\"\n          ]\n        },\n        \"wideMouthArea\": {\n          \"and\": [\n            \"pickupAisleMouth\",\n            {\n              \"ge\": [\n                \"freeWidthH\",\n                12\n              ]\n            }\n          ]\n        }\n      },\n      \"events\": {\n        \"cartParkedAtMouth\": {\n          \"pre\": {\n            \"and\": [\n              \"wideMouthArea\",\n              \"hasCart\",\n              \"INTERACT\"\n            ]\n          },\n          \"post\": {\n            \"not\": \"hasCart\"\n          }\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"pickupAisleMouth\",\n          \"hasCart\",\n          \"N\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"cart_parking_only_at_aisle_mouths\",\n    \"text\": \"A shopper may park or detach from the cart only at designated wide staging mouths for narrow aisles.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"pickupAisleMouth\": {\n          \"or\": [\n            \"at(3,3)\",\n            \"at(6,3)\"\n          ]\n        },\n        \"designatedCartStaging\": {\n          \"and\": [\n            \"pickupAisleMouth\",\n            {\n              \"ge\": [\n                \"freeWidthH\",\n                12\n              ]\n            }\n          ]\n        }\n      },\n      \"events\": {\n        \"cartParked\": {\n          \"pre\": {\n            \"and\": [\n              \"hasCart\",\n              \"INTERACT\"\n            ]\n          },\n          \"post\": {\n            \"not\": \"hasCart\"\n          }\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"cartParked\",\n          {\n            \"not\": \"designatedCartStaging\"\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"recover_parked_cart\",\n    \"text\": \"Whenever a shopper parks a cart to enter a narrow aisle, they are obliged to recover the cart before leaving the store.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"pickupAisleMouth\": {\n          \"or\": [\n            \"at(3,3)\",\n            \"at(6,3)\"\n          ]\n        }\n      },\n      \"events\": {\n        \"cartParkedAtMouth\": {\n          \"pre\": {\n            \"and\": [\n              \"pickupAisleMouth\",\n              \"hasCart\",\n              \"INTERACT\"\n            ]\n          },\n          \"post\": {\n            \"not\": \"hasCart\"\n          }\n        },\n        \"cartRetrievedAtMouth\": {\n          \"pre\": {\n            \"and\": [\n              \"pickupAisleMouth\",\n              {\n                \"not\": \"hasCart\"\n              },\n              \"INTERACT\"\n            ]\n          },\n          \"post\": \"hasCart\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"cartParkedAtMouth\",\n      \"discharge\": \"cartRetrievedAtMouth\"\n    }\n  },\n  {\n    \"id\": \"no_cartless_open_floor_travel\",\n    \"text\": \"Except in the entrance cart area or when stepping into a single-file shelf aisle, shoppers should not move around open aisles without their cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"cartPickupArea\": {\n          \"or\": [\n            \"at(0,7)\",\n            \"at(1,7)\"\n          ]\n        },\n        \"singleFileAisle\": {\n          \"and\": [\n            \"adjShelf\",\n            \"shelfE\",\n            \"shelfW\",\n            {\n              \"le\": [\n                \"freeWidthH\",\n                1\n              ]\n            }\n          ]\n        },\n        \"openAisle\": {\n          \"and\": [\n            {\n              \"ge\": [\n                \"freeWidthH\",\n                12\n              ]\n            },\n            {\n              \"not\": \"singleFileAisle\"\n            }\n          ]\n        }\n      },\n      \"events\": {\n        \"enterSingleFileWithoutCart\": {\n          \"pre\": {\n            \"and\": [\n              {\n                \"not\": \"hasCart\"\n              },\n              {\n                \"or\": [\n                  \"N\",\n                  \"S\",\n                  \"E\",\n                  \"W\"\n                ]\n              }\n            ]\n          },\n          \"post\": \"singleFileAisle\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"openAisle\",\n          {\n            \"not\": \"hasCart\"\n          },\n          {\n            \"or\": [\n              \"N\",\n              \"S\",\n              \"E\",\n              \"W\"\n            ]\n          },\n          {\n            \"not\": \"cartPickupArea\"\n          },\n          {\n            \"not\": \"enterSingleFileWithoutCart\"\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"cart_required_for_non_singlefile_shelf_service\",\n    \"text\": \"Shelf interactions away from single-file aisles should be performed with the cart present.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"singleFileAisle\": {\n          \"and\": [\n            \"adjShelf\",\n            \"shelfE\",\n            \"shelfW\",\n            {\n              \"le\": [\n                \"freeWidthH\",\n                1\n              ]\n            }\n          ]\n        },\n        \"ordinaryShelfAccess\": {\n          \"and\": [\n            \"adjShelf\",\n            {\n              \"not\": \"singleFileAisle\"\n            }\n          ]\n        }\n      },\n      \"events\": {\n        \"shelfInteractionWithoutCart\": {\n          \"pre\": {\n            \"and\": [\n              \"ordinaryShelfAccess\",\n              {\n                \"not\": \"hasCart\"\n              },\n              \"INTERACT\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"shelfInteractionWithoutCart\"\n    }\n  },\n  {\n    \"id\": \"no_cart_service_in_side_pinch_points\",\n    \"text\": \"A shopper with a cart should not stop to take items from a shelf while standing in a narrow side pinch point.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"sidePinchPoint\": {\n          \"and\": [\n            \"adjShelf\",\n            {\n              \"le\": [\n                \"freeWidthH\",\n                2\n              ]\n            }\n          ]\n        },\n        \"cartSideShelfServicePoint\": {\n          \"and\": [\n            \"sidePinchPoint\",\n            \"hasCart\",\n            \"adjShelf\"\n          ]\n        }\n      },\n      \"events\": {\n        \"cartShelfServiceInSidePinch\": {\n          \"pre\": {\n            \"and\": [\n              \"cartSideShelfServicePoint\",\n              \"INTERACT\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"cartShelfServiceInSidePinch\"\n    }\n  },\n  {\n    \"id\": \"avoid_horizontal_cart_flow_in_two_wide_gaps\",\n    \"text\": \"Carts should not be driven horizontally through two-wide shelf-side gaps, to avoid blocking the narrow side aisle.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"twoWideSideGap\": {\n          \"and\": [\n            \"adjShelf\",\n            {\n              \"le\": [\n                \"freeWidthH\",\n                2\n              ]\n            },\n            {\n              \"ge\": [\n                \"freeWidthV\",\n                5\n              ]\n            }\n          ]\n        }\n      },\n      \"events\": {\n        \"horizontalCartMoveInSideGap\": {\n          \"pre\": {\n            \"and\": [\n              \"hasCart\",\n              \"twoWideSideGap\",\n              {\n                \"or\": [\n                  \"E\",\n                  \"W\"\n                ]\n              }\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"horizontalCartMoveInSideGap\"\n    }\n  }\n]",
+      "parsed": [
+        {
+          "id": "no_carts_in_single_file_aisles",
+          "text": "Shopping carts must not be taken into single-file shelf aisles where shelves border both sides.",
+          "abstraction": {
+            "state_properties": {
+              "singleFileAisle": {
+                "and": [
+                  "adjShelf",
+                  "shelfE",
+                  "shelfW",
+                  {
+                    "le": [
+                      "freeWidthH",
+                      1
+                    ]
+                  }
+                ]
+              }
+            },
+            "events": {
+              "enterSingleFileWithCart": {
+                "pre": {
+                  "and": [
+                    "hasCart",
+                    {
+                      "or": [
+                        "N",
+                        "S",
+                        "E",
+                        "W"
+                      ]
+                    }
+                  ]
+                },
+                "post": "singleFileAisle"
+              }
+            }
+          },
+          "norm": {
+            "type": "prohibition",
+            "condition": {
+              "or": [
+                {
+                  "and": [
+                    "hasCart",
+                    "singleFileAisle"
+                  ]
+                },
+                "enterSingleFileWithCart"
+              ]
+            }
+          }
+        },
+        {
+          "id": "park_before_narrow_item_aisle",
+          "text": "At the mouth of a single-file item aisle, a shopper with a cart must not go north into the aisle without first parking the cart.",
+          "abstraction": {
+            "state_properties": {
+              "pickupAisleMouth": {
+                "or": [
+                  "at(3,3)",
+                  "at(6,3)"
+                ]
+              },
+              "wideMouthArea": {
+                "and": [
+                  "pickupAisleMouth",
+                  {
+                    "ge": [
+                      "freeWidthH",
+                      12
+                    ]
+                  }
+                ]
+              }
+            },
+            "events": {
+              "cartParkedAtMouth": {
+                "pre": {
+                  "and": [
+                    "wideMouthArea",
+                    "hasCart",
+                    "INTERACT"
+                  ]
+                },
+                "post": {
+                  "not": "hasCart"
+                }
+              }
+            }
+          },
+          "norm": {
+            "type": "prohibition",
+            "condition": {
+              "and": [
+                "pickupAisleMouth",
+                "hasCart",
+                "N"
+              ]
+            }
+          }
+        },
+        {
+          "id": "cart_parking_only_at_aisle_mouths",
+          "text": "A shopper may park or detach from the cart only at designated wide staging mouths for narrow aisles.",
+          "abstraction": {
+            "state_properties": {
+              "pickupAisleMouth": {
+                "or": [
+                  "at(3,3)",
+                  "at(6,3)"
+                ]
+              },
+              "designatedCartStaging": {
+                "and": [
+                  "pickupAisleMouth",
+                  {
+                    "ge": [
+                      "freeWidthH",
+                      12
+                    ]
+                  }
+                ]
+              }
+            },
+            "events": {
+              "cartParked": {
+                "pre": {
+                  "and": [
+                    "hasCart",
+                    "INTERACT"
+                  ]
+                },
+                "post": {
+                  "not": "hasCart"
+                }
+              }
+            }
+          },
+          "norm": {
+            "type": "prohibition",
+            "condition": {
+              "and": [
+                "cartParked",
+                {
+                  "not": "designatedCartStaging"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "recover_parked_cart",
+          "text": "Whenever a shopper parks a cart to enter a narrow aisle, they are obliged to recover the cart before leaving the store.",
+          "abstraction": {
+            "state_properties": {
+              "pickupAisleMouth": {
+                "or": [
+                  "at(3,3)",
+                  "at(6,3)"
+                ]
+              }
+            },
+            "events": {
+              "cartParkedAtMouth": {
+                "pre": {
+                  "and": [
+                    "pickupAisleMouth",
+                    "hasCart",
+                    "INTERACT"
+                  ]
+                },
+                "post": {
+                  "not": "hasCart"
+                }
+              },
+              "cartRetrievedAtMouth": {
+                "pre": {
+                  "and": [
+                    "pickupAisleMouth",
+                    {
+                      "not": "hasCart"
+                    },
+                    "INTERACT"
+                  ]
+                },
+                "post": "hasCart"
+              }
+            }
+          },
+          "norm": {
+            "type": "obligation",
+            "trigger": "cartParkedAtMouth",
+            "discharge": "cartRetrievedAtMouth"
+          }
+        },
+        {
+          "id": "no_cartless_open_floor_travel",
+          "text": "Except in the entrance cart area or when stepping into a single-file shelf aisle, shoppers should not move around open aisles without their cart.",
+          "abstraction": {
+            "state_properties": {
+              "cartPickupArea": {
+                "or": [
+                  "at(0,7)",
+                  "at(1,7)"
+                ]
+              },
+              "singleFileAisle": {
+                "and": [
+                  "adjShelf",
+                  "shelfE",
+                  "shelfW",
+                  {
+                    "le": [
+                      "freeWidthH",
+                      1
+                    ]
+                  }
+                ]
+              },
+              "openAisle": {
+                "and": [
+                  {
+                    "ge": [
+                      "freeWidthH",
+                      12
+                    ]
+                  },
+                  {
+                    "not": "singleFileAisle"
+                  }
+                ]
+              }
+            },
+            "events": {
+              "enterSingleFileWithoutCart": {
+                "pre": {
+                  "and": [
+                    {
+                      "not": "hasCart"
+                    },
+                    {
+                      "or": [
+                        "N",
+                        "S",
+                        "E",
+                        "W"
+                      ]
+                    }
+                  ]
+                },
+                "post": "singleFileAisle"
+              }
+            }
+          },
+          "norm": {
+            "type": "prohibition",
+            "condition": {
+              "and": [
+                "openAisle",
+                {
+                  "not": "hasCart"
+                },
+                {
+                  "or": [
+                    "N",
+                    "S",
+                    "E",
+                    "W"
+                  ]
+                },
+                {
+                  "not": "cartPickupArea"
+                },
+                {
+                  "not": "enterSingleFileWithoutCart"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "cart_required_for_non_singlefile_shelf_service",
+          "text": "Shelf interactions away from single-file aisles should be performed with the cart present.",
+          "abstraction": {
+            "state_properties": {
+              "singleFileAisle": {
+                "and": [
+                  "adjShelf",
+                  "shelfE",
+                  "shelfW",
+                  {
+                    "le": [
+                      "freeWidthH",
+                      1
+                    ]
+                  }
+                ]
+              },
+              "ordinaryShelfAccess": {
+                "and": [
+                  "adjShelf",
+                  {
+                    "not": "singleFileAisle"
+                  }
+                ]
+              }
+            },
+            "events": {
+              "shelfInteractionWithoutCart": {
+                "pre": {
+                  "and": [
+                    "ordinaryShelfAccess",
+                    {
+                      "not": "hasCart"
+                    },
+                    "INTERACT"
+                  ]
+                },
+                "post": null
+              }
+            }
+          },
+          "norm": {
+            "type": "prohibition",
+            "condition": "shelfInteractionWithoutCart"
+          }
+        },
+        {
+          "id": "no_cart_service_in_side_pinch_points",
+          "text": "A shopper with a cart should not stop to take items from a shelf while standing in a narrow side pinch point.",
+          "abstraction": {
+            "state_properties": {
+              "sidePinchPoint": {
+                "and": [
+                  "adjShelf",
+                  {
+                    "le": [
+                      "freeWidthH",
+                      2
+                    ]
+                  }
+                ]
+              },
+              "cartSideShelfServicePoint": {
+                "and": [
+                  "sidePinchPoint",
+                  "hasCart",
+                  "adjShelf"
+                ]
+              }
+            },
+            "events": {
+              "cartShelfServiceInSidePinch": {
+                "pre": {
+                  "and": [
+                    "cartSideShelfServicePoint",
+                    "INTERACT"
+                  ]
+                },
+                "post": null
+              }
+            }
+          },
+          "norm": {
+            "type": "prohibition",
+            "condition": "cartShelfServiceInSidePinch"
+          }
+        },
+        {
+          "id": "avoid_horizontal_cart_flow_in_two_wide_gaps",
+          "text": "Carts should not be driven horizontally through two-wide shelf-side gaps, to avoid blocking the narrow side aisle.",
+          "abstraction": {
+            "state_properties": {
+              "twoWideSideGap": {
+                "and": [
+                  "adjShelf",
+                  {
+                    "le": [
+                      "freeWidthH",
+                      2
+                    ]
+                  },
+                  {
+                    "ge": [
+                      "freeWidthV",
+                      5
+                    ]
+                  }
+                ]
+              }
+            },
+            "events": {
+              "horizontalCartMoveInSideGap": {
+                "pre": {
+                  "and": [
+                    "hasCart",
+                    "twoWideSideGap",
+                    {
+                      "or": [
+                        "E",
+                        "W"
+                      ]
+                    }
+                  ]
+                },
+                "post": null
+              }
+            }
+          },
+          "norm": {
+            "type": "prohibition",
+            "condition": "horizontalCartMoveInSideGap"
+          }
+        }
+      ],
+      "attempts": [
+        {
+          "attempt": 0,
+          "prompt": "Agents in a supermarket gridworld must collect their required items and leave through the exit. Every action costs the same, so demonstrators prefer short trajectories -- unless an unknown social norm makes them behave otherwise. Your task is to propose candidate norms (obligations or prohibitions) that could explain the demonstrated behaviour.\nEach demonstration is listed step by step as  `k: {atoms true in the state} action`.\n\nAvailable atoms:\n- at(x,y) -- the agent is at cell (x,y); x = column (0 = left), y = row (0 = top); N decreases y, S increases y, E increases x, W decreases x\n- hasCart -- the agent is holding/pushing a shopping cart\n- actions N, S, E, W, MOVE (any of the four moves), INTERACT (any interaction with an object: the different kinds of interaction are NOT distinguished), EXIT (leave the store; always the last action)\n- free, adjShelf (some 4-neighbour of the agent's cell is a shelf), shelfN / shelfS / shelfE / shelfW (the neighbouring cell in that direction is a shelf); numeric features freeWidthH / freeWidthV (length of the horizontal / vertical run of free cells through the agent's cell), usable only inside comparisons such as {\"le\": [\"freeWidthH\", 2]}\n\nDemonstration 1 (required items: a2, s1):\n  0: {at(0,7), freeWidthH=12, freeWidthV=8} E\n  1: {at(1,7), freeWidthH=12, freeWidthV=8} INTERACT\n  2: {at(1,7), hasCart, freeWidthH=12, freeWidthV=8} E\n  3: {at(2,7), hasCart, freeWidthH=12, freeWidthV=5} E\n  4: {at(3,7), hasCart, freeWidthH=12, freeWidthV=8} E\n  5: {at(4,7), hasCart, freeWidthH=12, freeWidthV=5} N\n  6: {at(4,6), hasCart, freeWidthH=12, freeWidthV=5} E\n  7: {at(5,6), hasCart, freeWidthH=12, freeWidthV=5} N\n  8: {at(5,5), hasCart, adjShelf, shelfE, freeWidthH=6, freeWidthV=5} INTERACT\n  9: {at(5,5), hasCart, adjShelf, shelfE, freeWidthH=6, freeWidthV=5} N\n 10: {at(5,4), hasCart, freeWidthH=12, freeWidthV=5} N\n 11: {at(5,3), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=5} E\n 12: {at(6,3), hasCart, freeWidthH=12, freeWidthV=5} INTERACT\n 13: {at(6,3), freeWidthH=12, freeWidthV=5} N\n 14: {at(6,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} N\n 15: {at(6,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} INTERACT\n 16: {at(6,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} S\n 17: {at(6,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} S\n 18: {at(6,3), freeWidthH=12, freeWidthV=5} INTERACT\n 19: {at(6,3), hasCart, freeWidthH=12, freeWidthV=5} E\n 20: {at(7,3), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=5} S\n 21: {at(7,4), hasCart, freeWidthH=12, freeWidthV=5} E\n 22: {at(8,4), hasCart, freeWidthH=12, freeWidthV=5} E\n 23: {at(9,4), hasCart, adjShelf, shelfS, freeWidthH=12, freeWidthV=5} E\n 24: {at(10,4), hasCart, freeWidthH=12, freeWidthV=5} E\n 25: {at(11,4), hasCart, freeWidthH=12, freeWidthV=8} S\n 26: {at(11,5), hasCart, freeWidthH=2, freeWidthV=8} S\n 27: {at(11,6), hasCart, freeWidthH=12, freeWidthV=8} S\n 28: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} EXIT\n 29: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} <terminal>\n\nDemonstration 2 (required items: a1, a2):\n  0: {at(0,7), freeWidthH=12, freeWidthV=8} E\n  1: {at(1,7), freeWidthH=12, freeWidthV=8} INTERACT\n  2: {at(1,7), hasCart, freeWidthH=12, freeWidthV=8} N\n  3: {at(1,6), hasCart, freeWidthH=12, freeWidthV=8} N\n  4: {at(1,5), hasCart, freeWidthH=6, freeWidthV=8} N\n  5: {at(1,4), hasCart, freeWidthH=12, freeWidthV=8} N\n  6: {at(1,3), hasCart, freeWidthH=12, freeWidthV=8} E\n  7: {at(2,3), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=5} E\n  8: {at(3,3), hasCart, freeWidthH=12, freeWidthV=8} INTERACT\n  9: {at(3,3), freeWidthH=12, freeWidthV=8} N\n 10: {at(3,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} N\n 11: {at(3,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} INTERACT\n 12: {at(3,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} S\n 13: {at(3,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} S\n 14: {at(3,3), freeWidthH=12, freeWidthV=8} INTERACT\n 15: {at(3,3), hasCart, freeWidthH=12, freeWidthV=8} E\n 16: {at(4,3), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=5} E\n 17: {at(5,3), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=5} E\n 18: {at(6,3), hasCart, freeWidthH=12, freeWidthV=5} INTERACT\n 19: {at(6,3), freeWidthH=12, freeWidthV=5} N\n 20: {at(6,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} N\n 21: {at(6,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} INTERACT\n 22: {at(6,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} S\n 23: {at(6,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} S\n 24: {at(6,3), freeWidthH=12, freeWidthV=5} INTERACT\n 25: {at(6,3), hasCart, freeWidthH=12, freeWidthV=5} S\n 26: {at(6,4), hasCart, adjShelf, shelfS, freeWidthH=12, freeWidthV=5} E\n 27: {at(7,4), hasCart, freeWidthH=12, freeWidthV=5} S\n 28: {at(7,5), hasCart, adjShelf, shelfW, freeWidthH=2, freeWidthV=5} E\n 29: {at(8,5), hasCart, adjShelf, shelfE, freeWidthH=2, freeWidthV=5} S\n 30: {at(8,6), hasCart, freeWidthH=12, freeWidthV=5} E\n 31: {at(9,6), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=2} S\n 32: {at(9,7), hasCart, freeWidthH=12, freeWidthV=2} E\n 33: {at(10,7), hasCart, freeWidthH=12, freeWidthV=5} E\n 34: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} EXIT\n 35: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} <terminal>\n\nDemonstration 3 (required items: a1, a2):\n  0: {at(0,7), freeWidthH=12, freeWidthV=8} E\n  1: {at(1,7), freeWidthH=12, freeWidthV=8} INTERACT\n  2: {at(1,7), hasCart, freeWidthH=12, freeWidthV=8} E\n  3: {at(2,7), hasCart, freeWidthH=12, freeWidthV=5} N\n  4: {at(2,6), hasCart, freeWidthH=12, freeWidthV=5} N\n  5: {at(2,5), hasCart, freeWidthH=6, freeWidthV=5} E\n  6: {at(3,5), hasCart, freeWidthH=6, freeWidthV=8} N\n  7: {at(3,4), hasCart, freeWidthH=12, freeWidthV=8} N\n  8: {at(3,3), hasCart, freeWidthH=12, freeWidthV=8} INTERACT\n  9: {at(3,3), freeWidthH=12, freeWidthV=8} N\n 10: {at(3,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} N\n 11: {at(3,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} INTERACT\n 12: {at(3,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} S\n 13: {at(3,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} S\n 14: {at(3,3), freeWidthH=12, freeWidthV=8} INTERACT\n 15: {at(3,3), hasCart, freeWidthH=12, freeWidthV=8} E\n 16: {at(4,3), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=5} E\n 17: {at(5,3), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=5} E\n 18: {at(6,3), hasCart, freeWidthH=12, freeWidthV=5} INTERACT\n 19: {at(6,3), freeWidthH=12, freeWidthV=5} N\n 20: {at(6,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} N\n 21: {at(6,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} INTERACT\n 22: {at(6,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} S\n 23: {at(6,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} S\n 24: {at(6,3), freeWidthH=12, freeWidthV=5} INTERACT\n 25: {at(6,3), hasCart, freeWidthH=12, freeWidthV=5} S\n 26: {at(6,4), hasCart, adjShelf, shelfS, freeWidthH=12, freeWidthV=5} E\n 27: {at(7,4), hasCart, freeWidthH=12, freeWidthV=5} S\n 28: {at(7,5), hasCart, adjShelf, shelfW, freeWidthH=2, freeWidthV=5} S\n 29: {at(7,6), hasCart, freeWidthH=12, freeWidthV=5} S\n 30: {at(7,7), hasCart, freeWidthH=12, freeWidthV=5} E\n 31: {at(8,7), hasCart, freeWidthH=12, freeWidthV=5} E\n 32: {at(9,7), hasCart, freeWidthH=12, freeWidthV=2} E\n 33: {at(10,7), hasCart, freeWidthH=12, freeWidthV=5} E\n 34: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} EXIT\n 35: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} <terminal>\n\nDemonstration 4 (required items: a1, s1):\n  0: {at(0,7), freeWidthH=12, freeWidthV=8} E\n  1: {at(1,7), freeWidthH=12, freeWidthV=8} INTERACT\n  2: {at(1,7), hasCart, freeWidthH=12, freeWidthV=8} N\n  3: {at(1,6), hasCart, freeWidthH=12, freeWidthV=8} E\n  4: {at(2,6), hasCart, freeWidthH=12, freeWidthV=5} E\n  5: {at(3,6), hasCart, freeWidthH=12, freeWidthV=8} N\n  6: {at(3,5), hasCart, freeWidthH=6, freeWidthV=8} N\n  7: {at(3,4), hasCart, freeWidthH=12, freeWidthV=8} N\n  8: {at(3,3), hasCart, freeWidthH=12, freeWidthV=8} INTERACT\n  9: {at(3,3), freeWidthH=12, freeWidthV=8} N\n 10: {at(3,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} N\n 11: {at(3,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} INTERACT\n 12: {at(3,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} S\n 13: {at(3,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} S\n 14: {at(3,3), freeWidthH=12, freeWidthV=8} INTERACT\n 15: {at(3,3), hasCart, freeWidthH=12, freeWidthV=8} S\n 16: {at(3,4), hasCart, freeWidthH=12, freeWidthV=8} E\n 17: {at(4,4), hasCart, freeWidthH=12, freeWidthV=5} S\n 18: {at(4,5), hasCart, freeWidthH=6, freeWidthV=5} E\n 19: {at(5,5), hasCart, adjShelf, shelfE, freeWidthH=6, freeWidthV=5} INTERACT\n 20: {at(5,5), hasCart, adjShelf, shelfE, freeWidthH=6, freeWidthV=5} S\n 21: {at(5,6), hasCart, freeWidthH=12, freeWidthV=5} E\n 22: {at(6,6), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=2} E\n 23: {at(7,6), hasCart, freeWidthH=12, freeWidthV=5} E\n 24: {at(8,6), hasCart, freeWidthH=12, freeWidthV=5} E\n 25: {at(9,6), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=2} E\n 26: {at(10,6), hasCart, freeWidthH=12, freeWidthV=5} S\n 27: {at(10,7), hasCart, freeWidthH=12, freeWidthV=5} E\n 28: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} EXIT\n 29: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} <terminal>\n\nDemonstration 5 (required items: a1, s2):\n  0: {at(0,7), freeWidthH=12, freeWidthV=8} E\n  1: {at(1,7), freeWidthH=12, freeWidthV=8} INTERACT\n  2: {at(1,7), hasCart, freeWidthH=12, freeWidthV=8} N\n  3: {at(1,6), hasCart, freeWidthH=12, freeWidthV=8} N\n  4: {at(1,5), hasCart, freeWidthH=6, freeWidthV=8} N\n  5: {at(1,4), hasCart, freeWidthH=12, freeWidthV=8} N\n  6: {at(1,3), hasCart, freeWidthH=12, freeWidthV=8} E\n  7: {at(2,3), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=5} E\n  8: {at(3,3), hasCart, freeWidthH=12, freeWidthV=8} INTERACT\n  9: {at(3,3), freeWidthH=12, freeWidthV=8} N\n 10: {at(3,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} N\n 11: {at(3,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} INTERACT\n 12: {at(3,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} S\n 13: {at(3,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} S\n 14: {at(3,3), freeWidthH=12, freeWidthV=8} INTERACT\n 15: {at(3,3), hasCart, freeWidthH=12, freeWidthV=8} S\n 16: {at(3,4), hasCart, freeWidthH=12, freeWidthV=8} E\n 17: {at(4,4), hasCart, freeWidthH=12, freeWidthV=5} E\n 18: {at(5,4), hasCart, freeWidthH=12, freeWidthV=5} S\n 19: {at(5,5), hasCart, adjShelf, shelfE, freeWidthH=6, freeWidthV=5} S\n 20: {at(5,6), hasCart, freeWidthH=12, freeWidthV=5} E\n 21: {at(6,6), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=2} E\n 22: {at(7,6), hasCart, freeWidthH=12, freeWidthV=5} E\n 23: {at(8,6), hasCart, freeWidthH=12, freeWidthV=5} E\n 24: {at(9,6), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=2} INTERACT\n 25: {at(9,6), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=2} S\n 26: {at(9,7), hasCart, freeWidthH=12, freeWidthV=2} E\n 27: {at(10,7), hasCart, freeWidthH=12, freeWidthV=5} E\n 28: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} EXIT\n 29: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} <terminal>\n\nDemonstration 6 (required items: a2, s2):\n  0: {at(0,7), freeWidthH=12, freeWidthV=8} E\n  1: {at(1,7), freeWidthH=12, freeWidthV=8} INTERACT\n  2: {at(1,7), hasCart, freeWidthH=12, freeWidthV=8} E\n  3: {at(2,7), hasCart, freeWidthH=12, freeWidthV=5} E\n  4: {at(3,7), hasCart, freeWidthH=12, freeWidthV=8} N\n  5: {at(3,6), hasCart, freeWidthH=12, freeWidthV=8} E\n  6: {at(4,6), hasCart, freeWidthH=12, freeWidthV=5} E\n  7: {at(5,6), hasCart, freeWidthH=12, freeWidthV=5} N\n  8: {at(5,5), hasCart, adjShelf, shelfE, freeWidthH=6, freeWidthV=5} N\n  9: {at(5,4), hasCart, freeWidthH=12, freeWidthV=5} N\n 10: {at(5,3), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=5} E\n 11: {at(6,3), hasCart, freeWidthH=12, freeWidthV=5} INTERACT\n 12: {at(6,3), freeWidthH=12, freeWidthV=5} N\n 13: {at(6,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} N\n 14: {at(6,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} INTERACT\n 15: {at(6,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} S\n 16: {at(6,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} S\n 17: {at(6,3), freeWidthH=12, freeWidthV=5} INTERACT\n 18: {at(6,3), hasCart, freeWidthH=12, freeWidthV=5} S\n 19: {at(6,4), hasCart, adjShelf, shelfS, freeWidthH=12, freeWidthV=5} E\n 20: {at(7,4), hasCart, freeWidthH=12, freeWidthV=5} E\n 21: {at(8,4), hasCart, freeWidthH=12, freeWidthV=5} S\n 22: {at(8,5), hasCart, adjShelf, shelfE, freeWidthH=2, freeWidthV=5} INTERACT\n 23: {at(8,5), hasCart, adjShelf, shelfE, freeWidthH=2, freeWidthV=5} S\n 24: {at(8,6), hasCart, freeWidthH=12, freeWidthV=5} S\n 25: {at(8,7), hasCart, freeWidthH=12, freeWidthV=5} E\n 26: {at(9,7), hasCart, freeWidthH=12, freeWidthV=2} E\n 27: {at(10,7), hasCart, freeWidthH=12, freeWidthV=5} E\n 28: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} EXIT\n 29: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} <terminal>\n\nDemonstration 7 (required items: s2):\n  0: {at(0,7), freeWidthH=12, freeWidthV=8} E\n  1: {at(1,7), freeWidthH=12, freeWidthV=8} INTERACT\n  2: {at(1,7), hasCart, freeWidthH=12, freeWidthV=8} N\n  3: {at(1,6), hasCart, freeWidthH=12, freeWidthV=8} E\n  4: {at(2,6), hasCart, freeWidthH=12, freeWidthV=5} E\n  5: {at(3,6), hasCart, freeWidthH=12, freeWidthV=8} E\n  6: {at(4,6), hasCart, freeWidthH=12, freeWidthV=5} E\n  7: {at(5,6), hasCart, freeWidthH=12, freeWidthV=5} E\n  8: {at(6,6), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=2} E\n  9: {at(7,6), hasCart, freeWidthH=12, freeWidthV=5} E\n 10: {at(8,6), hasCart, freeWidthH=12, freeWidthV=5} E\n 11: {at(9,6), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=2} INTERACT\n 12: {at(9,6), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=2} S\n 13: {at(9,7), hasCart, freeWidthH=12, freeWidthV=2} E\n 14: {at(10,7), hasCart, freeWidthH=12, freeWidthV=5} E\n 15: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} EXIT\n 16: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} <terminal>\n\nDemonstration 8 (required items: a1, s2):\n  0: {at(0,7), freeWidthH=12, freeWidthV=8} E\n  1: {at(1,7), freeWidthH=12, freeWidthV=8} INTERACT\n  2: {at(1,7), hasCart, freeWidthH=12, freeWidthV=8} N\n  3: {at(1,6), hasCart, freeWidthH=12, freeWidthV=8} N\n  4: {at(1,5), hasCart, freeWidthH=6, freeWidthV=8} N\n  5: {at(1,4), hasCart, freeWidthH=12, freeWidthV=8} N\n  6: {at(1,3), hasCart, freeWidthH=12, freeWidthV=8} E\n  7: {at(2,3), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=5} E\n  8: {at(3,3), hasCart, freeWidthH=12, freeWidthV=8} INTERACT\n  9: {at(3,3), freeWidthH=12, freeWidthV=8} N\n 10: {at(3,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} N\n 11: {at(3,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} INTERACT\n 12: {at(3,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} S\n 13: {at(3,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} S\n 14: {at(3,3), freeWidthH=12, freeWidthV=8} INTERACT\n 15: {at(3,3), hasCart, freeWidthH=12, freeWidthV=8} S\n 16: {at(3,4), hasCart, freeWidthH=12, freeWidthV=8} E\n 17: {at(4,4), hasCart, freeWidthH=12, freeWidthV=5} S\n 18: {at(4,5), hasCart, freeWidthH=6, freeWidthV=5} E\n 19: {at(5,5), hasCart, adjShelf, shelfE, freeWidthH=6, freeWidthV=5} S\n 20: {at(5,6), hasCart, freeWidthH=12, freeWidthV=5} E\n 21: {at(6,6), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=2} E\n 22: {at(7,6), hasCart, freeWidthH=12, freeWidthV=5} E\n 23: {at(8,6), hasCart, freeWidthH=12, freeWidthV=5} E\n 24: {at(9,6), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=2} INTERACT\n 25: {at(9,6), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=2} S\n 26: {at(9,7), hasCart, freeWidthH=12, freeWidthV=2} E\n 27: {at(10,7), hasCart, freeWidthH=12, freeWidthV=5} E\n 28: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} EXIT\n 29: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} <terminal>\n\nDemonstration 9 (required items: a2, s2):\n  0: {at(0,7), freeWidthH=12, freeWidthV=8} E\n  1: {at(1,7), freeWidthH=12, freeWidthV=8} INTERACT\n  2: {at(1,7), hasCart, freeWidthH=12, freeWidthV=8} N\n  3: {at(1,6), hasCart, freeWidthH=12, freeWidthV=8} E\n  4: {at(2,6), hasCart, freeWidthH=12, freeWidthV=5} E\n  5: {at(3,6), hasCart, freeWidthH=12, freeWidthV=8} N\n  6: {at(3,5), hasCart, freeWidthH=6, freeWidthV=8} N\n  7: {at(3,4), hasCart, freeWidthH=12, freeWidthV=8} N\n  8: {at(3,3), hasCart, freeWidthH=12, freeWidthV=8} E\n  9: {at(4,3), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=5} E\n 10: {at(5,3), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=5} E\n 11: {at(6,3), hasCart, freeWidthH=12, freeWidthV=5} INTERACT\n 12: {at(6,3), freeWidthH=12, freeWidthV=5} N\n 13: {at(6,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} N\n 14: {at(6,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} INTERACT\n 15: {at(6,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} S\n 16: {at(6,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} S\n 17: {at(6,3), freeWidthH=12, freeWidthV=5} INTERACT\n 18: {at(6,3), hasCart, freeWidthH=12, freeWidthV=5} S\n 19: {at(6,4), hasCart, adjShelf, shelfS, freeWidthH=12, freeWidthV=5} E\n 20: {at(7,4), hasCart, freeWidthH=12, freeWidthV=5} E\n 21: {at(8,4), hasCart, freeWidthH=12, freeWidthV=5} S\n 22: {at(8,5), hasCart, adjShelf, shelfE, freeWidthH=2, freeWidthV=5} S\n 23: {at(8,6), hasCart, freeWidthH=12, freeWidthV=5} E\n 24: {at(9,6), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=2} INTERACT\n 25: {at(9,6), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=2} E\n 26: {at(10,6), hasCart, freeWidthH=12, freeWidthV=5} S\n 27: {at(10,7), hasCart, freeWidthH=12, freeWidthV=5} E\n 28: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} EXIT\n 29: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} <terminal>\n\nThe current hypotheses, expressed in a coarser representation, do not adequately explain the latest demonstration:\n- [g0_must_get_cart] OBLIGED: after start, eventually hasCart (before exit)\n- [g0_no_exit_without_cart] FORBIDDEN: (EXIT \u2227 \u00achasCart)\n- [g0_must_not_skip_cart_pickup] FORBIDDEN: (at(1,7) \u2227 E \u2227 \u00achasCart)\n- [g0_cart_required_for_most_movement] FORBIDDEN: ((N \u2228 S \u2228 E \u2228 W) \u2227 \u00achasCart \u2227 \u00ac(at(0,7) \u2228 at(1,7) \u2228 at(6,3) \u2228 at(6,2) \u2228 at(6,1)))\n- [g0_no_cart_north_from_63] FORBIDDEN: (at(6,3) \u2227 hasCart \u2227 N)\n- [g0_no_cart_at_61] FORBIDDEN: (at(6,1) \u2227 hasCart)\n- [g0_recover_cart_after_61] OBLIGED: after (at(6,1) \u2227 INTERACT), eventually hasCart (before exit)\n- [g0_cart_required_at_55] FORBIDDEN: (at(5,5) \u2227 INTERACT \u2227 \u00achasCart)\n\nThe demonstrations are now shown in a lower-level representation that exposes distinctions hidden before (newly available: geometry). Identify the hidden distinctions and use them to define higher-level state properties and/or events (in \"abstraction\"), possibly hierarchically, and propose norms expressed over them. Norms may also use the primitive atoms directly.\nPropose 8 diverse candidate hypotheses.\n\nOutput format: return ONLY a JSON list (no prose, no code fences). Each element:\n{\"id\": short_name, \"text\": one-sentence natural-language statement of the norm,\n \"abstraction\": {\"state_properties\": {name: FORMULA, ...},\n                 \"events\": {name: {\"pre\": FORMULA, \"post\": FORMULA or null}, ...}},\n \"norm\": {\"type\": \"prohibition\", \"condition\": FORMULA}\n       | {\"type\": \"obligation\", \"trigger\": FORMULA or \"START\", \"discharge\": FORMULA}}\nFORMULA := atom | name of a property/event defined in this hypothesis | {\"not\": F} | {\"and\": [F, ...]}\n         | {\"or\": [F, ...]} | {\"le\"|\"lt\"|\"ge\"|\"gt\"|\"eq\": [numeric_feature, integer]}\nSemantics.  A trajectory is a sequence of steps (state s_k, action a_k).  A step's label contains the atoms true in\ns_k and the action a_k.  A state property is a formula over state atoms (no actions).  An event\n{\"pre\": P, \"post\": Q} occurs at step k when P holds for the label of step k and Q holds in the next state s_{k+1}\n(post may be null).  A prohibition counts one violation for every step whose label (including events occurring at\nthat step) satisfies the condition.  An obligation becomes pending at any step satisfying the trigger (\"START\" =\npending from the beginning) and is fulfilled by a later (or the same) step satisfying the discharge; it can be\ntriggered again; it is violated if it is still pending when the trajectory ends.",
+          "raw_response": "[\n  {\n    \"id\": \"no_carts_in_single_file_aisles\",\n    \"text\": \"Shopping carts must not be taken into single-file shelf aisles where shelves border both sides.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"singleFileAisle\": {\n          \"and\": [\n            \"adjShelf\",\n            \"shelfE\",\n            \"shelfW\",\n            {\n              \"le\": [\n                \"freeWidthH\",\n                1\n              ]\n            }\n          ]\n        }\n      },\n      \"events\": {\n        \"enterSingleFileWithCart\": {\n          \"pre\": {\n            \"and\": [\n              \"hasCart\",\n              {\n                \"or\": [\n                  \"N\",\n                  \"S\",\n                  \"E\",\n                  \"W\"\n                ]\n              }\n            ]\n          },\n          \"post\": \"singleFileAisle\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"or\": [\n          {\n            \"and\": [\n              \"hasCart\",\n              \"singleFileAisle\"\n            ]\n          },\n          \"enterSingleFileWithCart\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"park_before_narrow_item_aisle\",\n    \"text\": \"At the mouth of a single-file item aisle, a shopper with a cart must not go north into the aisle without first parking the cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"pickupAisleMouth\": {\n          \"or\": [\n            \"at(3,3)\",\n            \"at(6,3)\"\n          ]\n        },\n        \"wideMouthArea\": {\n          \"and\": [\n            \"pickupAisleMouth\",\n            {\n              \"ge\": [\n                \"freeWidthH\",\n                12\n              ]\n            }\n          ]\n        }\n      },\n      \"events\": {\n        \"cartParkedAtMouth\": {\n          \"pre\": {\n            \"and\": [\n              \"wideMouthArea\",\n              \"hasCart\",\n              \"INTERACT\"\n            ]\n          },\n          \"post\": {\n            \"not\": \"hasCart\"\n          }\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"pickupAisleMouth\",\n          \"hasCart\",\n          \"N\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"cart_parking_only_at_aisle_mouths\",\n    \"text\": \"A shopper may park or detach from the cart only at designated wide staging mouths for narrow aisles.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"pickupAisleMouth\": {\n          \"or\": [\n            \"at(3,3)\",\n            \"at(6,3)\"\n          ]\n        },\n        \"designatedCartStaging\": {\n          \"and\": [\n            \"pickupAisleMouth\",\n            {\n              \"ge\": [\n                \"freeWidthH\",\n                12\n              ]\n            }\n          ]\n        }\n      },\n      \"events\": {\n        \"cartParked\": {\n          \"pre\": {\n            \"and\": [\n              \"hasCart\",\n              \"INTERACT\"\n            ]\n          },\n          \"post\": {\n            \"not\": \"hasCart\"\n          }\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"cartParked\",\n          {\n            \"not\": \"designatedCartStaging\"\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"recover_parked_cart\",\n    \"text\": \"Whenever a shopper parks a cart to enter a narrow aisle, they are obliged to recover the cart before leaving the store.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"pickupAisleMouth\": {\n          \"or\": [\n            \"at(3,3)\",\n            \"at(6,3)\"\n          ]\n        }\n      },\n      \"events\": {\n        \"cartParkedAtMouth\": {\n          \"pre\": {\n            \"and\": [\n              \"pickupAisleMouth\",\n              \"hasCart\",\n              \"INTERACT\"\n            ]\n          },\n          \"post\": {\n            \"not\": \"hasCart\"\n          }\n        },\n        \"cartRetrievedAtMouth\": {\n          \"pre\": {\n            \"and\": [\n              \"pickupAisleMouth\",\n              {\n                \"not\": \"hasCart\"\n              },\n              \"INTERACT\"\n            ]\n          },\n          \"post\": \"hasCart\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"cartParkedAtMouth\",\n      \"discharge\": \"cartRetrievedAtMouth\"\n    }\n  },\n  {\n    \"id\": \"no_cartless_open_floor_travel\",\n    \"text\": \"Except in the entrance cart area or when stepping into a single-file shelf aisle, shoppers should not move around open aisles without their cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"cartPickupArea\": {\n          \"or\": [\n            \"at(0,7)\",\n            \"at(1,7)\"\n          ]\n        },\n        \"singleFileAisle\": {\n          \"and\": [\n            \"adjShelf\",\n            \"shelfE\",\n            \"shelfW\",\n            {\n              \"le\": [\n                \"freeWidthH\",\n                1\n              ]\n            }\n          ]\n        },\n        \"openAisle\": {\n          \"and\": [\n            {\n              \"ge\": [\n                \"freeWidthH\",\n                12\n              ]\n            },\n            {\n              \"not\": \"singleFileAisle\"\n            }\n          ]\n        }\n      },\n      \"events\": {\n        \"enterSingleFileWithoutCart\": {\n          \"pre\": {\n            \"and\": [\n              {\n                \"not\": \"hasCart\"\n              },\n              {\n                \"or\": [\n                  \"N\",\n                  \"S\",\n                  \"E\",\n                  \"W\"\n                ]\n              }\n            ]\n          },\n          \"post\": \"singleFileAisle\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"openAisle\",\n          {\n            \"not\": \"hasCart\"\n          },\n          {\n            \"or\": [\n              \"N\",\n              \"S\",\n              \"E\",\n              \"W\"\n            ]\n          },\n          {\n            \"not\": \"cartPickupArea\"\n          },\n          {\n            \"not\": \"enterSingleFileWithoutCart\"\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"cart_required_for_non_singlefile_shelf_service\",\n    \"text\": \"Shelf interactions away from single-file aisles should be performed with the cart present.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"singleFileAisle\": {\n          \"and\": [\n            \"adjShelf\",\n            \"shelfE\",\n            \"shelfW\",\n            {\n              \"le\": [\n                \"freeWidthH\",\n                1\n              ]\n            }\n          ]\n        },\n        \"ordinaryShelfAccess\": {\n          \"and\": [\n            \"adjShelf\",\n            {\n              \"not\": \"singleFileAisle\"\n            }\n          ]\n        }\n      },\n      \"events\": {\n        \"shelfInteractionWithoutCart\": {\n          \"pre\": {\n            \"and\": [\n              \"ordinaryShelfAccess\",\n              {\n                \"not\": \"hasCart\"\n              },\n              \"INTERACT\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"shelfInteractionWithoutCart\"\n    }\n  },\n  {\n    \"id\": \"no_cart_service_in_side_pinch_points\",\n    \"text\": \"A shopper with a cart should not stop to take items from a shelf while standing in a narrow side pinch point.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"sidePinchPoint\": {\n          \"and\": [\n            \"adjShelf\",\n            {\n              \"le\": [\n                \"freeWidthH\",\n                2\n              ]\n            }\n          ]\n        },\n        \"cartSideShelfServicePoint\": {\n          \"and\": [\n            \"sidePinchPoint\",\n            \"hasCart\",\n            \"adjShelf\"\n          ]\n        }\n      },\n      \"events\": {\n        \"cartShelfServiceInSidePinch\": {\n          \"pre\": {\n            \"and\": [\n              \"cartSideShelfServicePoint\",\n              \"INTERACT\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"cartShelfServiceInSidePinch\"\n    }\n  },\n  {\n    \"id\": \"avoid_horizontal_cart_flow_in_two_wide_gaps\",\n    \"text\": \"Carts should not be driven horizontally through two-wide shelf-side gaps, to avoid blocking the narrow side aisle.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"twoWideSideGap\": {\n          \"and\": [\n            \"adjShelf\",\n            {\n              \"le\": [\n                \"freeWidthH\",\n                2\n              ]\n            },\n            {\n              \"ge\": [\n                \"freeWidthV\",\n                5\n              ]\n            }\n          ]\n        }\n      },\n      \"events\": {\n        \"horizontalCartMoveInSideGap\": {\n          \"pre\": {\n            \"and\": [\n              \"hasCart\",\n              \"twoWideSideGap\",\n              {\n                \"or\": [\n                  \"E\",\n                  \"W\"\n                ]\n              }\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"horizontalCartMoveInSideGap\"\n    }\n  }\n]",
+          "parsed": [
+            {
+              "id": "no_carts_in_single_file_aisles",
+              "text": "Shopping carts must not be taken into single-file shelf aisles where shelves border both sides.",
+              "abstraction": {
+                "state_properties": {
+                  "singleFileAisle": {
+                    "and": [
+                      "adjShelf",
+                      "shelfE",
+                      "shelfW",
+                      {
+                        "le": [
+                          "freeWidthH",
+                          1
+                        ]
+                      }
+                    ]
+                  }
+                },
+                "events": {
+                  "enterSingleFileWithCart": {
+                    "pre": {
+                      "and": [
+                        "hasCart",
+                        {
+                          "or": [
+                            "N",
+                            "S",
+                            "E",
+                            "W"
+                          ]
+                        }
+                      ]
+                    },
+                    "post": "singleFileAisle"
+                  }
+                }
+              },
+              "norm": {
+                "type": "prohibition",
+                "condition": {
+                  "or": [
+                    {
+                      "and": [
+                        "hasCart",
+                        "singleFileAisle"
+                      ]
+                    },
+                    "enterSingleFileWithCart"
+                  ]
+                }
+              }
+            },
+            {
+              "id": "park_before_narrow_item_aisle",
+              "text": "At the mouth of a single-file item aisle, a shopper with a cart must not go north into the aisle without first parking the cart.",
+              "abstraction": {
+                "state_properties": {
+                  "pickupAisleMouth": {
+                    "or": [
+                      "at(3,3)",
+                      "at(6,3)"
+                    ]
+                  },
+                  "wideMouthArea": {
+                    "and": [
+                      "pickupAisleMouth",
+                      {
+                        "ge": [
+                          "freeWidthH",
+                          12
+                        ]
+                      }
+                    ]
+                  }
+                },
+                "events": {
+                  "cartParkedAtMouth": {
+                    "pre": {
+                      "and": [
+                        "wideMouthArea",
+                        "hasCart",
+                        "INTERACT"
+                      ]
+                    },
+                    "post": {
+                      "not": "hasCart"
+                    }
+                  }
+                }
+              },
+              "norm": {
+                "type": "prohibition",
+                "condition": {
+                  "and": [
+                    "pickupAisleMouth",
+                    "hasCart",
+                    "N"
+                  ]
+                }
+              }
+            },
+            {
+              "id": "cart_parking_only_at_aisle_mouths",
+              "text": "A shopper may park or detach from the cart only at designated wide staging mouths for narrow aisles.",
+              "abstraction": {
+                "state_properties": {
+                  "pickupAisleMouth": {
+                    "or": [
+                      "at(3,3)",
+                      "at(6,3)"
+                    ]
+                  },
+                  "designatedCartStaging": {
+                    "and": [
+                      "pickupAisleMouth",
+                      {
+                        "ge": [
+                          "freeWidthH",
+                          12
+                        ]
+                      }
+                    ]
+                  }
+                },
+                "events": {
+                  "cartParked": {
+                    "pre": {
+                      "and": [
+                        "hasCart",
+                        "INTERACT"
+                      ]
+                    },
+                    "post": {
+                      "not": "hasCart"
+                    }
+                  }
+                }
+              },
+              "norm": {
+                "type": "prohibition",
+                "condition": {
+                  "and": [
+                    "cartParked",
+                    {
+                      "not": "designatedCartStaging"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "recover_parked_cart",
+              "text": "Whenever a shopper parks a cart to enter a narrow aisle, they are obliged to recover the cart before leaving the store.",
+              "abstraction": {
+                "state_properties": {
+                  "pickupAisleMouth": {
+                    "or": [
+                      "at(3,3)",
+                      "at(6,3)"
+                    ]
+                  }
+                },
+                "events": {
+                  "cartParkedAtMouth": {
+                    "pre": {
+                      "and": [
+                        "pickupAisleMouth",
+                        "hasCart",
+                        "INTERACT"
+                      ]
+                    },
+                    "post": {
+                      "not": "hasCart"
+                    }
+                  },
+                  "cartRetrievedAtMouth": {
+                    "pre": {
+                      "and": [
+                        "pickupAisleMouth",
+                        {
+                          "not": "hasCart"
+                        },
+                        "INTERACT"
+                      ]
+                    },
+                    "post": "hasCart"
+                  }
+                }
+              },
+              "norm": {
+                "type": "obligation",
+                "trigger": "cartParkedAtMouth",
+                "discharge": "cartRetrievedAtMouth"
+              }
+            },
+            {
+              "id": "no_cartless_open_floor_travel",
+              "text": "Except in the entrance cart area or when stepping into a single-file shelf aisle, shoppers should not move around open aisles without their cart.",
+              "abstraction": {
+                "state_properties": {
+                  "cartPickupArea": {
+                    "or": [
+                      "at(0,7)",
+                      "at(1,7)"
+                    ]
+                  },
+                  "singleFileAisle": {
+                    "and": [
+                      "adjShelf",
+                      "shelfE",
+                      "shelfW",
+                      {
+                        "le": [
+                          "freeWidthH",
+                          1
+                        ]
+                      }
+                    ]
+                  },
+                  "openAisle": {
+                    "and": [
+                      {
+                        "ge": [
+                          "freeWidthH",
+                          12
+                        ]
+                      },
+                      {
+                        "not": "singleFileAisle"
+                      }
+                    ]
+                  }
+                },
+                "events": {
+                  "enterSingleFileWithoutCart": {
+                    "pre": {
+                      "and": [
+                        {
+                          "not": "hasCart"
+                        },
+                        {
+                          "or": [
+                            "N",
+                            "S",
+                            "E",
+                            "W"
+                          ]
+                        }
+                      ]
+                    },
+                    "post": "singleFileAisle"
+                  }
+                }
+              },
+              "norm": {
+                "type": "prohibition",
+                "condition": {
+                  "and": [
+                    "openAisle",
+                    {
+                      "not": "hasCart"
+                    },
+                    {
+                      "or": [
+                        "N",
+                        "S",
+                        "E",
+                        "W"
+                      ]
+                    },
+                    {
+                      "not": "cartPickupArea"
+                    },
+                    {
+                      "not": "enterSingleFileWithoutCart"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "cart_required_for_non_singlefile_shelf_service",
+              "text": "Shelf interactions away from single-file aisles should be performed with the cart present.",
+              "abstraction": {
+                "state_properties": {
+                  "singleFileAisle": {
+                    "and": [
+                      "adjShelf",
+                      "shelfE",
+                      "shelfW",
+                      {
+                        "le": [
+                          "freeWidthH",
+                          1
+                        ]
+                      }
+                    ]
+                  },
+                  "ordinaryShelfAccess": {
+                    "and": [
+                      "adjShelf",
+                      {
+                        "not": "singleFileAisle"
+                      }
+                    ]
+                  }
+                },
+                "events": {
+                  "shelfInteractionWithoutCart": {
+                    "pre": {
+                      "and": [
+                        "ordinaryShelfAccess",
+                        {
+                          "not": "hasCart"
+                        },
+                        "INTERACT"
+                      ]
+                    },
+                    "post": null
+                  }
+                }
+              },
+              "norm": {
+                "type": "prohibition",
+                "condition": "shelfInteractionWithoutCart"
+              }
+            },
+            {
+              "id": "no_cart_service_in_side_pinch_points",
+              "text": "A shopper with a cart should not stop to take items from a shelf while standing in a narrow side pinch point.",
+              "abstraction": {
+                "state_properties": {
+                  "sidePinchPoint": {
+                    "and": [
+                      "adjShelf",
+                      {
+                        "le": [
+                          "freeWidthH",
+                          2
+                        ]
+                      }
+                    ]
+                  },
+                  "cartSideShelfServicePoint": {
+                    "and": [
+                      "sidePinchPoint",
+                      "hasCart",
+                      "adjShelf"
+                    ]
+                  }
+                },
+                "events": {
+                  "cartShelfServiceInSidePinch": {
+                    "pre": {
+                      "and": [
+                        "cartSideShelfServicePoint",
+                        "INTERACT"
+                      ]
+                    },
+                    "post": null
+                  }
+                }
+              },
+              "norm": {
+                "type": "prohibition",
+                "condition": "cartShelfServiceInSidePinch"
+              }
+            },
+            {
+              "id": "avoid_horizontal_cart_flow_in_two_wide_gaps",
+              "text": "Carts should not be driven horizontally through two-wide shelf-side gaps, to avoid blocking the narrow side aisle.",
+              "abstraction": {
+                "state_properties": {
+                  "twoWideSideGap": {
+                    "and": [
+                      "adjShelf",
+                      {
+                        "le": [
+                          "freeWidthH",
+                          2
+                        ]
+                      },
+                      {
+                        "ge": [
+                          "freeWidthV",
+                          5
+                        ]
+                      }
+                    ]
+                  }
+                },
+                "events": {
+                  "horizontalCartMoveInSideGap": {
+                    "pre": {
+                      "and": [
+                        "hasCart",
+                        "twoWideSideGap",
+                        {
+                          "or": [
+                            "E",
+                            "W"
+                          ]
+                        }
+                      ]
+                    },
+                    "post": null
+                  }
+                }
+              },
+              "norm": {
+                "type": "prohibition",
+                "condition": "horizontalCartMoveInSideGap"
+              }
+            }
+          ],
+          "call": {
+            "cache_key": "d17efef3b92ebeb9794fbc650b7e396b4387605c8232345e5913e8c9935d271b",
+            "requested_model": "gpt-5.5",
+            "returned_model": "gpt-5.5-2026-04-23",
+            "response_id": "resp_01867fa65e933008006ac6d1c6193087d18f1d7a1fa4c51adc",
+            "status": "completed",
+            "incomplete_details": null,
+            "usage": {
+              "input_tokens": 8949,
+              "input_tokens_details": {
+                "cached_tokens": 5888,
+                "cache_write_tokens": 0
+              },
+              "output_tokens": 6602,
+              "output_tokens_details": {
+                "reasoning_tokens": 4501
+              },
+              "total_tokens": 15551
+            },
+            "settings": {
+              "model": "gpt-5.5",
+              "temperature": null,
+              "reasoning_effort": null,
+              "max_output_tokens": null,
+              "api": "responses.create"
+            },
+            "replicate": "trig/aisle/2",
+            "timestamp": "2026-10-07T19:13:11",
+            "latency_s": 65.36,
+            "retries": [],
+            "cache_hit": false
+          }
+        }
+      ],
+      "accepted": [
+        {
+          "id": "g1_no_carts_in_single_file_aisles",
+          "description": "[g1_no_carts_in_single_file_aisles] FORBIDDEN: ((hasCart \u2227 singleFileAisle) \u2228 enterSingleFileWithCart)  where singleFileAisle := (adjShelf \u2227 shelfE \u2227 shelfW \u2227 freeWidthH\u22641); enterSingleFileWithCart := (hasCart \u2227 (N \u2228 S \u2228 E \u2228 W)) \u00b7 singleFileAisle",
+          "L_alpha": 15,
+          "L_norm": 6,
+          "intended_equivalent": true,
+          "duplicate_of_existing": false
+        },
+        {
+          "id": "g1_park_before_narrow_item_aisle",
+          "description": "[g1_park_before_narrow_item_aisle] FORBIDDEN: (pickupAisleMouth \u2227 hasCart \u2227 N)  where pickupAisleMouth := (at(3,3) \u2228 at(6,3)); wideMouthArea := (pickupAisleMouth \u2227 freeWidthH\u226512); cartParkedAtMouth := (wideMouthArea \u2227 hasCart \u2227 INTERACT) \u00b7 \u00achasCart",
+          "L_alpha": 14,
+          "L_norm": 5,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        },
+        {
+          "id": "g1_cart_parking_only_at_aisle_mouths",
+          "description": "[g1_cart_parking_only_at_aisle_mouths] FORBIDDEN: (cartParked \u2227 \u00acdesignatedCartStaging)  where designatedCartStaging := (pickupAisleMouth \u2227 freeWidthH\u226512); pickupAisleMouth := (at(3,3) \u2228 at(6,3)); cartParked := (hasCart \u2227 INTERACT) \u00b7 \u00achasCart",
+          "L_alpha": 13,
+          "L_norm": 5,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        },
+        {
+          "id": "g1_recover_parked_cart",
+          "description": "[g1_recover_parked_cart] OBLIGED: after cartParkedAtMouth, eventually cartRetrievedAtMouth (before exit)  where pickupAisleMouth := (at(3,3) \u2228 at(6,3)); cartParkedAtMouth := (pickupAisleMouth \u2227 hasCart \u2227 INTERACT) \u00b7 \u00achasCart; cartRetrievedAtMouth := (pickupAisleMouth \u2227 \u00achasCart \u2227 INTERACT) \u00b7 hasCart",
+          "L_alpha": 15,
+          "L_norm": 3,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        },
+        {
+          "id": "g1_no_cartless_open_floor_travel",
+          "description": "[g1_no_cartless_open_floor_travel] FORBIDDEN: (openAisle \u2227 \u00achasCart \u2227 (N \u2228 S \u2228 E \u2228 W) \u2227 \u00accartPickupArea \u2227 \u00acenterSingleFileWithoutCart)  where cartPickupArea := (at(0,7) \u2228 at(1,7)); openAisle := (freeWidthH\u226512 \u2227 \u00acsingleFileAisle); singleFileAisle := (adjShelf \u2227 shelfE \u2227 shelfW \u2227 freeWidthH\u22641); enterSingleFileWithoutCart := (\u00achasCart \u2227 (N \u2228 S \u2228 E \u2228 W)) \u00b7 singleFileAisle",
+          "L_alpha": 25,
+          "L_norm": 14,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        },
+        {
+          "id": "g1_cart_required_for_non_singlefile_shelf_service",
+          "description": "[g1_cart_required_for_non_singlefile_shelf_service] FORBIDDEN: shelfInteractionWithoutCart  where ordinaryShelfAccess := (adjShelf \u2227 \u00acsingleFileAisle); singleFileAisle := (adjShelf \u2227 shelfE \u2227 shelfW \u2227 freeWidthH\u22641); shelfInteractionWithoutCart := (ordinaryShelfAccess \u2227 \u00achasCart \u2227 INTERACT)",
+          "L_alpha": 16,
+          "L_norm": 2,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        },
+        {
+          "id": "g1_no_cart_service_in_side_pinch_points",
+          "description": "[g1_no_cart_service_in_side_pinch_points] FORBIDDEN: cartShelfServiceInSidePinch  where cartSideShelfServicePoint := (sidePinchPoint \u2227 hasCart \u2227 adjShelf); sidePinchPoint := (adjShelf \u2227 freeWidthH\u22642); cartShelfServiceInSidePinch := (cartSideShelfServicePoint \u2227 INTERACT)",
+          "L_alpha": 12,
+          "L_norm": 2,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        },
+        {
+          "id": "g1_avoid_horizontal_cart_flow_in_two_wide_gaps",
+          "description": "[g1_avoid_horizontal_cart_flow_in_two_wide_gaps] FORBIDDEN: horizontalCartMoveInSideGap  where twoWideSideGap := (adjShelf \u2227 freeWidthH\u22642 \u2227 freeWidthV\u22655); horizontalCartMoveInSideGap := (hasCart \u2227 twoWideSideGap \u2227 (E \u2228 W))",
+          "L_alpha": 14,
+          "L_norm": 2,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        }
+      ],
+      "rejected": []
+    }
+  ]
+}

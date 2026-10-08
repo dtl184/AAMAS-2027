@@ -1,0 +1,32 @@
+{
+ "cache_key": "cb5535365c06175dabf64620431dfce0c24ced91dbf022fe01e9663f49e250d8",
+ "requested_model": "gpt-5.5",
+ "returned_model": "gpt-5.5-2026-04-23",
+ "response_id": "resp_0edcce04d17a9c4c006ac6cfd3ae7887d194d6e62e14e83433",
+ "status": "completed",
+ "incomplete_details": null,
+ "usage": {
+  "input_tokens": 6893,
+  "input_tokens_details": {
+   "cached_tokens": 3840,
+   "cache_write_tokens": 0
+  },
+  "output_tokens": 3369,
+  "output_tokens_details": {
+   "reasoning_tokens": 2070
+  },
+  "total_tokens": 10262
+ },
+ "settings": {
+  "model": "gpt-5.5",
+  "temperature": null,
+  "reasoning_effort": null,
+  "max_output_tokens": null,
+  "api": "responses.create"
+ },
+ "replicate": "trig/cart/9",
+ "timestamp": "2026-10-07T19:04:20",
+ "latency_s": 32.68,
+ "retries": [],
+ "output_text": "[\n  {\n    \"id\": \"must_take_entrance_cart\",\n    \"text\": \"Customers are obliged to collect the available cart from the entrance cart station before leaving the store.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"at_entrance_cart_station\": \"at(1,5)\",\n        \"entrance_cart_available\": \"cartAt(1,5)\",\n        \"has_cart\": \"hasCart\"\n      },\n      \"events\": {\n        \"take_entrance_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"at_entrance_cart_station\",\n              \"entrance_cart_available\",\n              \"PICKUP_CART\"\n            ]\n          },\n          \"post\": \"has_cart\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"START\",\n      \"discharge\": \"take_entrance_cart\"\n    }\n  },\n  {\n    \"id\": \"no_pickup_item_without_cart\",\n    \"text\": \"Customers are prohibited from picking up grocery items unless they currently have a cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"has_cart\": \"hasCart\"\n      },\n      \"events\": {\n        \"pickup_item_without_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"PICKUP_ITEM\",\n              {\n                \"not\": \"has_cart\"\n              }\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"pickup_item_without_cart\"\n    }\n  },\n  {\n    \"id\": \"no_hand_carrying_items\",\n    \"text\": \"Customers are prohibited from carrying items by hand rather than placing them in the cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"hand_carrying_item\": \"handFull\",\n        \"has_cart\": \"hasCart\"\n      },\n      \"events\": {\n        \"item_taken_into_hand\": {\n          \"pre\": {\n            \"and\": [\n              \"PICKUP_ITEM\",\n              {\n                \"not\": \"has_cart\"\n              }\n            ]\n          },\n          \"post\": \"hand_carrying_item\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"or\": [\n          \"hand_carrying_item\",\n          \"item_taken_into_hand\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"must_return_cart_to_nw_bay\",\n    \"text\": \"Customers are obliged to return their cart to the northwest cart bay before exiting.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"at_nw_cart_bay\": \"at(0,1)\",\n        \"cart_parked_at_nw_bay\": \"cartAt(0,1)\",\n        \"has_cart\": \"hasCart\"\n      },\n      \"events\": {\n        \"return_cart_to_nw_bay\": {\n          \"pre\": {\n            \"and\": [\n              \"at_nw_cart_bay\",\n              \"has_cart\",\n              \"LEAVE_CART\"\n            ]\n          },\n          \"post\": \"cart_parked_at_nw_bay\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"START\",\n      \"discharge\": \"return_cart_to_nw_bay\"\n    }\n  },\n  {\n    \"id\": \"no_leaving_cart_outside_bay\",\n    \"text\": \"Customers are prohibited from leaving a cart anywhere other than the northwest cart bay.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"at_nw_cart_bay\": \"at(0,1)\"\n      },\n      \"events\": {\n        \"leave_cart_outside_nw_bay\": {\n          \"pre\": {\n            \"and\": [\n              \"LEAVE_CART\",\n              {\n                \"not\": \"at_nw_cart_bay\"\n              }\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"leave_cart_outside_nw_bay\"\n    }\n  },\n  {\n    \"id\": \"no_exit_with_cart\",\n    \"text\": \"Customers are prohibited from exiting the store while still holding or pushing a cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"has_cart\": \"hasCart\"\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"EXIT\",\n          \"has_cart\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"exit_only_after_cart_parked\",\n    \"text\": \"Customers may exit only after the cart has been parked at the northwest cart bay.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"cart_parked_at_nw_bay\": \"cartAt(0,1)\"\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"EXIT\",\n          {\n            \"not\": \"cart_parked_at_nw_bay\"\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"no_bypassing_return_bay_with_cart\",\n    \"text\": \"Customers who arrive at the northwest cart bay with a cart are prohibited from moving on with it instead of leaving it there.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"at_nw_cart_bay\": \"at(0,1)\",\n        \"has_cart\": \"hasCart\"\n      },\n      \"events\": {\n        \"move_from_nw_bay_with_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"at_nw_cart_bay\",\n              \"has_cart\",\n              \"MOVE\"\n            ]\n          },\n          \"post\": \"has_cart\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"move_from_nw_bay_with_cart\"\n    }\n  }\n]"
+}

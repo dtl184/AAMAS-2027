@@ -1,0 +1,1220 @@
+{
+  "llm_calls": [
+    {
+      "cache_key": "1f2124e64bf5b6b279a9cee46a14d259c1b5d9249a948119043453328fd5f76f",
+      "requested_model": "gpt-5.5",
+      "returned_model": "gpt-5.5-2026-04-23",
+      "response_id": "resp_022974a2cf33d241006ac6a2db177087d1938d4220f13253c8",
+      "status": "completed",
+      "incomplete_details": null,
+      "usage": {
+        "input_tokens": 1043,
+        "input_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0
+        },
+        "output_tokens": 3937,
+        "output_tokens_details": {
+          "reasoning_tokens": 3106
+        },
+        "total_tokens": 4980
+      },
+      "settings": {
+        "model": "gpt-5.5",
+        "temperature": null,
+        "reasoning_effort": null,
+        "max_output_tokens": null,
+        "api": "responses.create"
+      },
+      "replicate": "trig/cart/6",
+      "timestamp": "2026-10-07T15:52:38",
+      "latency_s": 44.38,
+      "retries": [],
+      "cache_hit": true
+    },
+    {
+      "cache_key": "5448e10cf1141f3b10a05ba5f217c131fbf541637579bd870232244aba7fa761",
+      "requested_model": "gpt-5.5",
+      "returned_model": "gpt-5.5-2026-04-23",
+      "response_id": "resp_00afdd763d017f90006ac6ce3119d087d18d0a8112172dee09",
+      "status": "completed",
+      "incomplete_details": null,
+      "usage": {
+        "input_tokens": 9066,
+        "input_tokens_details": {
+          "cached_tokens": 6912,
+          "cache_write_tokens": 0
+        },
+        "output_tokens": 5088,
+        "output_tokens_details": {
+          "reasoning_tokens": 3191
+        },
+        "total_tokens": 14154
+      },
+      "settings": {
+        "model": "gpt-5.5",
+        "temperature": null,
+        "reasoning_effort": null,
+        "max_output_tokens": null,
+        "api": "responses.create"
+      },
+      "replicate": "trig/cart/6",
+      "timestamp": "2026-10-07T18:57:39",
+      "latency_s": 50.26,
+      "retries": [],
+      "cache_hit": false
+    }
+  ],
+  "proposals": [
+    {
+      "index": 0,
+      "kind": "initial",
+      "level": 0,
+      "n_demos_shown": 1,
+      "timestamp": "2026-10-07T18:56:48",
+      "model": "gpt-5.5",
+      "replicate": "trig/cart/6",
+      "experiment": "refinement_trigger_comparison",
+      "stage": "labels",
+      "domain": "cart",
+      "protocol": "pool",
+      "run_index": 6,
+      "opportunity_t": 13,
+      "prompt": "Agents in a supermarket gridworld must collect their required items and leave through the exit. Every action costs the same, so demonstrators prefer short trajectories -- unless an unknown social norm makes them behave otherwise. Your task is to propose candidate norms (obligations or prohibitions) that could explain the demonstrated behaviour.\nEach demonstration is listed step by step as  `k: {atoms true in the state} action`.\n\nAvailable atoms:\n- at(x,y) -- the agent is at cell (x,y); x = column (0 = left), y = row (0 = top); N decreases y, S increases y, E increases x, W decreases x\n- actions N, S, E, W, MOVE (any of the four moves), INTERACT (any interaction with an object: the different kinds of interaction are NOT distinguished), EXIT (leave the store; always the last action)\n\nDemonstration 1 (required items: apple, bread, eggs):\n  0: {at(0,5)} E\n  1: {at(1,5)} INTERACT\n  2: {at(1,5)} E\n  3: {at(2,5)} E\n  4: {at(3,5)} N\n  5: {at(3,4)} E\n  6: {at(4,4)} E\n  7: {at(5,4)} E\n  8: {at(6,4)} INTERACT\n  9: {at(6,4)} W\n 10: {at(5,4)} W\n 11: {at(4,4)} W\n 12: {at(3,4)} INTERACT\n 13: {at(3,4)} W\n 14: {at(2,4)} W\n 15: {at(1,4)} N\n 16: {at(1,3)} INTERACT\n 17: {at(1,3)} W\n 18: {at(0,3)} N\n 19: {at(0,2)} N\n 20: {at(0,1)} INTERACT\n 21: {at(0,1)} S\n 22: {at(0,2)} E\n 23: {at(1,2)} E\n 24: {at(2,2)} E\n 25: {at(3,2)} E\n 26: {at(4,2)} E\n 27: {at(5,2)} E\n 28: {at(6,2)} E\n 29: {at(7,2)} E\n 30: {at(8,2)} E\n 31: {at(9,2)} S\n 32: {at(9,3)} S\n 33: {at(9,4)} S\n 34: {at(9,5)} EXIT\n 35: {at(9,5)} <terminal>\n\nPropose norms using ONLY the atoms listed above. Do NOT define any new state properties or events: \"abstraction\" must be {}.\nPropose 8 diverse candidate hypotheses.\n\nOutput format: return ONLY a JSON list (no prose, no code fences). Each element:\n{\"id\": short_name, \"text\": one-sentence natural-language statement of the norm,\n \"abstraction\": {\"state_properties\": {name: FORMULA, ...},\n                 \"events\": {name: {\"pre\": FORMULA, \"post\": FORMULA or null}, ...}},\n \"norm\": {\"type\": \"prohibition\", \"condition\": FORMULA}\n       | {\"type\": \"obligation\", \"trigger\": FORMULA or \"START\", \"discharge\": FORMULA}}\nFORMULA := atom | name of a property/event defined in this hypothesis | {\"not\": F} | {\"and\": [F, ...]}\n         | {\"or\": [F, ...]} | {\"le\"|\"lt\"|\"ge\"|\"gt\"|\"eq\": [numeric_feature, integer]}\nSemantics.  A trajectory is a sequence of steps (state s_k, action a_k).  A step's label contains the atoms true in\ns_k and the action a_k.  A state property is a formula over state atoms (no actions).  An event\n{\"pre\": P, \"post\": Q} occurs at step k when P holds for the label of step k and Q holds in the next state s_{k+1}\n(post may be null).  A prohibition counts one violation for every step whose label (including events occurring at\nthat step) satisfies the condition.  An obligation becomes pending at any step satisfying the trigger (\"START\" =\npending from the beginning) and is fulfilled by a later (or the same) step satisfying the discharge; it can be\ntriggered again; it is violated if it is still pending when the trajectory ends.",
+      "raw_response": "[\n  {\n    \"id\": \"must_interact_at_entrance\",\n    \"text\": \"The agent is obliged to perform INTERACT at cell (1,5) at some point during the trip.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"START\",\n      \"discharge\": {\n        \"and\": [\n          \"at(1,5)\",\n          \"INTERACT\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"must_interact_at_top_left\",\n    \"text\": \"The agent is obliged to perform INTERACT at cell (0,1) before the trajectory ends.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"START\",\n      \"discharge\": {\n        \"and\": [\n          \"at(0,1)\",\n          \"INTERACT\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"after_far_right_return_center\",\n    \"text\": \"After performing INTERACT at cell (6,4), the agent is obliged to later perform INTERACT at cell (3,4).\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": {\n        \"and\": [\n          \"at(6,4)\",\n          \"INTERACT\"\n        ]\n      },\n      \"discharge\": {\n        \"and\": [\n          \"at(3,4)\",\n          \"INTERACT\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"after_center_go_left\",\n    \"text\": \"After performing INTERACT at cell (3,4), the agent is obliged to later perform INTERACT at cell (1,3).\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": {\n        \"and\": [\n          \"at(3,4)\",\n          \"INTERACT\"\n        ]\n      },\n      \"discharge\": {\n        \"and\": [\n          \"at(1,3)\",\n          \"INTERACT\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"after_left_go_top_left\",\n    \"text\": \"After performing INTERACT at cell (1,3), the agent is obliged to later perform INTERACT at cell (0,1).\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": {\n        \"and\": [\n          \"at(1,3)\",\n          \"INTERACT\"\n        ]\n      },\n      \"discharge\": {\n        \"and\": [\n          \"at(0,1)\",\n          \"INTERACT\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"no_east_from_far_right\",\n    \"text\": \"The agent is prohibited from taking action E while at cell (6,4).\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"at(6,4)\",\n          \"E\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"no_east_from_left_middle\",\n    \"text\": \"The agent is prohibited from taking action E while at cell (1,3).\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"at(1,3)\",\n          \"E\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"no_east_from_top_left\",\n    \"text\": \"The agent is prohibited from taking action E while at cell (0,1).\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"at(0,1)\",\n          \"E\"\n        ]\n      }\n    }\n  }\n]",
+      "parsed": [
+        {
+          "id": "must_interact_at_entrance",
+          "text": "The agent is obliged to perform INTERACT at cell (1,5) at some point during the trip.",
+          "abstraction": {},
+          "norm": {
+            "type": "obligation",
+            "trigger": "START",
+            "discharge": {
+              "and": [
+                "at(1,5)",
+                "INTERACT"
+              ]
+            }
+          }
+        },
+        {
+          "id": "must_interact_at_top_left",
+          "text": "The agent is obliged to perform INTERACT at cell (0,1) before the trajectory ends.",
+          "abstraction": {},
+          "norm": {
+            "type": "obligation",
+            "trigger": "START",
+            "discharge": {
+              "and": [
+                "at(0,1)",
+                "INTERACT"
+              ]
+            }
+          }
+        },
+        {
+          "id": "after_far_right_return_center",
+          "text": "After performing INTERACT at cell (6,4), the agent is obliged to later perform INTERACT at cell (3,4).",
+          "abstraction": {},
+          "norm": {
+            "type": "obligation",
+            "trigger": {
+              "and": [
+                "at(6,4)",
+                "INTERACT"
+              ]
+            },
+            "discharge": {
+              "and": [
+                "at(3,4)",
+                "INTERACT"
+              ]
+            }
+          }
+        },
+        {
+          "id": "after_center_go_left",
+          "text": "After performing INTERACT at cell (3,4), the agent is obliged to later perform INTERACT at cell (1,3).",
+          "abstraction": {},
+          "norm": {
+            "type": "obligation",
+            "trigger": {
+              "and": [
+                "at(3,4)",
+                "INTERACT"
+              ]
+            },
+            "discharge": {
+              "and": [
+                "at(1,3)",
+                "INTERACT"
+              ]
+            }
+          }
+        },
+        {
+          "id": "after_left_go_top_left",
+          "text": "After performing INTERACT at cell (1,3), the agent is obliged to later perform INTERACT at cell (0,1).",
+          "abstraction": {},
+          "norm": {
+            "type": "obligation",
+            "trigger": {
+              "and": [
+                "at(1,3)",
+                "INTERACT"
+              ]
+            },
+            "discharge": {
+              "and": [
+                "at(0,1)",
+                "INTERACT"
+              ]
+            }
+          }
+        },
+        {
+          "id": "no_east_from_far_right",
+          "text": "The agent is prohibited from taking action E while at cell (6,4).",
+          "abstraction": {},
+          "norm": {
+            "type": "prohibition",
+            "condition": {
+              "and": [
+                "at(6,4)",
+                "E"
+              ]
+            }
+          }
+        },
+        {
+          "id": "no_east_from_left_middle",
+          "text": "The agent is prohibited from taking action E while at cell (1,3).",
+          "abstraction": {},
+          "norm": {
+            "type": "prohibition",
+            "condition": {
+              "and": [
+                "at(1,3)",
+                "E"
+              ]
+            }
+          }
+        },
+        {
+          "id": "no_east_from_top_left",
+          "text": "The agent is prohibited from taking action E while at cell (0,1).",
+          "abstraction": {},
+          "norm": {
+            "type": "prohibition",
+            "condition": {
+              "and": [
+                "at(0,1)",
+                "E"
+              ]
+            }
+          }
+        }
+      ],
+      "attempts": [
+        {
+          "attempt": 0,
+          "prompt": "Agents in a supermarket gridworld must collect their required items and leave through the exit. Every action costs the same, so demonstrators prefer short trajectories -- unless an unknown social norm makes them behave otherwise. Your task is to propose candidate norms (obligations or prohibitions) that could explain the demonstrated behaviour.\nEach demonstration is listed step by step as  `k: {atoms true in the state} action`.\n\nAvailable atoms:\n- at(x,y) -- the agent is at cell (x,y); x = column (0 = left), y = row (0 = top); N decreases y, S increases y, E increases x, W decreases x\n- actions N, S, E, W, MOVE (any of the four moves), INTERACT (any interaction with an object: the different kinds of interaction are NOT distinguished), EXIT (leave the store; always the last action)\n\nDemonstration 1 (required items: apple, bread, eggs):\n  0: {at(0,5)} E\n  1: {at(1,5)} INTERACT\n  2: {at(1,5)} E\n  3: {at(2,5)} E\n  4: {at(3,5)} N\n  5: {at(3,4)} E\n  6: {at(4,4)} E\n  7: {at(5,4)} E\n  8: {at(6,4)} INTERACT\n  9: {at(6,4)} W\n 10: {at(5,4)} W\n 11: {at(4,4)} W\n 12: {at(3,4)} INTERACT\n 13: {at(3,4)} W\n 14: {at(2,4)} W\n 15: {at(1,4)} N\n 16: {at(1,3)} INTERACT\n 17: {at(1,3)} W\n 18: {at(0,3)} N\n 19: {at(0,2)} N\n 20: {at(0,1)} INTERACT\n 21: {at(0,1)} S\n 22: {at(0,2)} E\n 23: {at(1,2)} E\n 24: {at(2,2)} E\n 25: {at(3,2)} E\n 26: {at(4,2)} E\n 27: {at(5,2)} E\n 28: {at(6,2)} E\n 29: {at(7,2)} E\n 30: {at(8,2)} E\n 31: {at(9,2)} S\n 32: {at(9,3)} S\n 33: {at(9,4)} S\n 34: {at(9,5)} EXIT\n 35: {at(9,5)} <terminal>\n\nPropose norms using ONLY the atoms listed above. Do NOT define any new state properties or events: \"abstraction\" must be {}.\nPropose 8 diverse candidate hypotheses.\n\nOutput format: return ONLY a JSON list (no prose, no code fences). Each element:\n{\"id\": short_name, \"text\": one-sentence natural-language statement of the norm,\n \"abstraction\": {\"state_properties\": {name: FORMULA, ...},\n                 \"events\": {name: {\"pre\": FORMULA, \"post\": FORMULA or null}, ...}},\n \"norm\": {\"type\": \"prohibition\", \"condition\": FORMULA}\n       | {\"type\": \"obligation\", \"trigger\": FORMULA or \"START\", \"discharge\": FORMULA}}\nFORMULA := atom | name of a property/event defined in this hypothesis | {\"not\": F} | {\"and\": [F, ...]}\n         | {\"or\": [F, ...]} | {\"le\"|\"lt\"|\"ge\"|\"gt\"|\"eq\": [numeric_feature, integer]}\nSemantics.  A trajectory is a sequence of steps (state s_k, action a_k).  A step's label contains the atoms true in\ns_k and the action a_k.  A state property is a formula over state atoms (no actions).  An event\n{\"pre\": P, \"post\": Q} occurs at step k when P holds for the label of step k and Q holds in the next state s_{k+1}\n(post may be null).  A prohibition counts one violation for every step whose label (including events occurring at\nthat step) satisfies the condition.  An obligation becomes pending at any step satisfying the trigger (\"START\" =\npending from the beginning) and is fulfilled by a later (or the same) step satisfying the discharge; it can be\ntriggered again; it is violated if it is still pending when the trajectory ends.",
+          "raw_response": "[\n  {\n    \"id\": \"must_interact_at_entrance\",\n    \"text\": \"The agent is obliged to perform INTERACT at cell (1,5) at some point during the trip.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"START\",\n      \"discharge\": {\n        \"and\": [\n          \"at(1,5)\",\n          \"INTERACT\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"must_interact_at_top_left\",\n    \"text\": \"The agent is obliged to perform INTERACT at cell (0,1) before the trajectory ends.\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"START\",\n      \"discharge\": {\n        \"and\": [\n          \"at(0,1)\",\n          \"INTERACT\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"after_far_right_return_center\",\n    \"text\": \"After performing INTERACT at cell (6,4), the agent is obliged to later perform INTERACT at cell (3,4).\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": {\n        \"and\": [\n          \"at(6,4)\",\n          \"INTERACT\"\n        ]\n      },\n      \"discharge\": {\n        \"and\": [\n          \"at(3,4)\",\n          \"INTERACT\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"after_center_go_left\",\n    \"text\": \"After performing INTERACT at cell (3,4), the agent is obliged to later perform INTERACT at cell (1,3).\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": {\n        \"and\": [\n          \"at(3,4)\",\n          \"INTERACT\"\n        ]\n      },\n      \"discharge\": {\n        \"and\": [\n          \"at(1,3)\",\n          \"INTERACT\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"after_left_go_top_left\",\n    \"text\": \"After performing INTERACT at cell (1,3), the agent is obliged to later perform INTERACT at cell (0,1).\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": {\n        \"and\": [\n          \"at(1,3)\",\n          \"INTERACT\"\n        ]\n      },\n      \"discharge\": {\n        \"and\": [\n          \"at(0,1)\",\n          \"INTERACT\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"no_east_from_far_right\",\n    \"text\": \"The agent is prohibited from taking action E while at cell (6,4).\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"at(6,4)\",\n          \"E\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"no_east_from_left_middle\",\n    \"text\": \"The agent is prohibited from taking action E while at cell (1,3).\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"at(1,3)\",\n          \"E\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"no_east_from_top_left\",\n    \"text\": \"The agent is prohibited from taking action E while at cell (0,1).\",\n    \"abstraction\": {},\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"at(0,1)\",\n          \"E\"\n        ]\n      }\n    }\n  }\n]",
+          "parsed": [
+            {
+              "id": "must_interact_at_entrance",
+              "text": "The agent is obliged to perform INTERACT at cell (1,5) at some point during the trip.",
+              "abstraction": {},
+              "norm": {
+                "type": "obligation",
+                "trigger": "START",
+                "discharge": {
+                  "and": [
+                    "at(1,5)",
+                    "INTERACT"
+                  ]
+                }
+              }
+            },
+            {
+              "id": "must_interact_at_top_left",
+              "text": "The agent is obliged to perform INTERACT at cell (0,1) before the trajectory ends.",
+              "abstraction": {},
+              "norm": {
+                "type": "obligation",
+                "trigger": "START",
+                "discharge": {
+                  "and": [
+                    "at(0,1)",
+                    "INTERACT"
+                  ]
+                }
+              }
+            },
+            {
+              "id": "after_far_right_return_center",
+              "text": "After performing INTERACT at cell (6,4), the agent is obliged to later perform INTERACT at cell (3,4).",
+              "abstraction": {},
+              "norm": {
+                "type": "obligation",
+                "trigger": {
+                  "and": [
+                    "at(6,4)",
+                    "INTERACT"
+                  ]
+                },
+                "discharge": {
+                  "and": [
+                    "at(3,4)",
+                    "INTERACT"
+                  ]
+                }
+              }
+            },
+            {
+              "id": "after_center_go_left",
+              "text": "After performing INTERACT at cell (3,4), the agent is obliged to later perform INTERACT at cell (1,3).",
+              "abstraction": {},
+              "norm": {
+                "type": "obligation",
+                "trigger": {
+                  "and": [
+                    "at(3,4)",
+                    "INTERACT"
+                  ]
+                },
+                "discharge": {
+                  "and": [
+                    "at(1,3)",
+                    "INTERACT"
+                  ]
+                }
+              }
+            },
+            {
+              "id": "after_left_go_top_left",
+              "text": "After performing INTERACT at cell (1,3), the agent is obliged to later perform INTERACT at cell (0,1).",
+              "abstraction": {},
+              "norm": {
+                "type": "obligation",
+                "trigger": {
+                  "and": [
+                    "at(1,3)",
+                    "INTERACT"
+                  ]
+                },
+                "discharge": {
+                  "and": [
+                    "at(0,1)",
+                    "INTERACT"
+                  ]
+                }
+              }
+            },
+            {
+              "id": "no_east_from_far_right",
+              "text": "The agent is prohibited from taking action E while at cell (6,4).",
+              "abstraction": {},
+              "norm": {
+                "type": "prohibition",
+                "condition": {
+                  "and": [
+                    "at(6,4)",
+                    "E"
+                  ]
+                }
+              }
+            },
+            {
+              "id": "no_east_from_left_middle",
+              "text": "The agent is prohibited from taking action E while at cell (1,3).",
+              "abstraction": {},
+              "norm": {
+                "type": "prohibition",
+                "condition": {
+                  "and": [
+                    "at(1,3)",
+                    "E"
+                  ]
+                }
+              }
+            },
+            {
+              "id": "no_east_from_top_left",
+              "text": "The agent is prohibited from taking action E while at cell (0,1).",
+              "abstraction": {},
+              "norm": {
+                "type": "prohibition",
+                "condition": {
+                  "and": [
+                    "at(0,1)",
+                    "E"
+                  ]
+                }
+              }
+            }
+          ],
+          "call": {
+            "cache_key": "1f2124e64bf5b6b279a9cee46a14d259c1b5d9249a948119043453328fd5f76f",
+            "requested_model": "gpt-5.5",
+            "returned_model": "gpt-5.5-2026-04-23",
+            "response_id": "resp_022974a2cf33d241006ac6a2db177087d1938d4220f13253c8",
+            "status": "completed",
+            "incomplete_details": null,
+            "usage": {
+              "input_tokens": 1043,
+              "input_tokens_details": {
+                "cached_tokens": 0,
+                "cache_write_tokens": 0
+              },
+              "output_tokens": 3937,
+              "output_tokens_details": {
+                "reasoning_tokens": 3106
+              },
+              "total_tokens": 4980
+            },
+            "settings": {
+              "model": "gpt-5.5",
+              "temperature": null,
+              "reasoning_effort": null,
+              "max_output_tokens": null,
+              "api": "responses.create"
+            },
+            "replicate": "trig/cart/6",
+            "timestamp": "2026-10-07T15:52:38",
+            "latency_s": 44.38,
+            "retries": [],
+            "cache_hit": true
+          }
+        }
+      ],
+      "accepted": [
+        {
+          "id": "g0_must_interact_at_entrance",
+          "description": "[g0_must_interact_at_entrance] OBLIGED: after start, eventually (at(1,5) \u2227 INTERACT) (before exit)",
+          "L_alpha": 0,
+          "L_norm": 5,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        },
+        {
+          "id": "g0_must_interact_at_top_left",
+          "description": "[g0_must_interact_at_top_left] OBLIGED: after start, eventually (at(0,1) \u2227 INTERACT) (before exit)",
+          "L_alpha": 0,
+          "L_norm": 5,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        },
+        {
+          "id": "g0_after_far_right_return_center",
+          "description": "[g0_after_far_right_return_center] OBLIGED: after (at(6,4) \u2227 INTERACT), eventually (at(3,4) \u2227 INTERACT) (before exit)",
+          "L_alpha": 0,
+          "L_norm": 7,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        },
+        {
+          "id": "g0_after_center_go_left",
+          "description": "[g0_after_center_go_left] OBLIGED: after (at(3,4) \u2227 INTERACT), eventually (at(1,3) \u2227 INTERACT) (before exit)",
+          "L_alpha": 0,
+          "L_norm": 7,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        },
+        {
+          "id": "g0_after_left_go_top_left",
+          "description": "[g0_after_left_go_top_left] OBLIGED: after (at(1,3) \u2227 INTERACT), eventually (at(0,1) \u2227 INTERACT) (before exit)",
+          "L_alpha": 0,
+          "L_norm": 7,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        },
+        {
+          "id": "g0_no_east_from_far_right",
+          "description": "[g0_no_east_from_far_right] FORBIDDEN: (at(6,4) \u2227 E)",
+          "L_alpha": 0,
+          "L_norm": 4,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        },
+        {
+          "id": "g0_no_east_from_left_middle",
+          "description": "[g0_no_east_from_left_middle] FORBIDDEN: (at(1,3) \u2227 E)",
+          "L_alpha": 0,
+          "L_norm": 4,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        },
+        {
+          "id": "g0_no_east_from_top_left",
+          "description": "[g0_no_east_from_top_left] FORBIDDEN: (at(0,1) \u2227 E)",
+          "L_alpha": 0,
+          "L_norm": 4,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        }
+      ],
+      "rejected": []
+    },
+    {
+      "index": 1,
+      "kind": "refinement",
+      "level": 1,
+      "n_demos_shown": 13,
+      "timestamp": "2026-10-07T18:57:39",
+      "model": "gpt-5.5",
+      "replicate": "trig/cart/6",
+      "experiment": "refinement_trigger_comparison",
+      "stage": "labels",
+      "domain": "cart",
+      "protocol": "pool",
+      "run_index": 6,
+      "opportunity_t": 13,
+      "prompt": "Agents in a supermarket gridworld must collect their required items and leave through the exit. Every action costs the same, so demonstrators prefer short trajectories -- unless an unknown social norm makes them behave otherwise. Your task is to propose candidate norms (obligations or prohibitions) that could explain the demonstrated behaviour.\nEach demonstration is listed step by step as  `k: {atoms true in the state} action`.\n\nAvailable atoms:\n- at(x,y) -- the agent is at cell (x,y); x = column (0 = left), y = row (0 = top); N decreases y, S increases y, E increases x, W decreases x\n- actions N, S, E, W, MOVE (any of the four moves), INTERACT (any interaction with an object: the different kinds of interaction are NOT distinguished), EXIT (leave the store; always the last action)\n- hasCart -- the agent is holding/pushing a shopping cart\n- cartAt(x,y) -- the cart is parked (or stationed) at cell (x,y)\n- handFull -- the agent carries an item by hand\n- actions PICKUP_CART, LEAVE_CART (put the cart down on the current cell), PICKUP_ITEM (take an item from an adjacent shelf); each of these is also an INTERACT\n\nDemonstration 1 (required items: apple, bread, eggs):\n  0: {at(0,5), cartAt(1,5)} E\n  1: {at(1,5), cartAt(1,5)} PICKUP_CART\n  2: {at(1,5), hasCart} E\n  3: {at(2,5), hasCart} E\n  4: {at(3,5), hasCart} N\n  5: {at(3,4), hasCart} E\n  6: {at(4,4), hasCart} E\n  7: {at(5,4), hasCart} E\n  8: {at(6,4), hasCart} PICKUP_ITEM\n  9: {at(6,4), hasCart} W\n 10: {at(5,4), hasCart} W\n 11: {at(4,4), hasCart} W\n 12: {at(3,4), hasCart} PICKUP_ITEM\n 13: {at(3,4), hasCart} W\n 14: {at(2,4), hasCart} W\n 15: {at(1,4), hasCart} N\n 16: {at(1,3), hasCart} PICKUP_ITEM\n 17: {at(1,3), hasCart} W\n 18: {at(0,3), hasCart} N\n 19: {at(0,2), hasCart} N\n 20: {at(0,1), hasCart} LEAVE_CART\n 21: {at(0,1), cartAt(0,1)} S\n 22: {at(0,2), cartAt(0,1)} E\n 23: {at(1,2), cartAt(0,1)} E\n 24: {at(2,2), cartAt(0,1)} E\n 25: {at(3,2), cartAt(0,1)} E\n 26: {at(4,2), cartAt(0,1)} E\n 27: {at(5,2), cartAt(0,1)} E\n 28: {at(6,2), cartAt(0,1)} E\n 29: {at(7,2), cartAt(0,1)} E\n 30: {at(8,2), cartAt(0,1)} E\n 31: {at(9,2), cartAt(0,1)} S\n 32: {at(9,3), cartAt(0,1)} S\n 33: {at(9,4), cartAt(0,1)} S\n 34: {at(9,5), cartAt(0,1)} EXIT\n 35: {at(9,5), cartAt(0,1)} <terminal>\n\nDemonstration 2 (required items: apple, bread, eggs):\n  0: {at(0,5), cartAt(1,5)} E\n  1: {at(1,5), cartAt(1,5)} PICKUP_CART\n  2: {at(1,5), hasCart} N\n  3: {at(1,4), hasCart} N\n  4: {at(1,3), hasCart} N\n  5: {at(1,2), hasCart} E\n  6: {at(2,2), hasCart} PICKUP_ITEM\n  7: {at(2,2), hasCart} E\n  8: {at(3,2), hasCart} PICKUP_ITEM\n  9: {at(3,2), hasCart} E\n 10: {at(4,2), hasCart} E\n 11: {at(5,2), hasCart} E\n 12: {at(6,2), hasCart} PICKUP_ITEM\n 13: {at(6,2), hasCart} W\n 14: {at(5,2), hasCart} N\n 15: {at(5,1), hasCart} W\n 16: {at(4,1), hasCart} W\n 17: {at(3,1), hasCart} W\n 18: {at(2,1), hasCart} W\n 19: {at(1,1), hasCart} W\n 20: {at(0,1), hasCart} LEAVE_CART\n 21: {at(0,1), cartAt(0,1)} S\n 22: {at(0,2), cartAt(0,1)} S\n 23: {at(0,3), cartAt(0,1)} E\n 24: {at(1,3), cartAt(0,1)} S\n 25: {at(1,4), cartAt(0,1)} S\n 26: {at(1,5), cartAt(0,1)} E\n 27: {at(2,5), cartAt(0,1)} E\n 28: {at(3,5), cartAt(0,1)} E\n 29: {at(4,5), cartAt(0,1)} E\n 30: {at(5,5), cartAt(0,1)} E\n 31: {at(6,5), cartAt(0,1)} E\n 32: {at(7,5), cartAt(0,1)} E\n 33: {at(8,5), cartAt(0,1)} E\n 34: {at(9,5), cartAt(0,1)} EXIT\n 35: {at(9,5), cartAt(0,1)} <terminal>\n\nDemonstration 3 (required items: apple, eggs):\n  0: {at(0,5), cartAt(1,5)} E\n  1: {at(1,5), cartAt(1,5)} PICKUP_CART\n  2: {at(1,5), hasCart} E\n  3: {at(2,5), hasCart} E\n  4: {at(3,5), hasCart} N\n  5: {at(3,4), hasCart} E\n  6: {at(4,4), hasCart} E\n  7: {at(5,4), hasCart} E\n  8: {at(6,4), hasCart} PICKUP_ITEM\n  9: {at(6,4), hasCart} W\n 10: {at(5,4), hasCart} W\n 11: {at(4,4), hasCart} W\n 12: {at(3,4), hasCart} W\n 13: {at(2,4), hasCart} W\n 14: {at(1,4), hasCart} N\n 15: {at(1,3), hasCart} PICKUP_ITEM\n 16: {at(1,3), hasCart} W\n 17: {at(0,3), hasCart} N\n 18: {at(0,2), hasCart} N\n 19: {at(0,1), hasCart} LEAVE_CART\n 20: {at(0,1), cartAt(0,1)} E\n 21: {at(1,1), cartAt(0,1)} S\n 22: {at(1,2), cartAt(0,1)} S\n 23: {at(1,3), cartAt(0,1)} S\n 24: {at(1,4), cartAt(0,1)} E\n 25: {at(2,4), cartAt(0,1)} S\n 26: {at(2,5), cartAt(0,1)} E\n 27: {at(3,5), cartAt(0,1)} E\n 28: {at(4,5), cartAt(0,1)} E\n 29: {at(5,5), cartAt(0,1)} E\n 30: {at(6,5), cartAt(0,1)} E\n 31: {at(7,5), cartAt(0,1)} E\n 32: {at(8,5), cartAt(0,1)} E\n 33: {at(9,5), cartAt(0,1)} EXIT\n 34: {at(9,5), cartAt(0,1)} <terminal>\n\nDemonstration 4 (required items: milk):\n  0: {at(0,5), cartAt(1,5)} E\n  1: {at(1,5), cartAt(1,5)} PICKUP_CART\n  2: {at(1,5), hasCart} N\n  3: {at(1,4), hasCart} N\n  4: {at(1,3), hasCart} N\n  5: {at(1,2), hasCart} E\n  6: {at(2,2), hasCart} E\n  7: {at(3,2), hasCart} E\n  8: {at(4,2), hasCart} E\n  9: {at(5,2), hasCart} PICKUP_ITEM\n 10: {at(5,2), hasCart} W\n 11: {at(4,2), hasCart} W\n 12: {at(3,2), hasCart} N\n 13: {at(3,1), hasCart} W\n 14: {at(2,1), hasCart} W\n 15: {at(1,1), hasCart} W\n 16: {at(0,1), hasCart} LEAVE_CART\n 17: {at(0,1), cartAt(0,1)} S\n 18: {at(0,2), cartAt(0,1)} E\n 19: {at(1,2), cartAt(0,1)} E\n 20: {at(2,2), cartAt(0,1)} E\n 21: {at(3,2), cartAt(0,1)} E\n 22: {at(4,2), cartAt(0,1)} E\n 23: {at(5,2), cartAt(0,1)} E\n 24: {at(6,2), cartAt(0,1)} E\n 25: {at(7,2), cartAt(0,1)} S\n 26: {at(7,3), cartAt(0,1)} E\n 27: {at(8,3), cartAt(0,1)} E\n 28: {at(9,3), cartAt(0,1)} S\n 29: {at(9,4), cartAt(0,1)} S\n 30: {at(9,5), cartAt(0,1)} EXIT\n 31: {at(9,5), cartAt(0,1)} <terminal>\n\nDemonstration 5 (required items: apple, bread, eggs):\n  0: {at(0,5), cartAt(1,5)} E\n  1: {at(1,5), cartAt(1,5)} PICKUP_CART\n  2: {at(1,5), hasCart} N\n  3: {at(1,4), hasCart} N\n  4: {at(1,3), hasCart} PICKUP_ITEM\n  5: {at(1,3), hasCart} N\n  6: {at(1,2), hasCart} E\n  7: {at(2,2), hasCart} E\n  8: {at(3,2), hasCart} PICKUP_ITEM\n  9: {at(3,2), hasCart} E\n 10: {at(4,2), hasCart} E\n 11: {at(5,2), hasCart} E\n 12: {at(6,2), hasCart} PICKUP_ITEM\n 13: {at(6,2), hasCart} N\n 14: {at(6,1), hasCart} W\n 15: {at(5,1), hasCart} W\n 16: {at(4,1), hasCart} W\n 17: {at(3,1), hasCart} W\n 18: {at(2,1), hasCart} W\n 19: {at(1,1), hasCart} W\n 20: {at(0,1), hasCart} LEAVE_CART\n 21: {at(0,1), cartAt(0,1)} S\n 22: {at(0,2), cartAt(0,1)} E\n 23: {at(1,2), cartAt(0,1)} E\n 24: {at(2,2), cartAt(0,1)} E\n 25: {at(3,2), cartAt(0,1)} E\n 26: {at(4,2), cartAt(0,1)} E\n 27: {at(5,2), cartAt(0,1)} E\n 28: {at(6,2), cartAt(0,1)} E\n 29: {at(7,2), cartAt(0,1)} E\n 30: {at(8,2), cartAt(0,1)} S\n 31: {at(8,3), cartAt(0,1)} E\n 32: {at(9,3), cartAt(0,1)} S\n 33: {at(9,4), cartAt(0,1)} S\n 34: {at(9,5), cartAt(0,1)} EXIT\n 35: {at(9,5), cartAt(0,1)} <terminal>\n\nDemonstration 6 (required items: bread, eggs):\n  0: {at(0,5), cartAt(1,5)} E\n  1: {at(1,5), cartAt(1,5)} PICKUP_CART\n  2: {at(1,5), hasCart} N\n  3: {at(1,4), hasCart} E\n  4: {at(2,4), hasCart} E\n  5: {at(3,4), hasCart} PICKUP_ITEM\n  6: {at(3,4), hasCart} E\n  7: {at(4,4), hasCart} E\n  8: {at(5,4), hasCart} E\n  9: {at(6,4), hasCart} PICKUP_ITEM\n 10: {at(6,4), hasCart} W\n 11: {at(5,4), hasCart} W\n 12: {at(4,4), hasCart} W\n 13: {at(3,4), hasCart} W\n 14: {at(2,4), hasCart} W\n 15: {at(1,4), hasCart} W\n 16: {at(0,4), hasCart} N\n 17: {at(0,3), hasCart} N\n 18: {at(0,2), hasCart} N\n 19: {at(0,1), hasCart} LEAVE_CART\n 20: {at(0,1), cartAt(0,1)} S\n 21: {at(0,2), cartAt(0,1)} E\n 22: {at(1,2), cartAt(0,1)} S\n 23: {at(1,3), cartAt(0,1)} S\n 24: {at(1,4), cartAt(0,1)} E\n 25: {at(2,4), cartAt(0,1)} S\n 26: {at(2,5), cartAt(0,1)} E\n 27: {at(3,5), cartAt(0,1)} E\n 28: {at(4,5), cartAt(0,1)} E\n 29: {at(5,5), cartAt(0,1)} E\n 30: {at(6,5), cartAt(0,1)} E\n 31: {at(7,5), cartAt(0,1)} E\n 32: {at(8,5), cartAt(0,1)} E\n 33: {at(9,5), cartAt(0,1)} EXIT\n 34: {at(9,5), cartAt(0,1)} <terminal>\n\nDemonstration 7 (required items: bread, milk):\n  0: {at(0,5), cartAt(1,5)} E\n  1: {at(1,5), cartAt(1,5)} PICKUP_CART\n  2: {at(1,5), hasCart} E\n  3: {at(2,5), hasCart} E\n  4: {at(3,5), hasCart} E\n  5: {at(4,5), hasCart} E\n  6: {at(5,5), hasCart} N\n  7: {at(5,4), hasCart} PICKUP_ITEM\n  8: {at(5,4), hasCart} W\n  9: {at(4,4), hasCart} W\n 10: {at(3,4), hasCart} PICKUP_ITEM\n 11: {at(3,4), hasCart} W\n 12: {at(2,4), hasCart} W\n 13: {at(1,4), hasCart} N\n 14: {at(1,3), hasCart} W\n 15: {at(0,3), hasCart} N\n 16: {at(0,2), hasCart} N\n 17: {at(0,1), hasCart} LEAVE_CART\n 18: {at(0,1), cartAt(0,1)} E\n 19: {at(1,1), cartAt(0,1)} S\n 20: {at(1,2), cartAt(0,1)} S\n 21: {at(1,3), cartAt(0,1)} S\n 22: {at(1,4), cartAt(0,1)} S\n 23: {at(1,5), cartAt(0,1)} E\n 24: {at(2,5), cartAt(0,1)} E\n 25: {at(3,5), cartAt(0,1)} E\n 26: {at(4,5), cartAt(0,1)} E\n 27: {at(5,5), cartAt(0,1)} E\n 28: {at(6,5), cartAt(0,1)} E\n 29: {at(7,5), cartAt(0,1)} E\n 30: {at(8,5), cartAt(0,1)} E\n 31: {at(9,5), cartAt(0,1)} EXIT\n 32: {at(9,5), cartAt(0,1)} <terminal>\n\nDemonstration 8 (required items: apple, milk):\n  0: {at(0,5), cartAt(1,5)} E\n  1: {at(1,5), cartAt(1,5)} PICKUP_CART\n  2: {at(1,5), hasCart} N\n  3: {at(1,4), hasCart} N\n  4: {at(1,3), hasCart} PICKUP_ITEM\n  5: {at(1,3), hasCart} N\n  6: {at(1,2), hasCart} E\n  7: {at(2,2), hasCart} E\n  8: {at(3,2), hasCart} E\n  9: {at(4,2), hasCart} E\n 10: {at(5,2), hasCart} PICKUP_ITEM\n 11: {at(5,2), hasCart} N\n 12: {at(5,1), hasCart} W\n 13: {at(4,1), hasCart} W\n 14: {at(3,1), hasCart} W\n 15: {at(2,1), hasCart} W\n 16: {at(1,1), hasCart} W\n 17: {at(0,1), hasCart} LEAVE_CART\n 18: {at(0,1), cartAt(0,1)} S\n 19: {at(0,2), cartAt(0,1)} S\n 20: {at(0,3), cartAt(0,1)} S\n 21: {at(0,4), cartAt(0,1)} S\n 22: {at(0,5), cartAt(0,1)} E\n 23: {at(1,5), cartAt(0,1)} E\n 24: {at(2,5), cartAt(0,1)} E\n 25: {at(3,5), cartAt(0,1)} E\n 26: {at(4,5), cartAt(0,1)} E\n 27: {at(5,5), cartAt(0,1)} E\n 28: {at(6,5), cartAt(0,1)} E\n 29: {at(7,5), cartAt(0,1)} E\n 30: {at(8,5), cartAt(0,1)} E\n 31: {at(9,5), cartAt(0,1)} EXIT\n 32: {at(9,5), cartAt(0,1)} <terminal>\n\nDemonstration 9 (required items: eggs):\n  0: {at(0,5), cartAt(1,5)} E\n  1: {at(1,5), cartAt(1,5)} PICKUP_CART\n  2: {at(1,5), hasCart} N\n  3: {at(1,4), hasCart} N\n  4: {at(1,3), hasCart} N\n  5: {at(1,2), hasCart} E\n  6: {at(2,2), hasCart} E\n  7: {at(3,2), hasCart} E\n  8: {at(4,2), hasCart} E\n  9: {at(5,2), hasCart} E\n 10: {at(6,2), hasCart} PICKUP_ITEM\n 11: {at(6,2), hasCart} W\n 12: {at(5,2), hasCart} N\n 13: {at(5,1), hasCart} W\n 14: {at(4,1), hasCart} W\n 15: {at(3,1), hasCart} W\n 16: {at(2,1), hasCart} W\n 17: {at(1,1), hasCart} W\n 18: {at(0,1), hasCart} LEAVE_CART\n 19: {at(0,1), cartAt(0,1)} E\n 20: {at(1,1), cartAt(0,1)} E\n 21: {at(2,1), cartAt(0,1)} S\n 22: {at(2,2), cartAt(0,1)} E\n 23: {at(3,2), cartAt(0,1)} E\n 24: {at(4,2), cartAt(0,1)} E\n 25: {at(5,2), cartAt(0,1)} E\n 26: {at(6,2), cartAt(0,1)} E\n 27: {at(7,2), cartAt(0,1)} S\n 28: {at(7,3), cartAt(0,1)} S\n 29: {at(7,4), cartAt(0,1)} E\n 30: {at(8,4), cartAt(0,1)} S\n 31: {at(8,5), cartAt(0,1)} E\n 32: {at(9,5), cartAt(0,1)} EXIT\n 33: {at(9,5), cartAt(0,1)} <terminal>\n\nDemonstration 10 (required items: apple, milk):\n  0: {at(0,5), cartAt(1,5)} E\n  1: {at(1,5), cartAt(1,5)} PICKUP_CART\n  2: {at(1,5), hasCart} N\n  3: {at(1,4), hasCart} N\n  4: {at(1,3), hasCart} PICKUP_ITEM\n  5: {at(1,3), hasCart} N\n  6: {at(1,2), hasCart} E\n  7: {at(2,2), hasCart} E\n  8: {at(3,2), hasCart} E\n  9: {at(4,2), hasCart} E\n 10: {at(5,2), hasCart} PICKUP_ITEM\n 11: {at(5,2), hasCart} N\n 12: {at(5,1), hasCart} W\n 13: {at(4,1), hasCart} W\n 14: {at(3,1), hasCart} W\n 15: {at(2,1), hasCart} W\n 16: {at(1,1), hasCart} W\n 17: {at(0,1), hasCart} LEAVE_CART\n 18: {at(0,1), cartAt(0,1)} E\n 19: {at(1,1), cartAt(0,1)} S\n 20: {at(1,2), cartAt(0,1)} E\n 21: {at(2,2), cartAt(0,1)} E\n 22: {at(3,2), cartAt(0,1)} E\n 23: {at(4,2), cartAt(0,1)} E\n 24: {at(5,2), cartAt(0,1)} E\n 25: {at(6,2), cartAt(0,1)} E\n 26: {at(7,2), cartAt(0,1)} S\n 27: {at(7,3), cartAt(0,1)} E\n 28: {at(8,3), cartAt(0,1)} E\n 29: {at(9,3), cartAt(0,1)} S\n 30: {at(9,4), cartAt(0,1)} S\n 31: {at(9,5), cartAt(0,1)} EXIT\n 32: {at(9,5), cartAt(0,1)} <terminal>\n\nDemonstration 11 (required items: apple, eggs, milk):\n  0: {at(0,5), cartAt(1,5)} E\n  1: {at(1,5), cartAt(1,5)} PICKUP_CART\n  2: {at(1,5), hasCart} N\n  3: {at(1,4), hasCart} E\n  4: {at(2,4), hasCart} PICKUP_ITEM\n  5: {at(2,4), hasCart} E\n  6: {at(3,4), hasCart} E\n  7: {at(4,4), hasCart} E\n  8: {at(5,4), hasCart} PICKUP_ITEM\n  9: {at(5,4), hasCart} E\n 10: {at(6,4), hasCart} PICKUP_ITEM\n 11: {at(6,4), hasCart} W\n 12: {at(5,4), hasCart} W\n 13: {at(4,4), hasCart} W\n 14: {at(3,4), hasCart} W\n 15: {at(2,4), hasCart} W\n 16: {at(1,4), hasCart} W\n 17: {at(0,4), hasCart} N\n 18: {at(0,3), hasCart} N\n 19: {at(0,2), hasCart} N\n 20: {at(0,1), hasCart} LEAVE_CART\n 21: {at(0,1), cartAt(0,1)} S\n 22: {at(0,2), cartAt(0,1)} E\n 23: {at(1,2), cartAt(0,1)} S\n 24: {at(1,3), cartAt(0,1)} S\n 25: {at(1,4), cartAt(0,1)} E\n 26: {at(2,4), cartAt(0,1)} E\n 27: {at(3,4), cartAt(0,1)} S\n 28: {at(3,5), cartAt(0,1)} E\n 29: {at(4,5), cartAt(0,1)} E\n 30: {at(5,5), cartAt(0,1)} E\n 31: {at(6,5), cartAt(0,1)} E\n 32: {at(7,5), cartAt(0,1)} E\n 33: {at(8,5), cartAt(0,1)} E\n 34: {at(9,5), cartAt(0,1)} EXIT\n 35: {at(9,5), cartAt(0,1)} <terminal>\n\nDemonstration 12 (required items: eggs, milk):\n  0: {at(0,5), cartAt(1,5)} E\n  1: {at(1,5), cartAt(1,5)} PICKUP_CART\n  2: {at(1,5), hasCart} E\n  3: {at(2,5), hasCart} E\n  4: {at(3,5), hasCart} E\n  5: {at(4,5), hasCart} E\n  6: {at(5,5), hasCart} N\n  7: {at(5,4), hasCart} E\n  8: {at(6,4), hasCart} PICKUP_ITEM\n  9: {at(6,4), hasCart} W\n 10: {at(5,4), hasCart} PICKUP_ITEM\n 11: {at(5,4), hasCart} W\n 12: {at(4,4), hasCart} W\n 13: {at(3,4), hasCart} W\n 14: {at(2,4), hasCart} W\n 15: {at(1,4), hasCart} N\n 16: {at(1,3), hasCart} W\n 17: {at(0,3), hasCart} N\n 18: {at(0,2), hasCart} N\n 19: {at(0,1), hasCart} LEAVE_CART\n 20: {at(0,1), cartAt(0,1)} S\n 21: {at(0,2), cartAt(0,1)} S\n 22: {at(0,3), cartAt(0,1)} S\n 23: {at(0,4), cartAt(0,1)} S\n 24: {at(0,5), cartAt(0,1)} E\n 25: {at(1,5), cartAt(0,1)} E\n 26: {at(2,5), cartAt(0,1)} E\n 27: {at(3,5), cartAt(0,1)} E\n 28: {at(4,5), cartAt(0,1)} E\n 29: {at(5,5), cartAt(0,1)} E\n 30: {at(6,5), cartAt(0,1)} E\n 31: {at(7,5), cartAt(0,1)} E\n 32: {at(8,5), cartAt(0,1)} E\n 33: {at(9,5), cartAt(0,1)} EXIT\n 34: {at(9,5), cartAt(0,1)} <terminal>\n\nDemonstration 13 (required items: bread, eggs):\n  0: {at(0,5), cartAt(1,5)} E\n  1: {at(1,5), cartAt(1,5)} PICKUP_CART\n  2: {at(1,5), hasCart} N\n  3: {at(1,4), hasCart} N\n  4: {at(1,3), hasCart} N\n  5: {at(1,2), hasCart} E\n  6: {at(2,2), hasCart} E\n  7: {at(3,2), hasCart} E\n  8: {at(4,2), hasCart} E\n  9: {at(5,2), hasCart} E\n 10: {at(6,2), hasCart} PICKUP_ITEM\n 11: {at(6,2), hasCart} W\n 12: {at(5,2), hasCart} W\n 13: {at(4,2), hasCart} W\n 14: {at(3,2), hasCart} PICKUP_ITEM\n 15: {at(3,2), hasCart} W\n 16: {at(2,2), hasCart} N\n 17: {at(2,1), hasCart} W\n 18: {at(1,1), hasCart} W\n 19: {at(0,1), hasCart} LEAVE_CART\n 20: {at(0,1), cartAt(0,1)} S\n 21: {at(0,2), cartAt(0,1)} S\n 22: {at(0,3), cartAt(0,1)} E\n 23: {at(1,3), cartAt(0,1)} S\n 24: {at(1,4), cartAt(0,1)} S\n 25: {at(1,5), cartAt(0,1)} E\n 26: {at(2,5), cartAt(0,1)} E\n 27: {at(3,5), cartAt(0,1)} E\n 28: {at(4,5), cartAt(0,1)} E\n 29: {at(5,5), cartAt(0,1)} E\n 30: {at(6,5), cartAt(0,1)} E\n 31: {at(7,5), cartAt(0,1)} E\n 32: {at(8,5), cartAt(0,1)} E\n 33: {at(9,5), cartAt(0,1)} EXIT\n 34: {at(9,5), cartAt(0,1)} <terminal>\n\nThe current hypotheses, expressed in a coarser representation, do not adequately explain the latest demonstration:\n- [g0_must_interact_at_entrance] OBLIGED: after start, eventually (at(1,5) \u2227 INTERACT) (before exit)\n- [g0_must_interact_at_top_left] OBLIGED: after start, eventually (at(0,1) \u2227 INTERACT) (before exit)\n- [g0_after_far_right_return_center] OBLIGED: after (at(6,4) \u2227 INTERACT), eventually (at(3,4) \u2227 INTERACT) (before exit)\n- [g0_after_center_go_left] OBLIGED: after (at(3,4) \u2227 INTERACT), eventually (at(1,3) \u2227 INTERACT) (before exit)\n- [g0_after_left_go_top_left] OBLIGED: after (at(1,3) \u2227 INTERACT), eventually (at(0,1) \u2227 INTERACT) (before exit)\n- [g0_no_east_from_far_right] FORBIDDEN: (at(6,4) \u2227 E)\n- [g0_no_east_from_left_middle] FORBIDDEN: (at(1,3) \u2227 E)\n- [g0_no_east_from_top_left] FORBIDDEN: (at(0,1) \u2227 E)\n\nThe demonstrations are now shown in a lower-level representation that exposes distinctions hidden before (newly available: cart_possession, cart_location, hand, actions_primitive). Identify the hidden distinctions and use them to define higher-level state properties and/or events (in \"abstraction\"), possibly hierarchically, and propose norms expressed over them. Norms may also use the primitive atoms directly.\nPropose 8 diverse candidate hypotheses.\n\nOutput format: return ONLY a JSON list (no prose, no code fences). Each element:\n{\"id\": short_name, \"text\": one-sentence natural-language statement of the norm,\n \"abstraction\": {\"state_properties\": {name: FORMULA, ...},\n                 \"events\": {name: {\"pre\": FORMULA, \"post\": FORMULA or null}, ...}},\n \"norm\": {\"type\": \"prohibition\", \"condition\": FORMULA}\n       | {\"type\": \"obligation\", \"trigger\": FORMULA or \"START\", \"discharge\": FORMULA}}\nFORMULA := atom | name of a property/event defined in this hypothesis | {\"not\": F} | {\"and\": [F, ...]}\n         | {\"or\": [F, ...]} | {\"le\"|\"lt\"|\"ge\"|\"gt\"|\"eq\": [numeric_feature, integer]}\nSemantics.  A trajectory is a sequence of steps (state s_k, action a_k).  A step's label contains the atoms true in\ns_k and the action a_k.  A state property is a formula over state atoms (no actions).  An event\n{\"pre\": P, \"post\": Q} occurs at step k when P holds for the label of step k and Q holds in the next state s_{k+1}\n(post may be null).  A prohibition counts one violation for every step whose label (including events occurring at\nthat step) satisfies the condition.  An obligation becomes pending at any step satisfying the trigger (\"START\" =\npending from the beginning) and is fulfilled by a later (or the same) step satisfying the discharge; it can be\ntriggered again; it is violated if it is still pending when the trajectory ends.",
+      "raw_response": "[\n  {\n    \"id\": \"must_take_entrance_cart\",\n    \"text\": \"A shopper must collect the stationed cart at the entrance before doing the shopping trip.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"entrance_cart_station\": {\n          \"and\": [\n            \"at(1,5)\",\n            \"cartAt(1,5)\"\n          ]\n        },\n        \"pushing_cart\": \"hasCart\"\n      },\n      \"events\": {\n        \"pickup_entrance_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"entrance_cart_station\",\n              \"PICKUP_CART\"\n            ]\n          },\n          \"post\": \"pushing_cart\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"START\",\n      \"discharge\": \"pickup_entrance_cart\"\n    }\n  },\n  {\n    \"id\": \"items_must_be_loaded_into_cart\",\n    \"text\": \"Required items must be picked up only while the shopper is pushing the cart, not while shopping hands-free.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"pushing_cart\": \"hasCart\",\n        \"hands_free_without_cart\": {\n          \"and\": [\n            {\n              \"not\": \"hasCart\"\n            },\n            {\n              \"not\": \"handFull\"\n            }\n          ]\n        }\n      },\n      \"events\": {\n        \"hand_pickup_attempt\": {\n          \"pre\": {\n            \"and\": [\n              {\n                \"not\": \"pushing_cart\"\n              },\n              \"PICKUP_ITEM\"\n            ]\n          },\n          \"post\": null\n        },\n        \"cart_pickup_item\": {\n          \"pre\": {\n            \"and\": [\n              \"pushing_cart\",\n              \"PICKUP_ITEM\"\n            ]\n          },\n          \"post\": \"pushing_cart\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"hand_pickup_attempt\"\n    }\n  },\n  {\n    \"id\": \"no_loose_hand_carrying\",\n    \"text\": \"The shopper should not carry merchandise loose by hand anywhere in the store.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"loose_hand_carry\": \"handFull\",\n        \"cart_possession\": \"hasCart\",\n        \"item_not_secured_in_cart\": {\n          \"and\": [\n            \"handFull\",\n            {\n              \"not\": \"hasCart\"\n            }\n          ]\n        }\n      },\n      \"events\": {\n        \"becomes_hand_full\": {\n          \"pre\": {\n            \"not\": \"handFull\"\n          },\n          \"post\": \"handFull\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"loose_hand_carry\"\n    }\n  },\n  {\n    \"id\": \"return_cart_to_top_left_bay\",\n    \"text\": \"After taking a cart, the shopper must return it to the top-left cart bay before the trip ends.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"top_left_cart_bay\": \"at(0,1)\",\n        \"cart_parked_top_left\": \"cartAt(0,1)\",\n        \"pushing_cart\": \"hasCart\"\n      },\n      \"events\": {\n        \"pickup_entrance_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"at(1,5)\",\n              \"cartAt(1,5)\",\n              \"PICKUP_CART\"\n            ]\n          },\n          \"post\": \"pushing_cart\"\n        },\n        \"return_cart_top_left\": {\n          \"pre\": {\n            \"and\": [\n              \"top_left_cart_bay\",\n              \"pushing_cart\",\n              \"LEAVE_CART\"\n            ]\n          },\n          \"post\": \"cart_parked_top_left\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"pickup_entrance_cart\",\n      \"discharge\": \"return_cart_top_left\"\n    }\n  },\n  {\n    \"id\": \"cart_may_only_be_left_in_return_bay\",\n    \"text\": \"A cart may only be put down at the designated top-left return bay.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"top_left_cart_bay\": \"at(0,1)\",\n        \"outside_return_bay\": {\n          \"not\": \"top_left_cart_bay\"\n        },\n        \"pushing_cart\": \"hasCart\"\n      },\n      \"events\": {\n        \"leave_cart_outside_bay\": {\n          \"pre\": {\n            \"and\": [\n              \"pushing_cart\",\n              \"outside_return_bay\",\n              \"LEAVE_CART\"\n            ]\n          },\n          \"post\": null\n        },\n        \"leave_cart_in_bay\": {\n          \"pre\": {\n            \"and\": [\n              \"pushing_cart\",\n              \"top_left_cart_bay\",\n              \"LEAVE_CART\"\n            ]\n          },\n          \"post\": \"cartAt(0,1)\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"leave_cart_outside_bay\"\n    }\n  },\n  {\n    \"id\": \"exit_without_cart\",\n    \"text\": \"The shopper must leave the store as a pedestrian and not through the exit while still pushing the cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"exit_cell\": \"at(9,5)\",\n        \"pushing_cart\": \"hasCart\",\n        \"pedestrian_after_return\": {\n          \"and\": [\n            {\n              \"not\": \"hasCart\"\n            },\n            \"cartAt(0,1)\"\n          ]\n        }\n      },\n      \"events\": {\n        \"exit_with_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"exit_cell\",\n              \"pushing_cart\",\n              \"EXIT\"\n            ]\n          },\n          \"post\": null\n        },\n        \"pedestrian_exit\": {\n          \"pre\": {\n            \"and\": [\n              \"exit_cell\",\n              \"pedestrian_after_return\",\n              \"EXIT\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"exit_with_cart\"\n    }\n  },\n  {\n    \"id\": \"no_shopping_after_cart_return\",\n    \"text\": \"Once the cart has been parked in the return bay, the shopper should not interact with store objects again before exiting.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"cart_returned\": \"cartAt(0,1)\",\n        \"without_cart\": {\n          \"not\": \"hasCart\"\n        },\n        \"post_return_pedestrian_phase\": {\n          \"and\": [\n            \"cart_returned\",\n            \"without_cart\"\n          ]\n        }\n      },\n      \"events\": {\n        \"post_return_interaction\": {\n          \"pre\": {\n            \"and\": [\n              \"post_return_pedestrian_phase\",\n              \"INTERACT\"\n            ]\n          },\n          \"post\": null\n        },\n        \"post_return_exit\": {\n          \"pre\": {\n            \"and\": [\n              \"post_return_pedestrian_phase\",\n              \"EXIT\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"post_return_interaction\"\n    }\n  },\n  {\n    \"id\": \"cart_refined_no_east_from_sensitive_cells\",\n    \"text\": \"The apparent no-east rule applies only when pushing the cart: carts should not be driven east from the far-right shelf cell, the left-middle shelf cell, or the return bay.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"pushing_cart\": \"hasCart\",\n        \"far_right_shelf_cell\": \"at(6,4)\",\n        \"left_middle_shelf_cell\": \"at(1,3)\",\n        \"top_left_return_bay\": \"at(0,1)\",\n        \"cart_sensitive_east_cell\": {\n          \"or\": [\n            \"far_right_shelf_cell\",\n            \"left_middle_shelf_cell\",\n            \"top_left_return_bay\"\n          ]\n        }\n      },\n      \"events\": {\n        \"east_with_cart_from_sensitive_cell\": {\n          \"pre\": {\n            \"and\": [\n              \"pushing_cart\",\n              \"cart_sensitive_east_cell\",\n              \"E\"\n            ]\n          },\n          \"post\": null\n        },\n        \"east_without_cart_from_sensitive_cell\": {\n          \"pre\": {\n            \"and\": [\n              {\n                \"not\": \"pushing_cart\"\n              },\n              \"cart_sensitive_east_cell\",\n              \"E\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"east_with_cart_from_sensitive_cell\"\n    }\n  }\n]",
+      "parsed": [
+        {
+          "id": "must_take_entrance_cart",
+          "text": "A shopper must collect the stationed cart at the entrance before doing the shopping trip.",
+          "abstraction": {
+            "state_properties": {
+              "entrance_cart_station": {
+                "and": [
+                  "at(1,5)",
+                  "cartAt(1,5)"
+                ]
+              },
+              "pushing_cart": "hasCart"
+            },
+            "events": {
+              "pickup_entrance_cart": {
+                "pre": {
+                  "and": [
+                    "entrance_cart_station",
+                    "PICKUP_CART"
+                  ]
+                },
+                "post": "pushing_cart"
+              }
+            }
+          },
+          "norm": {
+            "type": "obligation",
+            "trigger": "START",
+            "discharge": "pickup_entrance_cart"
+          }
+        },
+        {
+          "id": "items_must_be_loaded_into_cart",
+          "text": "Required items must be picked up only while the shopper is pushing the cart, not while shopping hands-free.",
+          "abstraction": {
+            "state_properties": {
+              "pushing_cart": "hasCart",
+              "hands_free_without_cart": {
+                "and": [
+                  {
+                    "not": "hasCart"
+                  },
+                  {
+                    "not": "handFull"
+                  }
+                ]
+              }
+            },
+            "events": {
+              "hand_pickup_attempt": {
+                "pre": {
+                  "and": [
+                    {
+                      "not": "pushing_cart"
+                    },
+                    "PICKUP_ITEM"
+                  ]
+                },
+                "post": null
+              },
+              "cart_pickup_item": {
+                "pre": {
+                  "and": [
+                    "pushing_cart",
+                    "PICKUP_ITEM"
+                  ]
+                },
+                "post": "pushing_cart"
+              }
+            }
+          },
+          "norm": {
+            "type": "prohibition",
+            "condition": "hand_pickup_attempt"
+          }
+        },
+        {
+          "id": "no_loose_hand_carrying",
+          "text": "The shopper should not carry merchandise loose by hand anywhere in the store.",
+          "abstraction": {
+            "state_properties": {
+              "loose_hand_carry": "handFull",
+              "cart_possession": "hasCart",
+              "item_not_secured_in_cart": {
+                "and": [
+                  "handFull",
+                  {
+                    "not": "hasCart"
+                  }
+                ]
+              }
+            },
+            "events": {
+              "becomes_hand_full": {
+                "pre": {
+                  "not": "handFull"
+                },
+                "post": "handFull"
+              }
+            }
+          },
+          "norm": {
+            "type": "prohibition",
+            "condition": "loose_hand_carry"
+          }
+        },
+        {
+          "id": "return_cart_to_top_left_bay",
+          "text": "After taking a cart, the shopper must return it to the top-left cart bay before the trip ends.",
+          "abstraction": {
+            "state_properties": {
+              "top_left_cart_bay": "at(0,1)",
+              "cart_parked_top_left": "cartAt(0,1)",
+              "pushing_cart": "hasCart"
+            },
+            "events": {
+              "pickup_entrance_cart": {
+                "pre": {
+                  "and": [
+                    "at(1,5)",
+                    "cartAt(1,5)",
+                    "PICKUP_CART"
+                  ]
+                },
+                "post": "pushing_cart"
+              },
+              "return_cart_top_left": {
+                "pre": {
+                  "and": [
+                    "top_left_cart_bay",
+                    "pushing_cart",
+                    "LEAVE_CART"
+                  ]
+                },
+                "post": "cart_parked_top_left"
+              }
+            }
+          },
+          "norm": {
+            "type": "obligation",
+            "trigger": "pickup_entrance_cart",
+            "discharge": "return_cart_top_left"
+          }
+        },
+        {
+          "id": "cart_may_only_be_left_in_return_bay",
+          "text": "A cart may only be put down at the designated top-left return bay.",
+          "abstraction": {
+            "state_properties": {
+              "top_left_cart_bay": "at(0,1)",
+              "outside_return_bay": {
+                "not": "top_left_cart_bay"
+              },
+              "pushing_cart": "hasCart"
+            },
+            "events": {
+              "leave_cart_outside_bay": {
+                "pre": {
+                  "and": [
+                    "pushing_cart",
+                    "outside_return_bay",
+                    "LEAVE_CART"
+                  ]
+                },
+                "post": null
+              },
+              "leave_cart_in_bay": {
+                "pre": {
+                  "and": [
+                    "pushing_cart",
+                    "top_left_cart_bay",
+                    "LEAVE_CART"
+                  ]
+                },
+                "post": "cartAt(0,1)"
+              }
+            }
+          },
+          "norm": {
+            "type": "prohibition",
+            "condition": "leave_cart_outside_bay"
+          }
+        },
+        {
+          "id": "exit_without_cart",
+          "text": "The shopper must leave the store as a pedestrian and not through the exit while still pushing the cart.",
+          "abstraction": {
+            "state_properties": {
+              "exit_cell": "at(9,5)",
+              "pushing_cart": "hasCart",
+              "pedestrian_after_return": {
+                "and": [
+                  {
+                    "not": "hasCart"
+                  },
+                  "cartAt(0,1)"
+                ]
+              }
+            },
+            "events": {
+              "exit_with_cart": {
+                "pre": {
+                  "and": [
+                    "exit_cell",
+                    "pushing_cart",
+                    "EXIT"
+                  ]
+                },
+                "post": null
+              },
+              "pedestrian_exit": {
+                "pre": {
+                  "and": [
+                    "exit_cell",
+                    "pedestrian_after_return",
+                    "EXIT"
+                  ]
+                },
+                "post": null
+              }
+            }
+          },
+          "norm": {
+            "type": "prohibition",
+            "condition": "exit_with_cart"
+          }
+        },
+        {
+          "id": "no_shopping_after_cart_return",
+          "text": "Once the cart has been parked in the return bay, the shopper should not interact with store objects again before exiting.",
+          "abstraction": {
+            "state_properties": {
+              "cart_returned": "cartAt(0,1)",
+              "without_cart": {
+                "not": "hasCart"
+              },
+              "post_return_pedestrian_phase": {
+                "and": [
+                  "cart_returned",
+                  "without_cart"
+                ]
+              }
+            },
+            "events": {
+              "post_return_interaction": {
+                "pre": {
+                  "and": [
+                    "post_return_pedestrian_phase",
+                    "INTERACT"
+                  ]
+                },
+                "post": null
+              },
+              "post_return_exit": {
+                "pre": {
+                  "and": [
+                    "post_return_pedestrian_phase",
+                    "EXIT"
+                  ]
+                },
+                "post": null
+              }
+            }
+          },
+          "norm": {
+            "type": "prohibition",
+            "condition": "post_return_interaction"
+          }
+        },
+        {
+          "id": "cart_refined_no_east_from_sensitive_cells",
+          "text": "The apparent no-east rule applies only when pushing the cart: carts should not be driven east from the far-right shelf cell, the left-middle shelf cell, or the return bay.",
+          "abstraction": {
+            "state_properties": {
+              "pushing_cart": "hasCart",
+              "far_right_shelf_cell": "at(6,4)",
+              "left_middle_shelf_cell": "at(1,3)",
+              "top_left_return_bay": "at(0,1)",
+              "cart_sensitive_east_cell": {
+                "or": [
+                  "far_right_shelf_cell",
+                  "left_middle_shelf_cell",
+                  "top_left_return_bay"
+                ]
+              }
+            },
+            "events": {
+              "east_with_cart_from_sensitive_cell": {
+                "pre": {
+                  "and": [
+                    "pushing_cart",
+                    "cart_sensitive_east_cell",
+                    "E"
+                  ]
+                },
+                "post": null
+              },
+              "east_without_cart_from_sensitive_cell": {
+                "pre": {
+                  "and": [
+                    {
+                      "not": "pushing_cart"
+                    },
+                    "cart_sensitive_east_cell",
+                    "E"
+                  ]
+                },
+                "post": null
+              }
+            }
+          },
+          "norm": {
+            "type": "prohibition",
+            "condition": "east_with_cart_from_sensitive_cell"
+          }
+        }
+      ],
+      "attempts": [
+        {
+          "attempt": 0,
+          "prompt": "Agents in a supermarket gridworld must collect their required items and leave through the exit. Every action costs the same, so demonstrators prefer short trajectories -- unless an unknown social norm makes them behave otherwise. Your task is to propose candidate norms (obligations or prohibitions) that could explain the demonstrated behaviour.\nEach demonstration is listed step by step as  `k: {atoms true in the state} action`.\n\nAvailable atoms:\n- at(x,y) -- the agent is at cell (x,y); x = column (0 = left), y = row (0 = top); N decreases y, S increases y, E increases x, W decreases x\n- actions N, S, E, W, MOVE (any of the four moves), INTERACT (any interaction with an object: the different kinds of interaction are NOT distinguished), EXIT (leave the store; always the last action)\n- hasCart -- the agent is holding/pushing a shopping cart\n- cartAt(x,y) -- the cart is parked (or stationed) at cell (x,y)\n- handFull -- the agent carries an item by hand\n- actions PICKUP_CART, LEAVE_CART (put the cart down on the current cell), PICKUP_ITEM (take an item from an adjacent shelf); each of these is also an INTERACT\n\nDemonstration 1 (required items: apple, bread, eggs):\n  0: {at(0,5), cartAt(1,5)} E\n  1: {at(1,5), cartAt(1,5)} PICKUP_CART\n  2: {at(1,5), hasCart} E\n  3: {at(2,5), hasCart} E\n  4: {at(3,5), hasCart} N\n  5: {at(3,4), hasCart} E\n  6: {at(4,4), hasCart} E\n  7: {at(5,4), hasCart} E\n  8: {at(6,4), hasCart} PICKUP_ITEM\n  9: {at(6,4), hasCart} W\n 10: {at(5,4), hasCart} W\n 11: {at(4,4), hasCart} W\n 12: {at(3,4), hasCart} PICKUP_ITEM\n 13: {at(3,4), hasCart} W\n 14: {at(2,4), hasCart} W\n 15: {at(1,4), hasCart} N\n 16: {at(1,3), hasCart} PICKUP_ITEM\n 17: {at(1,3), hasCart} W\n 18: {at(0,3), hasCart} N\n 19: {at(0,2), hasCart} N\n 20: {at(0,1), hasCart} LEAVE_CART\n 21: {at(0,1), cartAt(0,1)} S\n 22: {at(0,2), cartAt(0,1)} E\n 23: {at(1,2), cartAt(0,1)} E\n 24: {at(2,2), cartAt(0,1)} E\n 25: {at(3,2), cartAt(0,1)} E\n 26: {at(4,2), cartAt(0,1)} E\n 27: {at(5,2), cartAt(0,1)} E\n 28: {at(6,2), cartAt(0,1)} E\n 29: {at(7,2), cartAt(0,1)} E\n 30: {at(8,2), cartAt(0,1)} E\n 31: {at(9,2), cartAt(0,1)} S\n 32: {at(9,3), cartAt(0,1)} S\n 33: {at(9,4), cartAt(0,1)} S\n 34: {at(9,5), cartAt(0,1)} EXIT\n 35: {at(9,5), cartAt(0,1)} <terminal>\n\nDemonstration 2 (required items: apple, bread, eggs):\n  0: {at(0,5), cartAt(1,5)} E\n  1: {at(1,5), cartAt(1,5)} PICKUP_CART\n  2: {at(1,5), hasCart} N\n  3: {at(1,4), hasCart} N\n  4: {at(1,3), hasCart} N\n  5: {at(1,2), hasCart} E\n  6: {at(2,2), hasCart} PICKUP_ITEM\n  7: {at(2,2), hasCart} E\n  8: {at(3,2), hasCart} PICKUP_ITEM\n  9: {at(3,2), hasCart} E\n 10: {at(4,2), hasCart} E\n 11: {at(5,2), hasCart} E\n 12: {at(6,2), hasCart} PICKUP_ITEM\n 13: {at(6,2), hasCart} W\n 14: {at(5,2), hasCart} N\n 15: {at(5,1), hasCart} W\n 16: {at(4,1), hasCart} W\n 17: {at(3,1), hasCart} W\n 18: {at(2,1), hasCart} W\n 19: {at(1,1), hasCart} W\n 20: {at(0,1), hasCart} LEAVE_CART\n 21: {at(0,1), cartAt(0,1)} S\n 22: {at(0,2), cartAt(0,1)} S\n 23: {at(0,3), cartAt(0,1)} E\n 24: {at(1,3), cartAt(0,1)} S\n 25: {at(1,4), cartAt(0,1)} S\n 26: {at(1,5), cartAt(0,1)} E\n 27: {at(2,5), cartAt(0,1)} E\n 28: {at(3,5), cartAt(0,1)} E\n 29: {at(4,5), cartAt(0,1)} E\n 30: {at(5,5), cartAt(0,1)} E\n 31: {at(6,5), cartAt(0,1)} E\n 32: {at(7,5), cartAt(0,1)} E\n 33: {at(8,5), cartAt(0,1)} E\n 34: {at(9,5), cartAt(0,1)} EXIT\n 35: {at(9,5), cartAt(0,1)} <terminal>\n\nDemonstration 3 (required items: apple, eggs):\n  0: {at(0,5), cartAt(1,5)} E\n  1: {at(1,5), cartAt(1,5)} PICKUP_CART\n  2: {at(1,5), hasCart} E\n  3: {at(2,5), hasCart} E\n  4: {at(3,5), hasCart} N\n  5: {at(3,4), hasCart} E\n  6: {at(4,4), hasCart} E\n  7: {at(5,4), hasCart} E\n  8: {at(6,4), hasCart} PICKUP_ITEM\n  9: {at(6,4), hasCart} W\n 10: {at(5,4), hasCart} W\n 11: {at(4,4), hasCart} W\n 12: {at(3,4), hasCart} W\n 13: {at(2,4), hasCart} W\n 14: {at(1,4), hasCart} N\n 15: {at(1,3), hasCart} PICKUP_ITEM\n 16: {at(1,3), hasCart} W\n 17: {at(0,3), hasCart} N\n 18: {at(0,2), hasCart} N\n 19: {at(0,1), hasCart} LEAVE_CART\n 20: {at(0,1), cartAt(0,1)} E\n 21: {at(1,1), cartAt(0,1)} S\n 22: {at(1,2), cartAt(0,1)} S\n 23: {at(1,3), cartAt(0,1)} S\n 24: {at(1,4), cartAt(0,1)} E\n 25: {at(2,4), cartAt(0,1)} S\n 26: {at(2,5), cartAt(0,1)} E\n 27: {at(3,5), cartAt(0,1)} E\n 28: {at(4,5), cartAt(0,1)} E\n 29: {at(5,5), cartAt(0,1)} E\n 30: {at(6,5), cartAt(0,1)} E\n 31: {at(7,5), cartAt(0,1)} E\n 32: {at(8,5), cartAt(0,1)} E\n 33: {at(9,5), cartAt(0,1)} EXIT\n 34: {at(9,5), cartAt(0,1)} <terminal>\n\nDemonstration 4 (required items: milk):\n  0: {at(0,5), cartAt(1,5)} E\n  1: {at(1,5), cartAt(1,5)} PICKUP_CART\n  2: {at(1,5), hasCart} N\n  3: {at(1,4), hasCart} N\n  4: {at(1,3), hasCart} N\n  5: {at(1,2), hasCart} E\n  6: {at(2,2), hasCart} E\n  7: {at(3,2), hasCart} E\n  8: {at(4,2), hasCart} E\n  9: {at(5,2), hasCart} PICKUP_ITEM\n 10: {at(5,2), hasCart} W\n 11: {at(4,2), hasCart} W\n 12: {at(3,2), hasCart} N\n 13: {at(3,1), hasCart} W\n 14: {at(2,1), hasCart} W\n 15: {at(1,1), hasCart} W\n 16: {at(0,1), hasCart} LEAVE_CART\n 17: {at(0,1), cartAt(0,1)} S\n 18: {at(0,2), cartAt(0,1)} E\n 19: {at(1,2), cartAt(0,1)} E\n 20: {at(2,2), cartAt(0,1)} E\n 21: {at(3,2), cartAt(0,1)} E\n 22: {at(4,2), cartAt(0,1)} E\n 23: {at(5,2), cartAt(0,1)} E\n 24: {at(6,2), cartAt(0,1)} E\n 25: {at(7,2), cartAt(0,1)} S\n 26: {at(7,3), cartAt(0,1)} E\n 27: {at(8,3), cartAt(0,1)} E\n 28: {at(9,3), cartAt(0,1)} S\n 29: {at(9,4), cartAt(0,1)} S\n 30: {at(9,5), cartAt(0,1)} EXIT\n 31: {at(9,5), cartAt(0,1)} <terminal>\n\nDemonstration 5 (required items: apple, bread, eggs):\n  0: {at(0,5), cartAt(1,5)} E\n  1: {at(1,5), cartAt(1,5)} PICKUP_CART\n  2: {at(1,5), hasCart} N\n  3: {at(1,4), hasCart} N\n  4: {at(1,3), hasCart} PICKUP_ITEM\n  5: {at(1,3), hasCart} N\n  6: {at(1,2), hasCart} E\n  7: {at(2,2), hasCart} E\n  8: {at(3,2), hasCart} PICKUP_ITEM\n  9: {at(3,2), hasCart} E\n 10: {at(4,2), hasCart} E\n 11: {at(5,2), hasCart} E\n 12: {at(6,2), hasCart} PICKUP_ITEM\n 13: {at(6,2), hasCart} N\n 14: {at(6,1), hasCart} W\n 15: {at(5,1), hasCart} W\n 16: {at(4,1), hasCart} W\n 17: {at(3,1), hasCart} W\n 18: {at(2,1), hasCart} W\n 19: {at(1,1), hasCart} W\n 20: {at(0,1), hasCart} LEAVE_CART\n 21: {at(0,1), cartAt(0,1)} S\n 22: {at(0,2), cartAt(0,1)} E\n 23: {at(1,2), cartAt(0,1)} E\n 24: {at(2,2), cartAt(0,1)} E\n 25: {at(3,2), cartAt(0,1)} E\n 26: {at(4,2), cartAt(0,1)} E\n 27: {at(5,2), cartAt(0,1)} E\n 28: {at(6,2), cartAt(0,1)} E\n 29: {at(7,2), cartAt(0,1)} E\n 30: {at(8,2), cartAt(0,1)} S\n 31: {at(8,3), cartAt(0,1)} E\n 32: {at(9,3), cartAt(0,1)} S\n 33: {at(9,4), cartAt(0,1)} S\n 34: {at(9,5), cartAt(0,1)} EXIT\n 35: {at(9,5), cartAt(0,1)} <terminal>\n\nDemonstration 6 (required items: bread, eggs):\n  0: {at(0,5), cartAt(1,5)} E\n  1: {at(1,5), cartAt(1,5)} PICKUP_CART\n  2: {at(1,5), hasCart} N\n  3: {at(1,4), hasCart} E\n  4: {at(2,4), hasCart} E\n  5: {at(3,4), hasCart} PICKUP_ITEM\n  6: {at(3,4), hasCart} E\n  7: {at(4,4), hasCart} E\n  8: {at(5,4), hasCart} E\n  9: {at(6,4), hasCart} PICKUP_ITEM\n 10: {at(6,4), hasCart} W\n 11: {at(5,4), hasCart} W\n 12: {at(4,4), hasCart} W\n 13: {at(3,4), hasCart} W\n 14: {at(2,4), hasCart} W\n 15: {at(1,4), hasCart} W\n 16: {at(0,4), hasCart} N\n 17: {at(0,3), hasCart} N\n 18: {at(0,2), hasCart} N\n 19: {at(0,1), hasCart} LEAVE_CART\n 20: {at(0,1), cartAt(0,1)} S\n 21: {at(0,2), cartAt(0,1)} E\n 22: {at(1,2), cartAt(0,1)} S\n 23: {at(1,3), cartAt(0,1)} S\n 24: {at(1,4), cartAt(0,1)} E\n 25: {at(2,4), cartAt(0,1)} S\n 26: {at(2,5), cartAt(0,1)} E\n 27: {at(3,5), cartAt(0,1)} E\n 28: {at(4,5), cartAt(0,1)} E\n 29: {at(5,5), cartAt(0,1)} E\n 30: {at(6,5), cartAt(0,1)} E\n 31: {at(7,5), cartAt(0,1)} E\n 32: {at(8,5), cartAt(0,1)} E\n 33: {at(9,5), cartAt(0,1)} EXIT\n 34: {at(9,5), cartAt(0,1)} <terminal>\n\nDemonstration 7 (required items: bread, milk):\n  0: {at(0,5), cartAt(1,5)} E\n  1: {at(1,5), cartAt(1,5)} PICKUP_CART\n  2: {at(1,5), hasCart} E\n  3: {at(2,5), hasCart} E\n  4: {at(3,5), hasCart} E\n  5: {at(4,5), hasCart} E\n  6: {at(5,5), hasCart} N\n  7: {at(5,4), hasCart} PICKUP_ITEM\n  8: {at(5,4), hasCart} W\n  9: {at(4,4), hasCart} W\n 10: {at(3,4), hasCart} PICKUP_ITEM\n 11: {at(3,4), hasCart} W\n 12: {at(2,4), hasCart} W\n 13: {at(1,4), hasCart} N\n 14: {at(1,3), hasCart} W\n 15: {at(0,3), hasCart} N\n 16: {at(0,2), hasCart} N\n 17: {at(0,1), hasCart} LEAVE_CART\n 18: {at(0,1), cartAt(0,1)} E\n 19: {at(1,1), cartAt(0,1)} S\n 20: {at(1,2), cartAt(0,1)} S\n 21: {at(1,3), cartAt(0,1)} S\n 22: {at(1,4), cartAt(0,1)} S\n 23: {at(1,5), cartAt(0,1)} E\n 24: {at(2,5), cartAt(0,1)} E\n 25: {at(3,5), cartAt(0,1)} E\n 26: {at(4,5), cartAt(0,1)} E\n 27: {at(5,5), cartAt(0,1)} E\n 28: {at(6,5), cartAt(0,1)} E\n 29: {at(7,5), cartAt(0,1)} E\n 30: {at(8,5), cartAt(0,1)} E\n 31: {at(9,5), cartAt(0,1)} EXIT\n 32: {at(9,5), cartAt(0,1)} <terminal>\n\nDemonstration 8 (required items: apple, milk):\n  0: {at(0,5), cartAt(1,5)} E\n  1: {at(1,5), cartAt(1,5)} PICKUP_CART\n  2: {at(1,5), hasCart} N\n  3: {at(1,4), hasCart} N\n  4: {at(1,3), hasCart} PICKUP_ITEM\n  5: {at(1,3), hasCart} N\n  6: {at(1,2), hasCart} E\n  7: {at(2,2), hasCart} E\n  8: {at(3,2), hasCart} E\n  9: {at(4,2), hasCart} E\n 10: {at(5,2), hasCart} PICKUP_ITEM\n 11: {at(5,2), hasCart} N\n 12: {at(5,1), hasCart} W\n 13: {at(4,1), hasCart} W\n 14: {at(3,1), hasCart} W\n 15: {at(2,1), hasCart} W\n 16: {at(1,1), hasCart} W\n 17: {at(0,1), hasCart} LEAVE_CART\n 18: {at(0,1), cartAt(0,1)} S\n 19: {at(0,2), cartAt(0,1)} S\n 20: {at(0,3), cartAt(0,1)} S\n 21: {at(0,4), cartAt(0,1)} S\n 22: {at(0,5), cartAt(0,1)} E\n 23: {at(1,5), cartAt(0,1)} E\n 24: {at(2,5), cartAt(0,1)} E\n 25: {at(3,5), cartAt(0,1)} E\n 26: {at(4,5), cartAt(0,1)} E\n 27: {at(5,5), cartAt(0,1)} E\n 28: {at(6,5), cartAt(0,1)} E\n 29: {at(7,5), cartAt(0,1)} E\n 30: {at(8,5), cartAt(0,1)} E\n 31: {at(9,5), cartAt(0,1)} EXIT\n 32: {at(9,5), cartAt(0,1)} <terminal>\n\nDemonstration 9 (required items: eggs):\n  0: {at(0,5), cartAt(1,5)} E\n  1: {at(1,5), cartAt(1,5)} PICKUP_CART\n  2: {at(1,5), hasCart} N\n  3: {at(1,4), hasCart} N\n  4: {at(1,3), hasCart} N\n  5: {at(1,2), hasCart} E\n  6: {at(2,2), hasCart} E\n  7: {at(3,2), hasCart} E\n  8: {at(4,2), hasCart} E\n  9: {at(5,2), hasCart} E\n 10: {at(6,2), hasCart} PICKUP_ITEM\n 11: {at(6,2), hasCart} W\n 12: {at(5,2), hasCart} N\n 13: {at(5,1), hasCart} W\n 14: {at(4,1), hasCart} W\n 15: {at(3,1), hasCart} W\n 16: {at(2,1), hasCart} W\n 17: {at(1,1), hasCart} W\n 18: {at(0,1), hasCart} LEAVE_CART\n 19: {at(0,1), cartAt(0,1)} E\n 20: {at(1,1), cartAt(0,1)} E\n 21: {at(2,1), cartAt(0,1)} S\n 22: {at(2,2), cartAt(0,1)} E\n 23: {at(3,2), cartAt(0,1)} E\n 24: {at(4,2), cartAt(0,1)} E\n 25: {at(5,2), cartAt(0,1)} E\n 26: {at(6,2), cartAt(0,1)} E\n 27: {at(7,2), cartAt(0,1)} S\n 28: {at(7,3), cartAt(0,1)} S\n 29: {at(7,4), cartAt(0,1)} E\n 30: {at(8,4), cartAt(0,1)} S\n 31: {at(8,5), cartAt(0,1)} E\n 32: {at(9,5), cartAt(0,1)} EXIT\n 33: {at(9,5), cartAt(0,1)} <terminal>\n\nDemonstration 10 (required items: apple, milk):\n  0: {at(0,5), cartAt(1,5)} E\n  1: {at(1,5), cartAt(1,5)} PICKUP_CART\n  2: {at(1,5), hasCart} N\n  3: {at(1,4), hasCart} N\n  4: {at(1,3), hasCart} PICKUP_ITEM\n  5: {at(1,3), hasCart} N\n  6: {at(1,2), hasCart} E\n  7: {at(2,2), hasCart} E\n  8: {at(3,2), hasCart} E\n  9: {at(4,2), hasCart} E\n 10: {at(5,2), hasCart} PICKUP_ITEM\n 11: {at(5,2), hasCart} N\n 12: {at(5,1), hasCart} W\n 13: {at(4,1), hasCart} W\n 14: {at(3,1), hasCart} W\n 15: {at(2,1), hasCart} W\n 16: {at(1,1), hasCart} W\n 17: {at(0,1), hasCart} LEAVE_CART\n 18: {at(0,1), cartAt(0,1)} E\n 19: {at(1,1), cartAt(0,1)} S\n 20: {at(1,2), cartAt(0,1)} E\n 21: {at(2,2), cartAt(0,1)} E\n 22: {at(3,2), cartAt(0,1)} E\n 23: {at(4,2), cartAt(0,1)} E\n 24: {at(5,2), cartAt(0,1)} E\n 25: {at(6,2), cartAt(0,1)} E\n 26: {at(7,2), cartAt(0,1)} S\n 27: {at(7,3), cartAt(0,1)} E\n 28: {at(8,3), cartAt(0,1)} E\n 29: {at(9,3), cartAt(0,1)} S\n 30: {at(9,4), cartAt(0,1)} S\n 31: {at(9,5), cartAt(0,1)} EXIT\n 32: {at(9,5), cartAt(0,1)} <terminal>\n\nDemonstration 11 (required items: apple, eggs, milk):\n  0: {at(0,5), cartAt(1,5)} E\n  1: {at(1,5), cartAt(1,5)} PICKUP_CART\n  2: {at(1,5), hasCart} N\n  3: {at(1,4), hasCart} E\n  4: {at(2,4), hasCart} PICKUP_ITEM\n  5: {at(2,4), hasCart} E\n  6: {at(3,4), hasCart} E\n  7: {at(4,4), hasCart} E\n  8: {at(5,4), hasCart} PICKUP_ITEM\n  9: {at(5,4), hasCart} E\n 10: {at(6,4), hasCart} PICKUP_ITEM\n 11: {at(6,4), hasCart} W\n 12: {at(5,4), hasCart} W\n 13: {at(4,4), hasCart} W\n 14: {at(3,4), hasCart} W\n 15: {at(2,4), hasCart} W\n 16: {at(1,4), hasCart} W\n 17: {at(0,4), hasCart} N\n 18: {at(0,3), hasCart} N\n 19: {at(0,2), hasCart} N\n 20: {at(0,1), hasCart} LEAVE_CART\n 21: {at(0,1), cartAt(0,1)} S\n 22: {at(0,2), cartAt(0,1)} E\n 23: {at(1,2), cartAt(0,1)} S\n 24: {at(1,3), cartAt(0,1)} S\n 25: {at(1,4), cartAt(0,1)} E\n 26: {at(2,4), cartAt(0,1)} E\n 27: {at(3,4), cartAt(0,1)} S\n 28: {at(3,5), cartAt(0,1)} E\n 29: {at(4,5), cartAt(0,1)} E\n 30: {at(5,5), cartAt(0,1)} E\n 31: {at(6,5), cartAt(0,1)} E\n 32: {at(7,5), cartAt(0,1)} E\n 33: {at(8,5), cartAt(0,1)} E\n 34: {at(9,5), cartAt(0,1)} EXIT\n 35: {at(9,5), cartAt(0,1)} <terminal>\n\nDemonstration 12 (required items: eggs, milk):\n  0: {at(0,5), cartAt(1,5)} E\n  1: {at(1,5), cartAt(1,5)} PICKUP_CART\n  2: {at(1,5), hasCart} E\n  3: {at(2,5), hasCart} E\n  4: {at(3,5), hasCart} E\n  5: {at(4,5), hasCart} E\n  6: {at(5,5), hasCart} N\n  7: {at(5,4), hasCart} E\n  8: {at(6,4), hasCart} PICKUP_ITEM\n  9: {at(6,4), hasCart} W\n 10: {at(5,4), hasCart} PICKUP_ITEM\n 11: {at(5,4), hasCart} W\n 12: {at(4,4), hasCart} W\n 13: {at(3,4), hasCart} W\n 14: {at(2,4), hasCart} W\n 15: {at(1,4), hasCart} N\n 16: {at(1,3), hasCart} W\n 17: {at(0,3), hasCart} N\n 18: {at(0,2), hasCart} N\n 19: {at(0,1), hasCart} LEAVE_CART\n 20: {at(0,1), cartAt(0,1)} S\n 21: {at(0,2), cartAt(0,1)} S\n 22: {at(0,3), cartAt(0,1)} S\n 23: {at(0,4), cartAt(0,1)} S\n 24: {at(0,5), cartAt(0,1)} E\n 25: {at(1,5), cartAt(0,1)} E\n 26: {at(2,5), cartAt(0,1)} E\n 27: {at(3,5), cartAt(0,1)} E\n 28: {at(4,5), cartAt(0,1)} E\n 29: {at(5,5), cartAt(0,1)} E\n 30: {at(6,5), cartAt(0,1)} E\n 31: {at(7,5), cartAt(0,1)} E\n 32: {at(8,5), cartAt(0,1)} E\n 33: {at(9,5), cartAt(0,1)} EXIT\n 34: {at(9,5), cartAt(0,1)} <terminal>\n\nDemonstration 13 (required items: bread, eggs):\n  0: {at(0,5), cartAt(1,5)} E\n  1: {at(1,5), cartAt(1,5)} PICKUP_CART\n  2: {at(1,5), hasCart} N\n  3: {at(1,4), hasCart} N\n  4: {at(1,3), hasCart} N\n  5: {at(1,2), hasCart} E\n  6: {at(2,2), hasCart} E\n  7: {at(3,2), hasCart} E\n  8: {at(4,2), hasCart} E\n  9: {at(5,2), hasCart} E\n 10: {at(6,2), hasCart} PICKUP_ITEM\n 11: {at(6,2), hasCart} W\n 12: {at(5,2), hasCart} W\n 13: {at(4,2), hasCart} W\n 14: {at(3,2), hasCart} PICKUP_ITEM\n 15: {at(3,2), hasCart} W\n 16: {at(2,2), hasCart} N\n 17: {at(2,1), hasCart} W\n 18: {at(1,1), hasCart} W\n 19: {at(0,1), hasCart} LEAVE_CART\n 20: {at(0,1), cartAt(0,1)} S\n 21: {at(0,2), cartAt(0,1)} S\n 22: {at(0,3), cartAt(0,1)} E\n 23: {at(1,3), cartAt(0,1)} S\n 24: {at(1,4), cartAt(0,1)} S\n 25: {at(1,5), cartAt(0,1)} E\n 26: {at(2,5), cartAt(0,1)} E\n 27: {at(3,5), cartAt(0,1)} E\n 28: {at(4,5), cartAt(0,1)} E\n 29: {at(5,5), cartAt(0,1)} E\n 30: {at(6,5), cartAt(0,1)} E\n 31: {at(7,5), cartAt(0,1)} E\n 32: {at(8,5), cartAt(0,1)} E\n 33: {at(9,5), cartAt(0,1)} EXIT\n 34: {at(9,5), cartAt(0,1)} <terminal>\n\nThe current hypotheses, expressed in a coarser representation, do not adequately explain the latest demonstration:\n- [g0_must_interact_at_entrance] OBLIGED: after start, eventually (at(1,5) \u2227 INTERACT) (before exit)\n- [g0_must_interact_at_top_left] OBLIGED: after start, eventually (at(0,1) \u2227 INTERACT) (before exit)\n- [g0_after_far_right_return_center] OBLIGED: after (at(6,4) \u2227 INTERACT), eventually (at(3,4) \u2227 INTERACT) (before exit)\n- [g0_after_center_go_left] OBLIGED: after (at(3,4) \u2227 INTERACT), eventually (at(1,3) \u2227 INTERACT) (before exit)\n- [g0_after_left_go_top_left] OBLIGED: after (at(1,3) \u2227 INTERACT), eventually (at(0,1) \u2227 INTERACT) (before exit)\n- [g0_no_east_from_far_right] FORBIDDEN: (at(6,4) \u2227 E)\n- [g0_no_east_from_left_middle] FORBIDDEN: (at(1,3) \u2227 E)\n- [g0_no_east_from_top_left] FORBIDDEN: (at(0,1) \u2227 E)\n\nThe demonstrations are now shown in a lower-level representation that exposes distinctions hidden before (newly available: cart_possession, cart_location, hand, actions_primitive). Identify the hidden distinctions and use them to define higher-level state properties and/or events (in \"abstraction\"), possibly hierarchically, and propose norms expressed over them. Norms may also use the primitive atoms directly.\nPropose 8 diverse candidate hypotheses.\n\nOutput format: return ONLY a JSON list (no prose, no code fences). Each element:\n{\"id\": short_name, \"text\": one-sentence natural-language statement of the norm,\n \"abstraction\": {\"state_properties\": {name: FORMULA, ...},\n                 \"events\": {name: {\"pre\": FORMULA, \"post\": FORMULA or null}, ...}},\n \"norm\": {\"type\": \"prohibition\", \"condition\": FORMULA}\n       | {\"type\": \"obligation\", \"trigger\": FORMULA or \"START\", \"discharge\": FORMULA}}\nFORMULA := atom | name of a property/event defined in this hypothesis | {\"not\": F} | {\"and\": [F, ...]}\n         | {\"or\": [F, ...]} | {\"le\"|\"lt\"|\"ge\"|\"gt\"|\"eq\": [numeric_feature, integer]}\nSemantics.  A trajectory is a sequence of steps (state s_k, action a_k).  A step's label contains the atoms true in\ns_k and the action a_k.  A state property is a formula over state atoms (no actions).  An event\n{\"pre\": P, \"post\": Q} occurs at step k when P holds for the label of step k and Q holds in the next state s_{k+1}\n(post may be null).  A prohibition counts one violation for every step whose label (including events occurring at\nthat step) satisfies the condition.  An obligation becomes pending at any step satisfying the trigger (\"START\" =\npending from the beginning) and is fulfilled by a later (or the same) step satisfying the discharge; it can be\ntriggered again; it is violated if it is still pending when the trajectory ends.",
+          "raw_response": "[\n  {\n    \"id\": \"must_take_entrance_cart\",\n    \"text\": \"A shopper must collect the stationed cart at the entrance before doing the shopping trip.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"entrance_cart_station\": {\n          \"and\": [\n            \"at(1,5)\",\n            \"cartAt(1,5)\"\n          ]\n        },\n        \"pushing_cart\": \"hasCart\"\n      },\n      \"events\": {\n        \"pickup_entrance_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"entrance_cart_station\",\n              \"PICKUP_CART\"\n            ]\n          },\n          \"post\": \"pushing_cart\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"START\",\n      \"discharge\": \"pickup_entrance_cart\"\n    }\n  },\n  {\n    \"id\": \"items_must_be_loaded_into_cart\",\n    \"text\": \"Required items must be picked up only while the shopper is pushing the cart, not while shopping hands-free.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"pushing_cart\": \"hasCart\",\n        \"hands_free_without_cart\": {\n          \"and\": [\n            {\n              \"not\": \"hasCart\"\n            },\n            {\n              \"not\": \"handFull\"\n            }\n          ]\n        }\n      },\n      \"events\": {\n        \"hand_pickup_attempt\": {\n          \"pre\": {\n            \"and\": [\n              {\n                \"not\": \"pushing_cart\"\n              },\n              \"PICKUP_ITEM\"\n            ]\n          },\n          \"post\": null\n        },\n        \"cart_pickup_item\": {\n          \"pre\": {\n            \"and\": [\n              \"pushing_cart\",\n              \"PICKUP_ITEM\"\n            ]\n          },\n          \"post\": \"pushing_cart\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"hand_pickup_attempt\"\n    }\n  },\n  {\n    \"id\": \"no_loose_hand_carrying\",\n    \"text\": \"The shopper should not carry merchandise loose by hand anywhere in the store.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"loose_hand_carry\": \"handFull\",\n        \"cart_possession\": \"hasCart\",\n        \"item_not_secured_in_cart\": {\n          \"and\": [\n            \"handFull\",\n            {\n              \"not\": \"hasCart\"\n            }\n          ]\n        }\n      },\n      \"events\": {\n        \"becomes_hand_full\": {\n          \"pre\": {\n            \"not\": \"handFull\"\n          },\n          \"post\": \"handFull\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"loose_hand_carry\"\n    }\n  },\n  {\n    \"id\": \"return_cart_to_top_left_bay\",\n    \"text\": \"After taking a cart, the shopper must return it to the top-left cart bay before the trip ends.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"top_left_cart_bay\": \"at(0,1)\",\n        \"cart_parked_top_left\": \"cartAt(0,1)\",\n        \"pushing_cart\": \"hasCart\"\n      },\n      \"events\": {\n        \"pickup_entrance_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"at(1,5)\",\n              \"cartAt(1,5)\",\n              \"PICKUP_CART\"\n            ]\n          },\n          \"post\": \"pushing_cart\"\n        },\n        \"return_cart_top_left\": {\n          \"pre\": {\n            \"and\": [\n              \"top_left_cart_bay\",\n              \"pushing_cart\",\n              \"LEAVE_CART\"\n            ]\n          },\n          \"post\": \"cart_parked_top_left\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"pickup_entrance_cart\",\n      \"discharge\": \"return_cart_top_left\"\n    }\n  },\n  {\n    \"id\": \"cart_may_only_be_left_in_return_bay\",\n    \"text\": \"A cart may only be put down at the designated top-left return bay.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"top_left_cart_bay\": \"at(0,1)\",\n        \"outside_return_bay\": {\n          \"not\": \"top_left_cart_bay\"\n        },\n        \"pushing_cart\": \"hasCart\"\n      },\n      \"events\": {\n        \"leave_cart_outside_bay\": {\n          \"pre\": {\n            \"and\": [\n              \"pushing_cart\",\n              \"outside_return_bay\",\n              \"LEAVE_CART\"\n            ]\n          },\n          \"post\": null\n        },\n        \"leave_cart_in_bay\": {\n          \"pre\": {\n            \"and\": [\n              \"pushing_cart\",\n              \"top_left_cart_bay\",\n              \"LEAVE_CART\"\n            ]\n          },\n          \"post\": \"cartAt(0,1)\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"leave_cart_outside_bay\"\n    }\n  },\n  {\n    \"id\": \"exit_without_cart\",\n    \"text\": \"The shopper must leave the store as a pedestrian and not through the exit while still pushing the cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"exit_cell\": \"at(9,5)\",\n        \"pushing_cart\": \"hasCart\",\n        \"pedestrian_after_return\": {\n          \"and\": [\n            {\n              \"not\": \"hasCart\"\n            },\n            \"cartAt(0,1)\"\n          ]\n        }\n      },\n      \"events\": {\n        \"exit_with_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"exit_cell\",\n              \"pushing_cart\",\n              \"EXIT\"\n            ]\n          },\n          \"post\": null\n        },\n        \"pedestrian_exit\": {\n          \"pre\": {\n            \"and\": [\n              \"exit_cell\",\n              \"pedestrian_after_return\",\n              \"EXIT\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"exit_with_cart\"\n    }\n  },\n  {\n    \"id\": \"no_shopping_after_cart_return\",\n    \"text\": \"Once the cart has been parked in the return bay, the shopper should not interact with store objects again before exiting.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"cart_returned\": \"cartAt(0,1)\",\n        \"without_cart\": {\n          \"not\": \"hasCart\"\n        },\n        \"post_return_pedestrian_phase\": {\n          \"and\": [\n            \"cart_returned\",\n            \"without_cart\"\n          ]\n        }\n      },\n      \"events\": {\n        \"post_return_interaction\": {\n          \"pre\": {\n            \"and\": [\n              \"post_return_pedestrian_phase\",\n              \"INTERACT\"\n            ]\n          },\n          \"post\": null\n        },\n        \"post_return_exit\": {\n          \"pre\": {\n            \"and\": [\n              \"post_return_pedestrian_phase\",\n              \"EXIT\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"post_return_interaction\"\n    }\n  },\n  {\n    \"id\": \"cart_refined_no_east_from_sensitive_cells\",\n    \"text\": \"The apparent no-east rule applies only when pushing the cart: carts should not be driven east from the far-right shelf cell, the left-middle shelf cell, or the return bay.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"pushing_cart\": \"hasCart\",\n        \"far_right_shelf_cell\": \"at(6,4)\",\n        \"left_middle_shelf_cell\": \"at(1,3)\",\n        \"top_left_return_bay\": \"at(0,1)\",\n        \"cart_sensitive_east_cell\": {\n          \"or\": [\n            \"far_right_shelf_cell\",\n            \"left_middle_shelf_cell\",\n            \"top_left_return_bay\"\n          ]\n        }\n      },\n      \"events\": {\n        \"east_with_cart_from_sensitive_cell\": {\n          \"pre\": {\n            \"and\": [\n              \"pushing_cart\",\n              \"cart_sensitive_east_cell\",\n              \"E\"\n            ]\n          },\n          \"post\": null\n        },\n        \"east_without_cart_from_sensitive_cell\": {\n          \"pre\": {\n            \"and\": [\n              {\n                \"not\": \"pushing_cart\"\n              },\n              \"cart_sensitive_east_cell\",\n              \"E\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"east_with_cart_from_sensitive_cell\"\n    }\n  }\n]",
+          "parsed": [
+            {
+              "id": "must_take_entrance_cart",
+              "text": "A shopper must collect the stationed cart at the entrance before doing the shopping trip.",
+              "abstraction": {
+                "state_properties": {
+                  "entrance_cart_station": {
+                    "and": [
+                      "at(1,5)",
+                      "cartAt(1,5)"
+                    ]
+                  },
+                  "pushing_cart": "hasCart"
+                },
+                "events": {
+                  "pickup_entrance_cart": {
+                    "pre": {
+                      "and": [
+                        "entrance_cart_station",
+                        "PICKUP_CART"
+                      ]
+                    },
+                    "post": "pushing_cart"
+                  }
+                }
+              },
+              "norm": {
+                "type": "obligation",
+                "trigger": "START",
+                "discharge": "pickup_entrance_cart"
+              }
+            },
+            {
+              "id": "items_must_be_loaded_into_cart",
+              "text": "Required items must be picked up only while the shopper is pushing the cart, not while shopping hands-free.",
+              "abstraction": {
+                "state_properties": {
+                  "pushing_cart": "hasCart",
+                  "hands_free_without_cart": {
+                    "and": [
+                      {
+                        "not": "hasCart"
+                      },
+                      {
+                        "not": "handFull"
+                      }
+                    ]
+                  }
+                },
+                "events": {
+                  "hand_pickup_attempt": {
+                    "pre": {
+                      "and": [
+                        {
+                          "not": "pushing_cart"
+                        },
+                        "PICKUP_ITEM"
+                      ]
+                    },
+                    "post": null
+                  },
+                  "cart_pickup_item": {
+                    "pre": {
+                      "and": [
+                        "pushing_cart",
+                        "PICKUP_ITEM"
+                      ]
+                    },
+                    "post": "pushing_cart"
+                  }
+                }
+              },
+              "norm": {
+                "type": "prohibition",
+                "condition": "hand_pickup_attempt"
+              }
+            },
+            {
+              "id": "no_loose_hand_carrying",
+              "text": "The shopper should not carry merchandise loose by hand anywhere in the store.",
+              "abstraction": {
+                "state_properties": {
+                  "loose_hand_carry": "handFull",
+                  "cart_possession": "hasCart",
+                  "item_not_secured_in_cart": {
+                    "and": [
+                      "handFull",
+                      {
+                        "not": "hasCart"
+                      }
+                    ]
+                  }
+                },
+                "events": {
+                  "becomes_hand_full": {
+                    "pre": {
+                      "not": "handFull"
+                    },
+                    "post": "handFull"
+                  }
+                }
+              },
+              "norm": {
+                "type": "prohibition",
+                "condition": "loose_hand_carry"
+              }
+            },
+            {
+              "id": "return_cart_to_top_left_bay",
+              "text": "After taking a cart, the shopper must return it to the top-left cart bay before the trip ends.",
+              "abstraction": {
+                "state_properties": {
+                  "top_left_cart_bay": "at(0,1)",
+                  "cart_parked_top_left": "cartAt(0,1)",
+                  "pushing_cart": "hasCart"
+                },
+                "events": {
+                  "pickup_entrance_cart": {
+                    "pre": {
+                      "and": [
+                        "at(1,5)",
+                        "cartAt(1,5)",
+                        "PICKUP_CART"
+                      ]
+                    },
+                    "post": "pushing_cart"
+                  },
+                  "return_cart_top_left": {
+                    "pre": {
+                      "and": [
+                        "top_left_cart_bay",
+                        "pushing_cart",
+                        "LEAVE_CART"
+                      ]
+                    },
+                    "post": "cart_parked_top_left"
+                  }
+                }
+              },
+              "norm": {
+                "type": "obligation",
+                "trigger": "pickup_entrance_cart",
+                "discharge": "return_cart_top_left"
+              }
+            },
+            {
+              "id": "cart_may_only_be_left_in_return_bay",
+              "text": "A cart may only be put down at the designated top-left return bay.",
+              "abstraction": {
+                "state_properties": {
+                  "top_left_cart_bay": "at(0,1)",
+                  "outside_return_bay": {
+                    "not": "top_left_cart_bay"
+                  },
+                  "pushing_cart": "hasCart"
+                },
+                "events": {
+                  "leave_cart_outside_bay": {
+                    "pre": {
+                      "and": [
+                        "pushing_cart",
+                        "outside_return_bay",
+                        "LEAVE_CART"
+                      ]
+                    },
+                    "post": null
+                  },
+                  "leave_cart_in_bay": {
+                    "pre": {
+                      "and": [
+                        "pushing_cart",
+                        "top_left_cart_bay",
+                        "LEAVE_CART"
+                      ]
+                    },
+                    "post": "cartAt(0,1)"
+                  }
+                }
+              },
+              "norm": {
+                "type": "prohibition",
+                "condition": "leave_cart_outside_bay"
+              }
+            },
+            {
+              "id": "exit_without_cart",
+              "text": "The shopper must leave the store as a pedestrian and not through the exit while still pushing the cart.",
+              "abstraction": {
+                "state_properties": {
+                  "exit_cell": "at(9,5)",
+                  "pushing_cart": "hasCart",
+                  "pedestrian_after_return": {
+                    "and": [
+                      {
+                        "not": "hasCart"
+                      },
+                      "cartAt(0,1)"
+                    ]
+                  }
+                },
+                "events": {
+                  "exit_with_cart": {
+                    "pre": {
+                      "and": [
+                        "exit_cell",
+                        "pushing_cart",
+                        "EXIT"
+                      ]
+                    },
+                    "post": null
+                  },
+                  "pedestrian_exit": {
+                    "pre": {
+                      "and": [
+                        "exit_cell",
+                        "pedestrian_after_return",
+                        "EXIT"
+                      ]
+                    },
+                    "post": null
+                  }
+                }
+              },
+              "norm": {
+                "type": "prohibition",
+                "condition": "exit_with_cart"
+              }
+            },
+            {
+              "id": "no_shopping_after_cart_return",
+              "text": "Once the cart has been parked in the return bay, the shopper should not interact with store objects again before exiting.",
+              "abstraction": {
+                "state_properties": {
+                  "cart_returned": "cartAt(0,1)",
+                  "without_cart": {
+                    "not": "hasCart"
+                  },
+                  "post_return_pedestrian_phase": {
+                    "and": [
+                      "cart_returned",
+                      "without_cart"
+                    ]
+                  }
+                },
+                "events": {
+                  "post_return_interaction": {
+                    "pre": {
+                      "and": [
+                        "post_return_pedestrian_phase",
+                        "INTERACT"
+                      ]
+                    },
+                    "post": null
+                  },
+                  "post_return_exit": {
+                    "pre": {
+                      "and": [
+                        "post_return_pedestrian_phase",
+                        "EXIT"
+                      ]
+                    },
+                    "post": null
+                  }
+                }
+              },
+              "norm": {
+                "type": "prohibition",
+                "condition": "post_return_interaction"
+              }
+            },
+            {
+              "id": "cart_refined_no_east_from_sensitive_cells",
+              "text": "The apparent no-east rule applies only when pushing the cart: carts should not be driven east from the far-right shelf cell, the left-middle shelf cell, or the return bay.",
+              "abstraction": {
+                "state_properties": {
+                  "pushing_cart": "hasCart",
+                  "far_right_shelf_cell": "at(6,4)",
+                  "left_middle_shelf_cell": "at(1,3)",
+                  "top_left_return_bay": "at(0,1)",
+                  "cart_sensitive_east_cell": {
+                    "or": [
+                      "far_right_shelf_cell",
+                      "left_middle_shelf_cell",
+                      "top_left_return_bay"
+                    ]
+                  }
+                },
+                "events": {
+                  "east_with_cart_from_sensitive_cell": {
+                    "pre": {
+                      "and": [
+                        "pushing_cart",
+                        "cart_sensitive_east_cell",
+                        "E"
+                      ]
+                    },
+                    "post": null
+                  },
+                  "east_without_cart_from_sensitive_cell": {
+                    "pre": {
+                      "and": [
+                        {
+                          "not": "pushing_cart"
+                        },
+                        "cart_sensitive_east_cell",
+                        "E"
+                      ]
+                    },
+                    "post": null
+                  }
+                }
+              },
+              "norm": {
+                "type": "prohibition",
+                "condition": "east_with_cart_from_sensitive_cell"
+              }
+            }
+          ],
+          "call": {
+            "cache_key": "5448e10cf1141f3b10a05ba5f217c131fbf541637579bd870232244aba7fa761",
+            "requested_model": "gpt-5.5",
+            "returned_model": "gpt-5.5-2026-04-23",
+            "response_id": "resp_00afdd763d017f90006ac6ce3119d087d18d0a8112172dee09",
+            "status": "completed",
+            "incomplete_details": null,
+            "usage": {
+              "input_tokens": 9066,
+              "input_tokens_details": {
+                "cached_tokens": 6912,
+                "cache_write_tokens": 0
+              },
+              "output_tokens": 5088,
+              "output_tokens_details": {
+                "reasoning_tokens": 3191
+              },
+              "total_tokens": 14154
+            },
+            "settings": {
+              "model": "gpt-5.5",
+              "temperature": null,
+              "reasoning_effort": null,
+              "max_output_tokens": null,
+              "api": "responses.create"
+            },
+            "replicate": "trig/cart/6",
+            "timestamp": "2026-10-07T18:57:39",
+            "latency_s": 50.26,
+            "retries": [],
+            "cache_hit": false
+          }
+        }
+      ],
+      "accepted": [
+        {
+          "id": "g1_must_take_entrance_cart",
+          "description": "[g1_must_take_entrance_cart] OBLIGED: after start, eventually pickup_entrance_cart (before exit)  where entrance_cart_station := (at(1,5) \u2227 cartAt(1,5)); pushing_cart := hasCart; pickup_entrance_cart := (entrance_cart_station \u2227 PICKUP_CART) \u00b7 pushing_cart",
+          "L_alpha": 8,
+          "L_norm": 3,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        },
+        {
+          "id": "g1_items_must_be_loaded_into_cart",
+          "description": "[g1_items_must_be_loaded_into_cart] FORBIDDEN: hand_pickup_attempt  where hands_free_without_cart := (\u00achasCart \u2227 \u00achandFull); pushing_cart := hasCart; cart_pickup_item := (pushing_cart \u2227 PICKUP_ITEM) \u00b7 pushing_cart; hand_pickup_attempt := (\u00acpushing_cart \u2227 PICKUP_ITEM)",
+          "L_alpha": 14,
+          "L_norm": 2,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        },
+        {
+          "id": "g1_no_loose_hand_carrying",
+          "description": "[g1_no_loose_hand_carrying] FORBIDDEN: loose_hand_carry  where cart_possession := hasCart; item_not_secured_in_cart := (handFull \u2227 \u00achasCart); loose_hand_carry := handFull; becomes_hand_full := \u00achandFull \u00b7 handFull",
+          "L_alpha": 9,
+          "L_norm": 2,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        },
+        {
+          "id": "g1_return_cart_to_top_left_bay",
+          "description": "[g1_return_cart_to_top_left_bay] OBLIGED: after pickup_entrance_cart, eventually return_cart_top_left (before exit)  where cart_parked_top_left := cartAt(0,1); pushing_cart := hasCart; top_left_cart_bay := at(0,1); pickup_entrance_cart := (at(1,5) \u2227 cartAt(1,5) \u2227 PICKUP_CART) \u00b7 pushing_cart; return_cart_top_left := (top_left_cart_bay \u2227 pushing_cart \u2227 LEAVE_CART) \u00b7 cart_parked_top_left",
+          "L_alpha": 13,
+          "L_norm": 3,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        },
+        {
+          "id": "g1_cart_may_only_be_left_in_return_bay",
+          "description": "[g1_cart_may_only_be_left_in_return_bay] FORBIDDEN: leave_cart_outside_bay  where outside_return_bay := \u00actop_left_cart_bay; pushing_cart := hasCart; top_left_cart_bay := at(0,1); leave_cart_in_bay := (pushing_cart \u2227 top_left_cart_bay \u2227 LEAVE_CART) \u00b7 cartAt(0,1); leave_cart_outside_bay := (pushing_cart \u2227 outside_return_bay \u2227 LEAVE_CART)",
+          "L_alpha": 13,
+          "L_norm": 2,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        },
+        {
+          "id": "g1_exit_without_cart",
+          "description": "[g1_exit_without_cart] FORBIDDEN: exit_with_cart  where exit_cell := at(9,5); pedestrian_after_return := (\u00achasCart \u2227 cartAt(0,1)); pushing_cart := hasCart; exit_with_cart := (exit_cell \u2227 pushing_cart \u2227 EXIT); pedestrian_exit := (exit_cell \u2227 pedestrian_after_return \u2227 EXIT)",
+          "L_alpha": 14,
+          "L_norm": 2,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        },
+        {
+          "id": "g1_no_shopping_after_cart_return",
+          "description": "[g1_no_shopping_after_cart_return] FORBIDDEN: post_return_interaction  where cart_returned := cartAt(0,1); post_return_pedestrian_phase := (cart_returned \u2227 without_cart); without_cart := \u00achasCart; post_return_exit := (post_return_pedestrian_phase \u2227 EXIT); post_return_interaction := (post_return_pedestrian_phase \u2227 INTERACT)",
+          "L_alpha": 12,
+          "L_norm": 2,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        },
+        {
+          "id": "g1_cart_refined_no_east_from_sensitive_cells",
+          "description": "[g1_cart_refined_no_east_from_sensitive_cells] FORBIDDEN: east_with_cart_from_sensitive_cell  where cart_sensitive_east_cell := (far_right_shelf_cell \u2228 left_middle_shelf_cell \u2228 top_left_return_bay); far_right_shelf_cell := at(6,4); left_middle_shelf_cell := at(1,3); pushing_cart := hasCart; top_left_return_bay := at(0,1); east_with_cart_from_sensitive_cell := (pushing_cart \u2227 cart_sensitive_east_cell \u2227 E); east_without_cart_from_sensitive_cell := (\u00acpushing_cart \u2227 cart_sensitive_east_cell \u2227 E)",
+          "L_alpha": 17,
+          "L_norm": 2,
+          "intended_equivalent": false,
+          "duplicate_of_existing": false
+        }
+      ],
+      "rejected": []
+    }
+  ]
+}

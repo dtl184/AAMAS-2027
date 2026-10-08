@@ -1,0 +1,48 @@
+{
+ "cache_key": "42c852c45854fc9cc9962be6af8990cbb7405969c87823865b7f75dae7b99f48",
+ "requested_model": "gpt-5.5",
+ "returned_model": "gpt-5.5-2026-04-23",
+ "response_id": "resp_0c094467ed1bed79006ac6d4eada5c87d1965348d7c6b09067",
+ "status": "completed",
+ "incomplete_details": null,
+ "usage": {
+  "input_tokens": 15065,
+  "input_tokens_details": {
+   "cached_tokens": 14080,
+   "cache_write_tokens": 0
+  },
+  "output_tokens": 5181,
+  "output_tokens_details": {
+   "reasoning_tokens": 3624
+  },
+  "total_tokens": 20246
+ },
+ "settings": {
+  "model": "gpt-5.5",
+  "temperature": null,
+  "reasoning_effort": null,
+  "max_output_tokens": null,
+  "api": "responses.create"
+ },
+ "replicate": "trig/aisle/6",
+ "timestamp": "2026-10-07T19:26:25",
+ "latency_s": 54.88,
+ "retries": [
+  {
+   "attempt": 0,
+   "error": "RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
+   "at": "2026-10-07T19:24:54"
+  },
+  {
+   "attempt": 1,
+   "error": "RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
+   "at": "2026-10-07T19:25:00"
+  },
+  {
+   "attempt": 2,
+   "error": "RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
+   "at": "2026-10-07T19:25:10"
+  }
+ ],
+ "output_text": "[\n  {\n    \"id\": \"no_carts_in_single_file_aisles\",\n    \"text\": \"Shopping carts are forbidden in single-file shelf aisles.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"singleFileAisle\": {\n          \"and\": [\n            \"adjShelf\",\n            {\n              \"le\": [\n                \"freeWidthH\",\n                1\n              ]\n            }\n          ]\n        }\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"hasCart\",\n          \"singleFileAisle\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"no_cart_entry_into_single_file\",\n    \"text\": \"Agents must not move a cart into a single-file shelf aisle.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"singleFileAisle\": {\n          \"and\": [\n            \"adjShelf\",\n            {\n              \"le\": [\n                \"freeWidthH\",\n                1\n              ]\n            }\n          ]\n        }\n      },\n      \"events\": {\n        \"enterSingleFileWithCart\": {\n          \"pre\": {\n            \"and\": [\n              \"hasCart\",\n              \"MOVE\"\n            ]\n          },\n          \"post\": \"singleFileAisle\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"enterSingleFileWithCart\"\n    }\n  },\n  {\n    \"id\": \"park_before_narrow_aisle\",\n    \"text\": \"At the mouth of a narrow shelf aisle, an agent with a cart must not push the cart north into the aisle.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"leftAisleMouth\": \"at(3,3)\",\n        \"middleAisleMouth\": \"at(6,3)\",\n        \"narrowAisleMouth\": {\n          \"or\": [\n            \"leftAisleMouth\",\n            \"middleAisleMouth\"\n          ]\n        }\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"narrowAisleMouth\",\n          \"hasCart\",\n          \"N\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"retrieve_parked_cart\",\n    \"text\": \"When an agent parks a cart to enter a narrow aisle, they are obliged to retrieve it before leaving.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"leftAisleMouth\": \"at(3,3)\",\n        \"middleAisleMouth\": \"at(6,3)\",\n        \"narrowAisleMouth\": {\n          \"or\": [\n            \"leftAisleMouth\",\n            \"middleAisleMouth\"\n          ]\n        }\n      },\n      \"events\": {\n        \"parkCartAtMouth\": {\n          \"pre\": {\n            \"and\": [\n              \"narrowAisleMouth\",\n              \"hasCart\",\n              \"INTERACT\"\n            ]\n          },\n          \"post\": {\n            \"not\": \"hasCart\"\n          }\n        },\n        \"retrieveCartAtMouth\": {\n          \"pre\": {\n            \"and\": [\n              \"narrowAisleMouth\",\n              {\n                \"not\": \"hasCart\"\n              },\n              \"INTERACT\"\n            ]\n          },\n          \"post\": \"hasCart\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"parkCartAtMouth\",\n      \"discharge\": \"retrieveCartAtMouth\"\n    }\n  },\n  {\n    \"id\": \"no_cartless_wandering\",\n    \"text\": \"Except at the entrance/cart bay or while using a single-file shelf aisle, agents should not wander around the store without their cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"entranceOrCartBay\": {\n          \"or\": [\n            \"at(0,7)\",\n            \"at(1,7)\"\n          ]\n        },\n        \"singleFileAisle\": {\n          \"and\": [\n            \"adjShelf\",\n            {\n              \"le\": [\n                \"freeWidthH\",\n                1\n              ]\n            }\n          ]\n        },\n        \"narrowAisleMouth\": {\n          \"or\": [\n            \"at(3,3)\",\n            \"at(6,3)\"\n          ]\n        },\n        \"permittedCartlessArea\": {\n          \"or\": [\n            \"entranceOrCartBay\",\n            \"singleFileAisle\",\n            \"narrowAisleMouth\"\n          ]\n        }\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          {\n            \"not\": \"hasCart\"\n          },\n          {\n            \"not\": \"permittedCartlessArea\"\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"cart_required_for_wide_shelf_service\",\n    \"text\": \"Shelf interactions from ordinary wide aisles must be done with a cart, while hand-carrying is allowed only inside single-file shelf aisles.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"singleFileAisle\": {\n          \"and\": [\n            \"adjShelf\",\n            {\n              \"le\": [\n                \"freeWidthH\",\n                1\n              ]\n            }\n          ]\n        },\n        \"wideShelfServicePoint\": {\n          \"and\": [\n            \"adjShelf\",\n            {\n              \"not\": \"singleFileAisle\"\n            }\n          ]\n        }\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"wideShelfServicePoint\",\n          \"INTERACT\",\n          {\n            \"not\": \"hasCart\"\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"cart_traffic_one_way_no_west\",\n    \"text\": \"When pushing a cart, agents must follow one-way circulation and never travel west.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"pushingCart\": \"hasCart\"\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"pushingCart\",\n          \"W\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"take_cart_before_leaving_bay\",\n    \"text\": \"After reaching the cart bay, agents are forbidden to leave it without taking a cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"cartBay\": \"at(1,7)\"\n      },\n      \"events\": {\n        \"leaveCartBayWithoutCart\": {\n          \"pre\": {\n            \"and\": [\n              \"cartBay\",\n              {\n                \"not\": \"hasCart\"\n              },\n              \"MOVE\"\n            ]\n          },\n          \"post\": {\n            \"not\": \"hasCart\"\n          }\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"leaveCartBayWithoutCart\"\n    }\n  }\n]"
+}

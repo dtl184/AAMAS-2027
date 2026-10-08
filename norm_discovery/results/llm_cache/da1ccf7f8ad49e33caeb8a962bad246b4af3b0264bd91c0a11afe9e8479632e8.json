@@ -1,0 +1,32 @@
+{
+ "cache_key": "da1ccf7f8ad49e33caeb8a962bad246b4af3b0264bd91c0a11afe9e8479632e8",
+ "requested_model": "gpt-5.5",
+ "returned_model": "gpt-5.5-2026-04-23",
+ "response_id": "resp_0b454ac21049f4b6006ac6cf8ebd4887d1ae647fdb3818097b",
+ "status": "completed",
+ "incomplete_details": null,
+ "usage": {
+  "input_tokens": 3383,
+  "input_tokens_details": {
+   "cached_tokens": 0,
+   "cache_write_tokens": 0
+  },
+  "output_tokens": 4285,
+  "output_tokens_details": {
+   "reasoning_tokens": 2981
+  },
+  "total_tokens": 7668
+ },
+ "settings": {
+  "model": "gpt-5.5",
+  "temperature": null,
+  "reasoning_effort": null,
+  "max_output_tokens": null,
+  "api": "responses.create"
+ },
+ "replicate": "trig/cart/9",
+ "timestamp": "2026-10-07T19:03:19",
+ "latency_s": 40.91,
+ "retries": [],
+ "output_text": "[\n  {\n    \"id\": \"must_take_entrance_cart\",\n    \"text\": \"A shopper is obliged to take the cart from the entrance cart station before leaving.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"at_entrance_cart_station\": {\n          \"and\": [\n            \"at(1,5)\",\n            \"cartAt(1,5)\"\n          ]\n        }\n      },\n      \"events\": {\n        \"take_entrance_cart\": {\n          \"pre\": {\n            \"and\": [\n              \"at_entrance_cart_station\",\n              \"PICKUP_CART\"\n            ]\n          },\n          \"post\": \"hasCart\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"START\",\n      \"discharge\": \"take_entrance_cart\"\n    }\n  },\n  {\n    \"id\": \"pickup_cart_only_at_entrance\",\n    \"text\": \"A shopper is prohibited from picking up a cart anywhere except the entrance cart station.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"at_entrance_cart_station\": {\n          \"and\": [\n            \"at(1,5)\",\n            \"cartAt(1,5)\"\n          ]\n        }\n      },\n      \"events\": {\n        \"cart_pickup\": {\n          \"pre\": \"PICKUP_CART\",\n          \"post\": \"hasCart\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"PICKUP_CART\",\n          {\n            \"not\": \"at_entrance_cart_station\"\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"items_require_cart\",\n    \"text\": \"A shopper is prohibited from taking shelf items unless they are currently pushing the cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"pushing_cart\": \"hasCart\"\n      },\n      \"events\": {\n        \"take_shelf_item\": {\n          \"pre\": \"PICKUP_ITEM\",\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"PICKUP_ITEM\",\n          {\n            \"not\": \"pushing_cart\"\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"no_hand_carrying\",\n    \"text\": \"A shopper is prohibited from carrying merchandise by hand rather than using the cart.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"carrying_by_hand\": \"handFull\"\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"carrying_by_hand\"\n    }\n  },\n  {\n    \"id\": \"return_cart_nw_before_exit\",\n    \"text\": \"A shopper is obliged to return the cart to the northwest return bay before exiting.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"at_nw_return_bay\": \"at(0,1)\",\n        \"cart_parked_nw\": \"cartAt(0,1)\"\n      },\n      \"events\": {\n        \"return_cart_nw\": {\n          \"pre\": {\n            \"and\": [\n              \"at_nw_return_bay\",\n              \"hasCart\",\n              \"LEAVE_CART\"\n            ]\n          },\n          \"post\": \"cart_parked_nw\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"START\",\n      \"discharge\": \"return_cart_nw\"\n    }\n  },\n  {\n    \"id\": \"leave_cart_only_nw\",\n    \"text\": \"A shopper is prohibited from leaving the cart anywhere other than the northwest return bay.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"at_nw_return_bay\": \"at(0,1)\"\n      },\n      \"events\": {\n        \"leave_cart\": {\n          \"pre\": \"LEAVE_CART\",\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"LEAVE_CART\",\n          {\n            \"not\": \"at_nw_return_bay\"\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"exit_only_after_cart_return\",\n    \"text\": \"A shopper is prohibited from exiting unless they are on foot and the cart is parked in the northwest return bay.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"on_foot\": {\n          \"not\": \"hasCart\"\n        },\n        \"cart_parked_nw\": \"cartAt(0,1)\"\n      },\n      \"events\": {\n        \"exit_on_foot_after_return\": {\n          \"pre\": {\n            \"and\": [\n              \"EXIT\",\n              \"on_foot\",\n              \"cart_parked_nw\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"EXIT\",\n          {\n            \"or\": [\n              {\n                \"not\": \"on_foot\"\n              },\n              {\n                \"not\": \"cart_parked_nw\"\n              }\n            ]\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"no_interactions_after_cart_return\",\n    \"text\": \"Once the cart has been returned to the northwest bay, the shopper is prohibited from doing further store interactions before leaving.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"cart_parked_nw\": \"cartAt(0,1)\"\n      },\n      \"events\": {\n        \"post_return_interaction\": {\n          \"pre\": {\n            \"and\": [\n              \"cart_parked_nw\",\n              \"INTERACT\"\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"post_return_interaction\"\n    }\n  }\n]"
+}

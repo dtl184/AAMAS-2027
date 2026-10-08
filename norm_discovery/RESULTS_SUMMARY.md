@@ -727,3 +727,24 @@ unchanged; the original results are untouched.
 * Its intended-equivalent proposals are longer (minimum description length 17 vs 11), which disadvantages them
   further against the length-8 coordinate rule.
 * c3 still confounds layout diversity with demonstration count.
+
+---
+
+# Experiment 3 Description-Length Prior Ablation (`results/llm_layout_generalization_dl_ablation/`)
+
+* Same saved GPT-5.5 proposals and candidate sets (no API calls); only the prior's coding changes: nodes (at(x,y) = 1)
+  vs tokens (at(x,y) = 3).
+* Node coding reproduces Experiment 3 exactly, and the likelihoods are identical under both codings.
+
+| | C2 orig. nodes | C2 orig. tokens | C2 CF nodes | C2 CF tokens | C3 (both guidance, both codings) |
+|---|---|---|---|---|---|
+| Correct MAP | 0/10 | 1/10 | 0/10 | 0/10 | 5/10 |
+| Spurious coordinate MAP | 10/10 | 4/10 | 10/10 | 7/10 | 0/10 |
+| Mean P(intended) | 0.08 | 0.20 | 0.05 | 0.15 | 0.24–0.32 |
+| L3 acc. / F1 | 0.50 / 0.00 | 0.65 / 0.43 | 0.50 / 0.00 | 0.54 / 0.16 | 0.90 / 0.92 |
+
+* With one layout, the likelihood difference between the correct norm and the coordinate rule is only +0.005 nats, so
+  the prior decides.
+* Token coding shifts the odds by +1.6 nats. That reverses the ranking only for correct norms of length ≤ 15 (2 of 12
+  comparisons).
+* Freed runs mostly select other, sometimes over-general, relational rules.

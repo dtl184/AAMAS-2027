@@ -681,3 +681,27 @@ aisle 15.7 → 1.0. Under behavioural noise w is unchanged (cart 22.4, aisle 15.
 * Deterministic-proposal ablation: Part II, Section 2 (`results/deterministic_proposals/noise_robustness/`).
 * Incomplete / not run: the live GPT-5.5 noise experiment (Part I, I.3); the trigger-comparison labels and runs
   stages, so no trigger was formally selected.
+
+---
+
+# Layout-Independent Norm Proposal (actual GPT-5.5; `results/llm_layout_generalization/`)
+
+Aisle domain; three store layouts (L1 training, L2 second training layout, L3 test layout never shown to the LLM).
+10 GPT-5.5 calls per condition: c1 = the existing prompt (cached); c2 and c3 = 20 new calls, all
+`gpt-5.5-2026-04-23`. Layout-specific coordinate competitors were in every candidate set. Full design, prompts and
+caveats are in that directory's `README.md`.
+
+| | single layout | + generalisation guidance | two layouts + guidance |
+|---|---|---|---|
+| Proposals using coordinates | 17% | 0% | 0% |
+| Proposal success (equivalent on all layouts) | 0/10 | 6/10 | 6/10 |
+| Selection success (Bayesian MAP) | 0/10 | 0/10 | 5/10 |
+| MAP is a spurious coordinate rule | 9/10 | 10/10 | 0/10 |
+| L1 held-out acc. (unseen aisle) | 0.73 (0.46) | 0.70 (0.40) | 1.00 (1.00) |
+| L3 test-layout acc. / F1 | 0.52 / 0.06 | 0.50 / 0.00 | 0.90 / 0.92 |
+
+* Guidance improves *proposal*: coordinate rules disappear and layout-independent norms appear.
+* With one layout, *selection* still favours the cheaper coordinate rule.
+* A second layout makes both selection and generalisation work. Its remaining errors are relational but over-general
+  definitions ("single-file next to a shelf").
+* Caveat: c3 adds both a layout and three demonstrations, so the two effects are not separated.

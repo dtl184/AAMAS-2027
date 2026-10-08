@@ -748,3 +748,20 @@ unchanged; the original results are untouched.
 * Token coding shifts the odds by +1.6 nats. That reverses the ranking only for correct norms of length ≤ 15 (2 of 12
   comparisons).
 * Freed runs mostly select other, sometimes over-general, relational rules.
+
+---
+
+# Refinement-Trigger AUROC (actual GPT-5.5 labels; `results/gpt55/refinement_trigger_comparison/auroc/`)
+
+* **Labels completed by rerunning only the 72 failed opportunities.** These were all aisle 20-demo opportunities;
+  all 72 succeeded. The 308 original successes were preserved byte-for-byte, and `labels.jsonl` is unchanged. The
+  merged file is `labels_complete.jsonl` (380 opportunities, 0 errors).
+* **Reportable result (cart, 20-demo, 142 useful / 38 not useful): no statistic beats chance.** AUROC (value form):
+  raw 0.55, length-normalised 0.54, task-adjusted 0.60, norm-relative 0.61. Margin form: 0.49–0.52. Every 95% CI
+  includes 0.5.
+* **Not reportable:**
+  * aisle (useful at 177/180 opportunities; only 3 negatives);
+  * the 3-demo protocol (n = 10 per domain);
+  * the cross-domain pooled AUROC (confounded by domain base rates).
+* **Implication:** preferring task-adjusted or norm-relative over raw is justified by length/inefficiency robustness,
+  not by better detection of useful refinement opportunities.

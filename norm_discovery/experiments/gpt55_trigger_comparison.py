@@ -224,6 +224,49 @@ def _jobs_runs(cfg):
             for c in configs()]
 
 
+def labels_resume(cfg):
+    """Rerun ONLY the label opportunities that failed (or are missing) in labels.jsonl.
+
+    labels.jsonl is never modified.  Outputs:
+      labels_resumed.jsonl   new records for the previously failed/missing keys
+      labels_complete.jsonl  every successful line of labels.jsonl copied verbatim (byte-identical), followed by the
+                             resumed records (successful or still failed)
+    Key = (domain, protocol, run_index, t)."""
+    path = os.path.join(rdir(), "labels.jsonl")
+    with open(path) as f:
+        lines = [l for l in f if l.strip()]
+    ok_lines, done = [], set()
+    for l in lines:
+        r = json.loads(l)
+        if not r.get("error") and not r.get("miss"):
+            ok_lines.append(l if l.endswith("\n") else l + "\n")
+            done.add((r["domain"], r["protocol"], r["run_index"], r["t"]))
+    todo = [j for j in _jobs_labels(cfg) if (j[1], j[2], j[3], j[4]) not in done]
+    print(json.dumps({"existing_records": len(lines), "successful_preserved": len(ok_lines), "to_rerun": len(todo),
+                      "to_rerun_by_domain_protocol": {f"{a}/{b}": n for (a, b), n in collections.Counter((j[1], j[2]) for j in todo).items()}}))
+    if cfg.get("dry"):
+        res = pmap(_label_job, todo, cfg["gpt_workers"])
+        print(json.dumps({"new_api_calls_needed": sum(x.get("miss", 0) for x in res)}))
+        return
+    t0 = time.time()
+    res = pmap(_label_job, todo, cfg["gpt_workers"])
+    write_jsonl(os.path.join(rdir(), "labels_resumed.jsonl"), res)
+    with open(os.path.join(rdir(), "labels_complete.jsonl"), "w") as f:
+        f.writelines(ok_lines)
+        for r in res:
+            f.write(json.dumps(r, default=str) + "\n")
+    usage = {"rerun": len(res), "succeeded": sum(not x.get("error") for x in res),
+             "still_failed": sum(bool(x.get("error")) for x in res),
+             "fresh_calls": sum(x.get("n_fresh", 0) for x in res),
+             "input_tokens": sum(x.get("input_tokens", 0) for x in res),
+             "output_tokens": sum(x.get("output_tokens", 0) for x in res),
+             "models": sorted({m for x in res for m in x.get("models", [])}),
+             "error_examples": sorted({x["error"][:200] for x in res if x.get("error")})[:5],
+             "runtime_s": round(time.time() - t0)}
+    write_json(os.path.join(rdir(), "labels_resumed_api_usage.json"), usage)
+    print(json.dumps(usage, indent=1))
+
+
 def stage(cfg, name, fn, jobs):
     t0 = time.time()
     res = pmap(fn, jobs, cfg["gpt_workers"])
@@ -524,22 +567,27 @@ def figures(paths, sweep, summ, runs):
 
 
 def main():
-    stages = ("paths", "labels", "runs", "analyze")
+    stages = ("paths", "labels", "labels-resume", "runs", "analyze", "auroc")
     if len(sys.argv) < 2 or sys.argv[1] not in stages:
         sys.exit(f"usage: python -m experiments.gpt55_trigger_comparison {{{','.join(stages)}}} [--set dry=true]")
     st = sys.argv.pop(1)
     DEFAULTS.update({"gpt_workers": 8, "dry": False})
     cfg = parse_args(f"trigger comparison: {st}")
     cfg["provider"] = "openai"
-    if st != "analyze" and not cfg["dry"] and not os.environ.get("OPENAI_API_KEY"):
+    if st not in ("analyze", "auroc") and not cfg["dry"] and not os.environ.get("OPENAI_API_KEY"):
         sys.exit("OPENAI_API_KEY is not set: run `source ~/.bashrc` first (no fallback provider).")
-    if not cfg["dry"] and st != "analyze":
+    if not cfg["dry"] and st not in ("analyze", "auroc"):
         write_json(os.path.join(rdir(), f"metadata_{st}.json"), run_metadata(f"{NAME}_{st}", cfg))
     t0 = time.time()
     if st == "paths":
         stage(cfg, "paths", _path_job, _jobs_paths(cfg))
     elif st == "labels":
         stage(cfg, "labels", _label_job, _jobs_labels(cfg))
+    elif st == "labels-resume":
+        labels_resume(cfg)
+    elif st == "auroc":
+        from experiments.trigger_auroc import main as auroc_main
+        auroc_main(cfg)
     elif st == "runs":
         stage(cfg, "runs", _run_job, _jobs_runs(cfg))
     else:

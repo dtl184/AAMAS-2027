@@ -52,10 +52,13 @@ class OpenAICompletion:
                  reasoning_effort: Optional[str] = None, max_output_tokens: Optional[int] = None,
                  cache_dir: Optional[str] = None, replicate: object = 0, max_retries: int = 3,
                  timeout: float = 600.0, cache_only: bool = False):
-        from openai import OpenAI  # imported lazily so the deterministic code path never needs the SDK
-        if not os.environ.get("OPENAI_API_KEY"):
-            raise LLMCallError("OPENAI_API_KEY is not set (run `source ~/.bashrc` first)")
-        self.client = OpenAI(timeout=timeout, max_retries=0)   # retries are handled (and logged) here
+        if cache_only:
+            self.client = None          # dry runs read the response cache only; no client, no key needed
+        else:
+            from openai import OpenAI  # imported lazily so the deterministic code path never needs the SDK
+            if not os.environ.get("OPENAI_API_KEY"):
+                raise LLMCallError("OPENAI_API_KEY is not set (run `source ~/.bashrc` first)")
+            self.client = OpenAI(timeout=timeout, max_retries=0)   # retries are handled (and logged) here
         self.model = model
         self.temperature = temperature
         self.reasoning_effort = reasoning_effort

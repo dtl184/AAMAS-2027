@@ -705,3 +705,25 @@ caveats are in that directory's `README.md`.
 * A second layout makes both selection and generalisation work. Its remaining errors are relational but over-general
   definitions ("single-file next to a shelf").
 * Caveat: c3 adds both a layout and three demonstrations, so the two effects are not separated.
+
+---
+
+# Layout-Independent Norm Proposal: Counterfactual-Guidance Variant (actual GPT-5.5; `results/llm_layout_generalization_counterfactual/`)
+
+Same as the previous section, except that the c2/c3 guidance paragraph is replaced by counterfactual-environment
+guidance. Verified to be the only prompt difference. 20 new calls (`gpt-5.5-2026-04-23`, no errors); c1 cached and
+unchanged; the original results are untouched.
+
+| | c2 previous | c2 counterfactual | c3 previous | c3 counterfactual |
+|---|---|---|---|---|
+| Intended-equivalent proposal | 6/10 | 6/10 | 6/10 | 7/10 |
+| MAP selection of intended norm | 0/10 | 0/10 | 5/10 | 5/10 |
+| MAP is spurious coordinate rule | 10/10 | 10/10 | 0/10 | 0/10 |
+| L3 acc. / F1 | 0.50 / 0.00 | 0.50 / 0.00 | 0.90 / 0.92 | 0.90 / 0.92 |
+| Runs with over-broad relational MAP (L3 false positives) | 0/10 | 0/10 | 5/10 | 5/10 |
+
+* Counterfactual prompting did not measurably improve proposal, selection or generalisation.
+* c2 successes fall on different runs than before (2 shared, 4 + 4 unshared).
+* Its intended-equivalent proposals are longer (minimum description length 17 vs 11), which disadvantages them
+  further against the length-8 coordinate rule.
+* c3 still confounds layout diversity with demonstration count.

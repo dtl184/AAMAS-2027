@@ -1,0 +1,1039 @@
+{
+  "condition": "c2",
+  "run_index": 5,
+  "error": null,
+  "proposals": [
+    {
+      "id": "g0_no_cart_in_single_file_shelf_aisle",
+      "text": "Customers are prohibited from taking a cart into a single-file aisle bounded by shelves on both sides.",
+      "justification": "This uses relational shelf adjacency and aisle width rather than coordinates, so it applies to any rearranged narrow shelf aisle while allowing carts in wider or open areas.",
+      "abstraction": {
+        "state_properties": {
+          "narrowVerticalShelfAisle": {
+            "and": [
+              "adjShelf",
+              "shelfE",
+              "shelfW",
+              {
+                "le": [
+                  "freeWidthH",
+                  1
+                ]
+              }
+            ]
+          },
+          "narrowHorizontalShelfAisle": {
+            "and": [
+              "adjShelf",
+              "shelfN",
+              "shelfS",
+              {
+                "le": [
+                  "freeWidthV",
+                  1
+                ]
+              }
+            ]
+          },
+          "singleFileShelfAisle": {
+            "or": [
+              "narrowVerticalShelfAisle",
+              "narrowHorizontalShelfAisle"
+            ]
+          }
+        },
+        "events": {}
+      },
+      "norm": {
+        "type": "prohibition",
+        "condition": {
+          "and": [
+            "hasCart",
+            "singleFileShelfAisle"
+          ]
+        }
+      },
+      "level": 1,
+      "template": "llm_refinement"
+    },
+    {
+      "id": "g0_do_not_enter_single_file_aisle_with_cart",
+      "text": "Customers are prohibited from entering a single-file shelf aisle while still holding or pushing a cart.",
+      "justification": "The norm is about the transition into a constrained shelf aisle, not about a particular aisle location, so it generalizes to rotated or relocated aisles.",
+      "abstraction": {
+        "state_properties": {
+          "narrowVerticalShelfAisle": {
+            "and": [
+              "adjShelf",
+              "shelfE",
+              "shelfW",
+              {
+                "le": [
+                  "freeWidthH",
+                  1
+                ]
+              }
+            ]
+          },
+          "narrowHorizontalShelfAisle": {
+            "and": [
+              "adjShelf",
+              "shelfN",
+              "shelfS",
+              {
+                "le": [
+                  "freeWidthV",
+                  1
+                ]
+              }
+            ]
+          },
+          "singleFileShelfAisle": {
+            "or": [
+              "narrowVerticalShelfAisle",
+              "narrowHorizontalShelfAisle"
+            ]
+          }
+        },
+        "events": {
+          "enterSingleFileShelfAisleWithCart": {
+            "pre": {
+              "and": [
+                "MOVE",
+                "hasCart"
+              ]
+            },
+            "post": "singleFileShelfAisle"
+          }
+        }
+      },
+      "norm": {
+        "type": "prohibition",
+        "condition": "enterSingleFileShelfAisleWithCart"
+      },
+      "level": 1,
+      "template": "llm_refinement"
+    },
+    {
+      "id": "g0_no_shelf_service_with_cart_in_single_file_aisle",
+      "text": "Customers are prohibited from interacting with shelf items while holding a cart in a single-file shelf aisle.",
+      "justification": "The rule captures the observed distinction between open shelf service with a cart and constrained-aisle shelf service without a cart using geometry rather than fixed item coordinates.",
+      "abstraction": {
+        "state_properties": {
+          "narrowVerticalShelfAisle": {
+            "and": [
+              "adjShelf",
+              "shelfE",
+              "shelfW",
+              {
+                "le": [
+                  "freeWidthH",
+                  1
+                ]
+              }
+            ]
+          },
+          "narrowHorizontalShelfAisle": {
+            "and": [
+              "adjShelf",
+              "shelfN",
+              "shelfS",
+              {
+                "le": [
+                  "freeWidthV",
+                  1
+                ]
+              }
+            ]
+          },
+          "singleFileShelfAisle": {
+            "or": [
+              "narrowVerticalShelfAisle",
+              "narrowHorizontalShelfAisle"
+            ]
+          }
+        },
+        "events": {}
+      },
+      "norm": {
+        "type": "prohibition",
+        "condition": {
+          "and": [
+            "INTERACT",
+            "hasCart",
+            "singleFileShelfAisle"
+          ]
+        }
+      },
+      "level": 1,
+      "template": "llm_refinement"
+    },
+    {
+      "id": "g0_retrieve_cart_after_on_foot_single_file_service",
+      "text": "After servicing a shelf on foot in a single-file aisle, customers are obliged to retrieve a cart before the trip ends.",
+      "justification": "The trigger is the functional act of shelf service in a narrow aisle, so the rule remains meaningful if the aisle or item is moved elsewhere.",
+      "abstraction": {
+        "state_properties": {
+          "narrowVerticalShelfAisle": {
+            "and": [
+              "adjShelf",
+              "shelfE",
+              "shelfW",
+              {
+                "le": [
+                  "freeWidthH",
+                  1
+                ]
+              }
+            ]
+          },
+          "narrowHorizontalShelfAisle": {
+            "and": [
+              "adjShelf",
+              "shelfN",
+              "shelfS",
+              {
+                "le": [
+                  "freeWidthV",
+                  1
+                ]
+              }
+            ]
+          },
+          "singleFileShelfAisle": {
+            "or": [
+              "narrowVerticalShelfAisle",
+              "narrowHorizontalShelfAisle"
+            ]
+          }
+        },
+        "events": {
+          "singleFileShelfServiceOnFoot": {
+            "pre": {
+              "and": [
+                "INTERACT",
+                "singleFileShelfAisle",
+                {
+                  "not": "hasCart"
+                }
+              ]
+            },
+            "post": null
+          }
+        }
+      },
+      "norm": {
+        "type": "obligation",
+        "trigger": "singleFileShelfServiceOnFoot",
+        "discharge": "hasCart"
+      },
+      "level": 1,
+      "template": "llm_refinement"
+    },
+    {
+      "id": "g0_retrieve_any_released_cart",
+      "text": "Whenever a customer puts down a cart during the shopping trip, they are obliged to retrieve a cart before leaving.",
+      "justification": "This abstracts over the exact reason and place for parking the cart, expressing a general anti-abandonment norm that is independent of store layout.",
+      "abstraction": {
+        "state_properties": {},
+        "events": {
+          "cartReleased": {
+            "pre": {
+              "and": [
+                "INTERACT",
+                "hasCart"
+              ]
+            },
+            "post": {
+              "not": "hasCart"
+            }
+          }
+        }
+      },
+      "norm": {
+        "type": "obligation",
+        "trigger": "cartReleased",
+        "discharge": "hasCart"
+      },
+      "level": 1,
+      "template": "llm_refinement"
+    },
+    {
+      "id": "g0_must_take_cart_for_trip",
+      "text": "Customers are obliged to obtain a cart during the shopping trip before leaving the store.",
+      "justification": "The obligation refers only to possession of a cart during the trip, not to where the cart station happens to be located.",
+      "abstraction": {
+        "state_properties": {},
+        "events": {}
+      },
+      "norm": {
+        "type": "obligation",
+        "trigger": "START",
+        "discharge": "hasCart"
+      },
+      "level": 1,
+      "template": "llm_refinement"
+    },
+    {
+      "id": "g0_no_exit_without_cart",
+      "text": "Customers are prohibited from exiting the store without a cart.",
+      "justification": "The rule is tied to the exit action and cart possession rather than to any particular exit-cell coordinate or route through the store.",
+      "abstraction": {
+        "state_properties": {},
+        "events": {}
+      },
+      "norm": {
+        "type": "prohibition",
+        "condition": {
+          "and": [
+            "EXIT",
+            {
+              "not": "hasCart"
+            }
+          ]
+        }
+      },
+      "level": 1,
+      "template": "llm_refinement"
+    },
+    {
+      "id": "g0_do_not_park_cart_at_shelf_front",
+      "text": "Customers are prohibited from putting down a cart directly beside shelves where it could block access to merchandise.",
+      "justification": "The condition uses adjacency to shelves rather than absolute position, so it can apply to any shelf placement while permitting parking in open aisle-mouth areas.",
+      "abstraction": {
+        "state_properties": {
+          "shelfFront": "adjShelf"
+        },
+        "events": {
+          "cartReleasedAtShelfFront": {
+            "pre": {
+              "and": [
+                "INTERACT",
+                "hasCart",
+                "shelfFront"
+              ]
+            },
+            "post": {
+              "not": "hasCart"
+            }
+          }
+        }
+      },
+      "norm": {
+        "type": "prohibition",
+        "condition": "cartReleasedAtShelfFront"
+      },
+      "level": 1,
+      "template": "llm_refinement"
+    }
+  ],
+  "transcript": [
+    {
+      "index": 0,
+      "kind": "refinement",
+      "level": 1,
+      "n_demos_shown": 3,
+      "timestamp": "2026-10-08T15:20:53",
+      "model": "gpt-5.5",
+      "replicate": "genlayout_cf/c2/5",
+      "experiment": "llm_layout_generalization_counterfactual",
+      "condition": "c2",
+      "run_index": 5,
+      "prompt": "Agents in a supermarket gridworld must collect their required items and leave through the exit. Every action costs the same, so demonstrators prefer short trajectories -- unless an unknown social norm makes them behave otherwise. Your task is to propose candidate norms (obligations or prohibitions) that could explain the demonstrated behaviour.\nEach demonstration is listed step by step as  `k: {atoms true in the state} action`.\n\nAvailable atoms:\n- at(x,y) -- the agent is at cell (x,y); x = column (0 = left), y = row (0 = top); N decreases y, S increases y, E increases x, W decreases x\n- hasCart -- the agent is holding/pushing a shopping cart\n- actions N, S, E, W, MOVE (any of the four moves), INTERACT (any interaction with an object: the different kinds of interaction are NOT distinguished), EXIT (leave the store; always the last action)\n- free, adjShelf (some 4-neighbour of the agent's cell is a shelf), shelfN / shelfS / shelfE / shelfW (the neighbouring cell in that direction is a shelf); numeric features freeWidthH / freeWidthV (length of the horizontal / vertical run of free cells through the agent's cell), usable only inside comparisons such as {\"le\": [\"freeWidthH\", 2]}\n\nDemonstration 1 (required items: a1):\n  0: {at(0,7), freeWidthH=12, freeWidthV=8} E\n  1: {at(1,7), freeWidthH=12, freeWidthV=8} INTERACT\n  2: {at(1,7), hasCart, freeWidthH=12, freeWidthV=8} N\n  3: {at(1,6), hasCart, freeWidthH=12, freeWidthV=8} N\n  4: {at(1,5), hasCart, freeWidthH=6, freeWidthV=8} N\n  5: {at(1,4), hasCart, freeWidthH=12, freeWidthV=8} N\n  6: {at(1,3), hasCart, freeWidthH=12, freeWidthV=8} E\n  7: {at(2,3), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=5} E\n  8: {at(3,3), hasCart, freeWidthH=12, freeWidthV=8} INTERACT\n  9: {at(3,3), freeWidthH=12, freeWidthV=8} N\n 10: {at(3,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} N\n 11: {at(3,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} INTERACT\n 12: {at(3,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} S\n 13: {at(3,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} S\n 14: {at(3,3), freeWidthH=12, freeWidthV=8} INTERACT\n 15: {at(3,3), hasCart, freeWidthH=12, freeWidthV=8} S\n 16: {at(3,4), hasCart, freeWidthH=12, freeWidthV=8} S\n 17: {at(3,5), hasCart, freeWidthH=6, freeWidthV=8} S\n 18: {at(3,6), hasCart, freeWidthH=12, freeWidthV=8} S\n 19: {at(3,7), hasCart, freeWidthH=12, freeWidthV=8} E\n 20: {at(4,7), hasCart, freeWidthH=12, freeWidthV=5} E\n 21: {at(5,7), hasCart, freeWidthH=12, freeWidthV=5} E\n 22: {at(6,7), hasCart, freeWidthH=12, freeWidthV=2} E\n 23: {at(7,7), hasCart, freeWidthH=12, freeWidthV=5} E\n 24: {at(8,7), hasCart, freeWidthH=12, freeWidthV=5} E\n 25: {at(9,7), hasCart, freeWidthH=12, freeWidthV=2} E\n 26: {at(10,7), hasCart, freeWidthH=12, freeWidthV=5} E\n 27: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} EXIT\n 28: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} <terminal>\n\nDemonstration 2 (required items: a2):\n  0: {at(0,7), freeWidthH=12, freeWidthV=8} E\n  1: {at(1,7), freeWidthH=12, freeWidthV=8} INTERACT\n  2: {at(1,7), hasCart, freeWidthH=12, freeWidthV=8} N\n  3: {at(1,6), hasCart, freeWidthH=12, freeWidthV=8} N\n  4: {at(1,5), hasCart, freeWidthH=6, freeWidthV=8} N\n  5: {at(1,4), hasCart, freeWidthH=12, freeWidthV=8} N\n  6: {at(1,3), hasCart, freeWidthH=12, freeWidthV=8} E\n  7: {at(2,3), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=5} E\n  8: {at(3,3), hasCart, freeWidthH=12, freeWidthV=8} E\n  9: {at(4,3), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=5} E\n 10: {at(5,3), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=5} E\n 11: {at(6,3), hasCart, freeWidthH=12, freeWidthV=5} INTERACT\n 12: {at(6,3), freeWidthH=12, freeWidthV=5} N\n 13: {at(6,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} N\n 14: {at(6,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} INTERACT\n 15: {at(6,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} S\n 16: {at(6,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} S\n 17: {at(6,3), freeWidthH=12, freeWidthV=5} INTERACT\n 18: {at(6,3), hasCart, freeWidthH=12, freeWidthV=5} S\n 19: {at(6,4), hasCart, adjShelf, shelfS, freeWidthH=12, freeWidthV=5} E\n 20: {at(7,4), hasCart, freeWidthH=12, freeWidthV=5} S\n 21: {at(7,5), hasCart, adjShelf, shelfW, freeWidthH=2, freeWidthV=5} S\n 22: {at(7,6), hasCart, freeWidthH=12, freeWidthV=5} S\n 23: {at(7,7), hasCart, freeWidthH=12, freeWidthV=5} E\n 24: {at(8,7), hasCart, freeWidthH=12, freeWidthV=5} E\n 25: {at(9,7), hasCart, freeWidthH=12, freeWidthV=2} E\n 26: {at(10,7), hasCart, freeWidthH=12, freeWidthV=5} E\n 27: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} EXIT\n 28: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} <terminal>\n\nDemonstration 3 (required items: s1):\n  0: {at(0,7), freeWidthH=12, freeWidthV=8} E\n  1: {at(1,7), freeWidthH=12, freeWidthV=8} INTERACT\n  2: {at(1,7), hasCart, freeWidthH=12, freeWidthV=8} N\n  3: {at(1,6), hasCart, freeWidthH=12, freeWidthV=8} E\n  4: {at(2,6), hasCart, freeWidthH=12, freeWidthV=5} E\n  5: {at(3,6), hasCart, freeWidthH=12, freeWidthV=8} E\n  6: {at(4,6), hasCart, freeWidthH=12, freeWidthV=5} E\n  7: {at(5,6), hasCart, freeWidthH=12, freeWidthV=5} E\n  8: {at(6,6), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=2} INTERACT\n  9: {at(6,6), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=2} S\n 10: {at(6,7), hasCart, freeWidthH=12, freeWidthV=2} E\n 11: {at(7,7), hasCart, freeWidthH=12, freeWidthV=5} E\n 12: {at(8,7), hasCart, freeWidthH=12, freeWidthV=5} E\n 13: {at(9,7), hasCart, freeWidthH=12, freeWidthV=2} E\n 14: {at(10,7), hasCart, freeWidthH=12, freeWidthV=5} E\n 15: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} EXIT\n 16: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} <terminal>\n\nThe current hypotheses, expressed in a coarser representation, do not adequately explain the latest demonstration:\n- [g0_must_take_cart] OBLIGED: after start, eventually hasCart (before exit)\n- [g0_no_exit_without_cart] FORBIDDEN: (EXIT \u2227 \u00achasCart)\n- [g0_cart_required_at_exit] OBLIGED: after hasCart, eventually (EXIT \u2227 hasCart) (before exit)\n- [g0_no_cart_in_item_aisle] FORBIDDEN: (hasCart \u2227 (at(3,1) \u2228 at(3,2)))\n- [g0_no_item_interact_with_cart] FORBIDDEN: (INTERACT \u2227 at(3,1) \u2227 hasCart)\n- [g0_park_cart_before_north_aisle] FORBIDDEN: (N \u2227 at(3,3) \u2227 hasCart)\n- [g0_retrieve_cart_after_item] OBLIGED: after (INTERACT \u2227 at(3,1)), eventually hasCart (before exit)\n- [g0_cart_required_in_exit_corridor] FORBIDDEN: ((MOVE \u2228 EXIT) \u2227 \u00achasCart \u2227 (at(4,7) \u2228 at(5,7) \u2228 at(6,7) \u2228 at(7,7) \u2228 at(8,7) \u2228 at(9,7) \u2228 at(10,7) \u2228 at(11,7)))\n\nThe demonstrations are now shown in a lower-level representation that exposes distinctions hidden before (newly available: geometry). Identify the hidden distinctions and use them to define higher-level state properties and/or events (in \"abstraction\"), possibly hierarchically, and propose norms expressed over them. Norms may also use the primitive atoms directly.\nGeneralization across hypothetical environment configurations. The demonstrations were collected in particular store environments, but the underlying social norms should remain applicable when the physical environment changes. Before proposing each candidate norm, consider hypothetical variations: the store may have different dimensions, shelves and displays may be rearranged or rotated, objects and service stations may be placed in different locations, entrances and exits may move, and task routes may change. A location that serves one function in the observed environment might serve a different function elsewhere.\n\nDistinguish genuine behavioral norms from regularities that depend only on observed coordinates, object locations, geometric configurations, or task routes. For each proposed rule, mentally test whether it remains normatively meaningful under these changes. Prefer behavioral and relational concepts that are invariant to incidental layout differences, but also avoid overly broad definitions that could prohibit legitimate behavior in other configurations. Revise or reject candidates that fail these counterfactual tests.\n\nThese hypothetical environments are reasoning aids, not additional observations. Do not fabricate demonstrations from them. Every candidate must be consistent with the actual supplied demonstrations and executable using the available symbolic vocabulary. Include a brief justification explaining why each candidate should generalize.\nPropose 8 diverse candidate hypotheses.\n\nOutput format: return ONLY a JSON list (no prose, no code fences). Each element:\n{\"id\": short_name, \"text\": one-sentence natural-language statement of the norm,\n \"abstraction\": {\"state_properties\": {name: FORMULA, ...},\n                 \"events\": {name: {\"pre\": FORMULA, \"post\": FORMULA or null}, ...}},\n \"norm\": {\"type\": \"prohibition\", \"condition\": FORMULA}\n       | {\"type\": \"obligation\", \"trigger\": FORMULA or \"START\", \"discharge\": FORMULA}}\nFORMULA := atom | name of a property/event defined in this hypothesis | {\"not\": F} | {\"and\": [F, ...]}\n         | {\"or\": [F, ...]} | {\"le\"|\"lt\"|\"ge\"|\"gt\"|\"eq\": [numeric_feature, integer]}\nSemantics.  A trajectory is a sequence of steps (state s_k, action a_k).  A step's label contains the atoms true in\ns_k and the action a_k.  A state property is a formula over state atoms (no actions).  An event\n{\"pre\": P, \"post\": Q} occurs at step k when P holds for the label of step k and Q holds in the next state s_{k+1}\n(post may be null).  A prohibition counts one violation for every step whose label (including events occurring at\nthat step) satisfies the condition.  An obligation becomes pending at any step satisfying the trigger (\"START\" =\npending from the beginning) and is fulfilled by a later (or the same) step satisfying the discharge; it can be\ntriggered again; it is violated if it is still pending when the trajectory ends.",
+      "raw_response": "[\n  {\n    \"id\": \"no_cart_in_single_file_shelf_aisle\",\n    \"text\": \"Customers are prohibited from taking a cart into a single-file aisle bounded by shelves on both sides.\",\n    \"justification\": \"This uses relational shelf adjacency and aisle width rather than coordinates, so it applies to any rearranged narrow shelf aisle while allowing carts in wider or open areas.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"narrowVerticalShelfAisle\": {\n          \"and\": [\n            \"adjShelf\",\n            \"shelfE\",\n            \"shelfW\",\n            {\n              \"le\": [\n                \"freeWidthH\",\n                1\n              ]\n            }\n          ]\n        },\n        \"narrowHorizontalShelfAisle\": {\n          \"and\": [\n            \"adjShelf\",\n            \"shelfN\",\n            \"shelfS\",\n            {\n              \"le\": [\n                \"freeWidthV\",\n                1\n              ]\n            }\n          ]\n        },\n        \"singleFileShelfAisle\": {\n          \"or\": [\n            \"narrowVerticalShelfAisle\",\n            \"narrowHorizontalShelfAisle\"\n          ]\n        }\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"hasCart\",\n          \"singleFileShelfAisle\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"do_not_enter_single_file_aisle_with_cart\",\n    \"text\": \"Customers are prohibited from entering a single-file shelf aisle while still holding or pushing a cart.\",\n    \"justification\": \"The norm is about the transition into a constrained shelf aisle, not about a particular aisle location, so it generalizes to rotated or relocated aisles.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"narrowVerticalShelfAisle\": {\n          \"and\": [\n            \"adjShelf\",\n            \"shelfE\",\n            \"shelfW\",\n            {\n              \"le\": [\n                \"freeWidthH\",\n                1\n              ]\n            }\n          ]\n        },\n        \"narrowHorizontalShelfAisle\": {\n          \"and\": [\n            \"adjShelf\",\n            \"shelfN\",\n            \"shelfS\",\n            {\n              \"le\": [\n                \"freeWidthV\",\n                1\n              ]\n            }\n          ]\n        },\n        \"singleFileShelfAisle\": {\n          \"or\": [\n            \"narrowVerticalShelfAisle\",\n            \"narrowHorizontalShelfAisle\"\n          ]\n        }\n      },\n      \"events\": {\n        \"enterSingleFileShelfAisleWithCart\": {\n          \"pre\": {\n            \"and\": [\n              \"MOVE\",\n              \"hasCart\"\n            ]\n          },\n          \"post\": \"singleFileShelfAisle\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"enterSingleFileShelfAisleWithCart\"\n    }\n  },\n  {\n    \"id\": \"no_shelf_service_with_cart_in_single_file_aisle\",\n    \"text\": \"Customers are prohibited from interacting with shelf items while holding a cart in a single-file shelf aisle.\",\n    \"justification\": \"The rule captures the observed distinction between open shelf service with a cart and constrained-aisle shelf service without a cart using geometry rather than fixed item coordinates.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"narrowVerticalShelfAisle\": {\n          \"and\": [\n            \"adjShelf\",\n            \"shelfE\",\n            \"shelfW\",\n            {\n              \"le\": [\n                \"freeWidthH\",\n                1\n              ]\n            }\n          ]\n        },\n        \"narrowHorizontalShelfAisle\": {\n          \"and\": [\n            \"adjShelf\",\n            \"shelfN\",\n            \"shelfS\",\n            {\n              \"le\": [\n                \"freeWidthV\",\n                1\n              ]\n            }\n          ]\n        },\n        \"singleFileShelfAisle\": {\n          \"or\": [\n            \"narrowVerticalShelfAisle\",\n            \"narrowHorizontalShelfAisle\"\n          ]\n        }\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"INTERACT\",\n          \"hasCart\",\n          \"singleFileShelfAisle\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"retrieve_cart_after_on_foot_single_file_service\",\n    \"text\": \"After servicing a shelf on foot in a single-file aisle, customers are obliged to retrieve a cart before the trip ends.\",\n    \"justification\": \"The trigger is the functional act of shelf service in a narrow aisle, so the rule remains meaningful if the aisle or item is moved elsewhere.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"narrowVerticalShelfAisle\": {\n          \"and\": [\n            \"adjShelf\",\n            \"shelfE\",\n            \"shelfW\",\n            {\n              \"le\": [\n                \"freeWidthH\",\n                1\n              ]\n            }\n          ]\n        },\n        \"narrowHorizontalShelfAisle\": {\n          \"and\": [\n            \"adjShelf\",\n            \"shelfN\",\n            \"shelfS\",\n            {\n              \"le\": [\n                \"freeWidthV\",\n                1\n              ]\n            }\n          ]\n        },\n        \"singleFileShelfAisle\": {\n          \"or\": [\n            \"narrowVerticalShelfAisle\",\n            \"narrowHorizontalShelfAisle\"\n          ]\n        }\n      },\n      \"events\": {\n        \"singleFileShelfServiceOnFoot\": {\n          \"pre\": {\n            \"and\": [\n              \"INTERACT\",\n              \"singleFileShelfAisle\",\n              {\n                \"not\": \"hasCart\"\n              }\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"singleFileShelfServiceOnFoot\",\n      \"discharge\": \"hasCart\"\n    }\n  },\n  {\n    \"id\": \"retrieve_any_released_cart\",\n    \"text\": \"Whenever a customer puts down a cart during the shopping trip, they are obliged to retrieve a cart before leaving.\",\n    \"justification\": \"This abstracts over the exact reason and place for parking the cart, expressing a general anti-abandonment norm that is independent of store layout.\",\n    \"abstraction\": {\n      \"state_properties\": {},\n      \"events\": {\n        \"cartReleased\": {\n          \"pre\": {\n            \"and\": [\n              \"INTERACT\",\n              \"hasCart\"\n            ]\n          },\n          \"post\": {\n            \"not\": \"hasCart\"\n          }\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"cartReleased\",\n      \"discharge\": \"hasCart\"\n    }\n  },\n  {\n    \"id\": \"must_take_cart_for_trip\",\n    \"text\": \"Customers are obliged to obtain a cart during the shopping trip before leaving the store.\",\n    \"justification\": \"The obligation refers only to possession of a cart during the trip, not to where the cart station happens to be located.\",\n    \"abstraction\": {\n      \"state_properties\": {},\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"START\",\n      \"discharge\": \"hasCart\"\n    }\n  },\n  {\n    \"id\": \"no_exit_without_cart\",\n    \"text\": \"Customers are prohibited from exiting the store without a cart.\",\n    \"justification\": \"The rule is tied to the exit action and cart possession rather than to any particular exit-cell coordinate or route through the store.\",\n    \"abstraction\": {\n      \"state_properties\": {},\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"EXIT\",\n          {\n            \"not\": \"hasCart\"\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"do_not_park_cart_at_shelf_front\",\n    \"text\": \"Customers are prohibited from putting down a cart directly beside shelves where it could block access to merchandise.\",\n    \"justification\": \"The condition uses adjacency to shelves rather than absolute position, so it can apply to any shelf placement while permitting parking in open aisle-mouth areas.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"shelfFront\": \"adjShelf\"\n      },\n      \"events\": {\n        \"cartReleasedAtShelfFront\": {\n          \"pre\": {\n            \"and\": [\n              \"INTERACT\",\n              \"hasCart\",\n              \"shelfFront\"\n            ]\n          },\n          \"post\": {\n            \"not\": \"hasCart\"\n          }\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"cartReleasedAtShelfFront\"\n    }\n  }\n]",
+      "parsed": [
+        {
+          "id": "no_cart_in_single_file_shelf_aisle",
+          "text": "Customers are prohibited from taking a cart into a single-file aisle bounded by shelves on both sides.",
+          "justification": "This uses relational shelf adjacency and aisle width rather than coordinates, so it applies to any rearranged narrow shelf aisle while allowing carts in wider or open areas.",
+          "abstraction": {
+            "state_properties": {
+              "narrowVerticalShelfAisle": {
+                "and": [
+                  "adjShelf",
+                  "shelfE",
+                  "shelfW",
+                  {
+                    "le": [
+                      "freeWidthH",
+                      1
+                    ]
+                  }
+                ]
+              },
+              "narrowHorizontalShelfAisle": {
+                "and": [
+                  "adjShelf",
+                  "shelfN",
+                  "shelfS",
+                  {
+                    "le": [
+                      "freeWidthV",
+                      1
+                    ]
+                  }
+                ]
+              },
+              "singleFileShelfAisle": {
+                "or": [
+                  "narrowVerticalShelfAisle",
+                  "narrowHorizontalShelfAisle"
+                ]
+              }
+            },
+            "events": {}
+          },
+          "norm": {
+            "type": "prohibition",
+            "condition": {
+              "and": [
+                "hasCart",
+                "singleFileShelfAisle"
+              ]
+            }
+          }
+        },
+        {
+          "id": "do_not_enter_single_file_aisle_with_cart",
+          "text": "Customers are prohibited from entering a single-file shelf aisle while still holding or pushing a cart.",
+          "justification": "The norm is about the transition into a constrained shelf aisle, not about a particular aisle location, so it generalizes to rotated or relocated aisles.",
+          "abstraction": {
+            "state_properties": {
+              "narrowVerticalShelfAisle": {
+                "and": [
+                  "adjShelf",
+                  "shelfE",
+                  "shelfW",
+                  {
+                    "le": [
+                      "freeWidthH",
+                      1
+                    ]
+                  }
+                ]
+              },
+              "narrowHorizontalShelfAisle": {
+                "and": [
+                  "adjShelf",
+                  "shelfN",
+                  "shelfS",
+                  {
+                    "le": [
+                      "freeWidthV",
+                      1
+                    ]
+                  }
+                ]
+              },
+              "singleFileShelfAisle": {
+                "or": [
+                  "narrowVerticalShelfAisle",
+                  "narrowHorizontalShelfAisle"
+                ]
+              }
+            },
+            "events": {
+              "enterSingleFileShelfAisleWithCart": {
+                "pre": {
+                  "and": [
+                    "MOVE",
+                    "hasCart"
+                  ]
+                },
+                "post": "singleFileShelfAisle"
+              }
+            }
+          },
+          "norm": {
+            "type": "prohibition",
+            "condition": "enterSingleFileShelfAisleWithCart"
+          }
+        },
+        {
+          "id": "no_shelf_service_with_cart_in_single_file_aisle",
+          "text": "Customers are prohibited from interacting with shelf items while holding a cart in a single-file shelf aisle.",
+          "justification": "The rule captures the observed distinction between open shelf service with a cart and constrained-aisle shelf service without a cart using geometry rather than fixed item coordinates.",
+          "abstraction": {
+            "state_properties": {
+              "narrowVerticalShelfAisle": {
+                "and": [
+                  "adjShelf",
+                  "shelfE",
+                  "shelfW",
+                  {
+                    "le": [
+                      "freeWidthH",
+                      1
+                    ]
+                  }
+                ]
+              },
+              "narrowHorizontalShelfAisle": {
+                "and": [
+                  "adjShelf",
+                  "shelfN",
+                  "shelfS",
+                  {
+                    "le": [
+                      "freeWidthV",
+                      1
+                    ]
+                  }
+                ]
+              },
+              "singleFileShelfAisle": {
+                "or": [
+                  "narrowVerticalShelfAisle",
+                  "narrowHorizontalShelfAisle"
+                ]
+              }
+            },
+            "events": {}
+          },
+          "norm": {
+            "type": "prohibition",
+            "condition": {
+              "and": [
+                "INTERACT",
+                "hasCart",
+                "singleFileShelfAisle"
+              ]
+            }
+          }
+        },
+        {
+          "id": "retrieve_cart_after_on_foot_single_file_service",
+          "text": "After servicing a shelf on foot in a single-file aisle, customers are obliged to retrieve a cart before the trip ends.",
+          "justification": "The trigger is the functional act of shelf service in a narrow aisle, so the rule remains meaningful if the aisle or item is moved elsewhere.",
+          "abstraction": {
+            "state_properties": {
+              "narrowVerticalShelfAisle": {
+                "and": [
+                  "adjShelf",
+                  "shelfE",
+                  "shelfW",
+                  {
+                    "le": [
+                      "freeWidthH",
+                      1
+                    ]
+                  }
+                ]
+              },
+              "narrowHorizontalShelfAisle": {
+                "and": [
+                  "adjShelf",
+                  "shelfN",
+                  "shelfS",
+                  {
+                    "le": [
+                      "freeWidthV",
+                      1
+                    ]
+                  }
+                ]
+              },
+              "singleFileShelfAisle": {
+                "or": [
+                  "narrowVerticalShelfAisle",
+                  "narrowHorizontalShelfAisle"
+                ]
+              }
+            },
+            "events": {
+              "singleFileShelfServiceOnFoot": {
+                "pre": {
+                  "and": [
+                    "INTERACT",
+                    "singleFileShelfAisle",
+                    {
+                      "not": "hasCart"
+                    }
+                  ]
+                },
+                "post": null
+              }
+            }
+          },
+          "norm": {
+            "type": "obligation",
+            "trigger": "singleFileShelfServiceOnFoot",
+            "discharge": "hasCart"
+          }
+        },
+        {
+          "id": "retrieve_any_released_cart",
+          "text": "Whenever a customer puts down a cart during the shopping trip, they are obliged to retrieve a cart before leaving.",
+          "justification": "This abstracts over the exact reason and place for parking the cart, expressing a general anti-abandonment norm that is independent of store layout.",
+          "abstraction": {
+            "state_properties": {},
+            "events": {
+              "cartReleased": {
+                "pre": {
+                  "and": [
+                    "INTERACT",
+                    "hasCart"
+                  ]
+                },
+                "post": {
+                  "not": "hasCart"
+                }
+              }
+            }
+          },
+          "norm": {
+            "type": "obligation",
+            "trigger": "cartReleased",
+            "discharge": "hasCart"
+          }
+        },
+        {
+          "id": "must_take_cart_for_trip",
+          "text": "Customers are obliged to obtain a cart during the shopping trip before leaving the store.",
+          "justification": "The obligation refers only to possession of a cart during the trip, not to where the cart station happens to be located.",
+          "abstraction": {
+            "state_properties": {},
+            "events": {}
+          },
+          "norm": {
+            "type": "obligation",
+            "trigger": "START",
+            "discharge": "hasCart"
+          }
+        },
+        {
+          "id": "no_exit_without_cart",
+          "text": "Customers are prohibited from exiting the store without a cart.",
+          "justification": "The rule is tied to the exit action and cart possession rather than to any particular exit-cell coordinate or route through the store.",
+          "abstraction": {
+            "state_properties": {},
+            "events": {}
+          },
+          "norm": {
+            "type": "prohibition",
+            "condition": {
+              "and": [
+                "EXIT",
+                {
+                  "not": "hasCart"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "do_not_park_cart_at_shelf_front",
+          "text": "Customers are prohibited from putting down a cart directly beside shelves where it could block access to merchandise.",
+          "justification": "The condition uses adjacency to shelves rather than absolute position, so it can apply to any shelf placement while permitting parking in open aisle-mouth areas.",
+          "abstraction": {
+            "state_properties": {
+              "shelfFront": "adjShelf"
+            },
+            "events": {
+              "cartReleasedAtShelfFront": {
+                "pre": {
+                  "and": [
+                    "INTERACT",
+                    "hasCart",
+                    "shelfFront"
+                  ]
+                },
+                "post": {
+                  "not": "hasCart"
+                }
+              }
+            }
+          },
+          "norm": {
+            "type": "prohibition",
+            "condition": "cartReleasedAtShelfFront"
+          }
+        }
+      ],
+      "attempts": [
+        {
+          "attempt": 0,
+          "prompt": "Agents in a supermarket gridworld must collect their required items and leave through the exit. Every action costs the same, so demonstrators prefer short trajectories -- unless an unknown social norm makes them behave otherwise. Your task is to propose candidate norms (obligations or prohibitions) that could explain the demonstrated behaviour.\nEach demonstration is listed step by step as  `k: {atoms true in the state} action`.\n\nAvailable atoms:\n- at(x,y) -- the agent is at cell (x,y); x = column (0 = left), y = row (0 = top); N decreases y, S increases y, E increases x, W decreases x\n- hasCart -- the agent is holding/pushing a shopping cart\n- actions N, S, E, W, MOVE (any of the four moves), INTERACT (any interaction with an object: the different kinds of interaction are NOT distinguished), EXIT (leave the store; always the last action)\n- free, adjShelf (some 4-neighbour of the agent's cell is a shelf), shelfN / shelfS / shelfE / shelfW (the neighbouring cell in that direction is a shelf); numeric features freeWidthH / freeWidthV (length of the horizontal / vertical run of free cells through the agent's cell), usable only inside comparisons such as {\"le\": [\"freeWidthH\", 2]}\n\nDemonstration 1 (required items: a1):\n  0: {at(0,7), freeWidthH=12, freeWidthV=8} E\n  1: {at(1,7), freeWidthH=12, freeWidthV=8} INTERACT\n  2: {at(1,7), hasCart, freeWidthH=12, freeWidthV=8} N\n  3: {at(1,6), hasCart, freeWidthH=12, freeWidthV=8} N\n  4: {at(1,5), hasCart, freeWidthH=6, freeWidthV=8} N\n  5: {at(1,4), hasCart, freeWidthH=12, freeWidthV=8} N\n  6: {at(1,3), hasCart, freeWidthH=12, freeWidthV=8} E\n  7: {at(2,3), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=5} E\n  8: {at(3,3), hasCart, freeWidthH=12, freeWidthV=8} INTERACT\n  9: {at(3,3), freeWidthH=12, freeWidthV=8} N\n 10: {at(3,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} N\n 11: {at(3,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} INTERACT\n 12: {at(3,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} S\n 13: {at(3,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=8} S\n 14: {at(3,3), freeWidthH=12, freeWidthV=8} INTERACT\n 15: {at(3,3), hasCart, freeWidthH=12, freeWidthV=8} S\n 16: {at(3,4), hasCart, freeWidthH=12, freeWidthV=8} S\n 17: {at(3,5), hasCart, freeWidthH=6, freeWidthV=8} S\n 18: {at(3,6), hasCart, freeWidthH=12, freeWidthV=8} S\n 19: {at(3,7), hasCart, freeWidthH=12, freeWidthV=8} E\n 20: {at(4,7), hasCart, freeWidthH=12, freeWidthV=5} E\n 21: {at(5,7), hasCart, freeWidthH=12, freeWidthV=5} E\n 22: {at(6,7), hasCart, freeWidthH=12, freeWidthV=2} E\n 23: {at(7,7), hasCart, freeWidthH=12, freeWidthV=5} E\n 24: {at(8,7), hasCart, freeWidthH=12, freeWidthV=5} E\n 25: {at(9,7), hasCart, freeWidthH=12, freeWidthV=2} E\n 26: {at(10,7), hasCart, freeWidthH=12, freeWidthV=5} E\n 27: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} EXIT\n 28: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} <terminal>\n\nDemonstration 2 (required items: a2):\n  0: {at(0,7), freeWidthH=12, freeWidthV=8} E\n  1: {at(1,7), freeWidthH=12, freeWidthV=8} INTERACT\n  2: {at(1,7), hasCart, freeWidthH=12, freeWidthV=8} N\n  3: {at(1,6), hasCart, freeWidthH=12, freeWidthV=8} N\n  4: {at(1,5), hasCart, freeWidthH=6, freeWidthV=8} N\n  5: {at(1,4), hasCart, freeWidthH=12, freeWidthV=8} N\n  6: {at(1,3), hasCart, freeWidthH=12, freeWidthV=8} E\n  7: {at(2,3), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=5} E\n  8: {at(3,3), hasCart, freeWidthH=12, freeWidthV=8} E\n  9: {at(4,3), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=5} E\n 10: {at(5,3), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=5} E\n 11: {at(6,3), hasCart, freeWidthH=12, freeWidthV=5} INTERACT\n 12: {at(6,3), freeWidthH=12, freeWidthV=5} N\n 13: {at(6,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} N\n 14: {at(6,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} INTERACT\n 15: {at(6,1), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} S\n 16: {at(6,2), adjShelf, shelfE, shelfW, freeWidthH=1, freeWidthV=5} S\n 17: {at(6,3), freeWidthH=12, freeWidthV=5} INTERACT\n 18: {at(6,3), hasCart, freeWidthH=12, freeWidthV=5} S\n 19: {at(6,4), hasCart, adjShelf, shelfS, freeWidthH=12, freeWidthV=5} E\n 20: {at(7,4), hasCart, freeWidthH=12, freeWidthV=5} S\n 21: {at(7,5), hasCart, adjShelf, shelfW, freeWidthH=2, freeWidthV=5} S\n 22: {at(7,6), hasCart, freeWidthH=12, freeWidthV=5} S\n 23: {at(7,7), hasCart, freeWidthH=12, freeWidthV=5} E\n 24: {at(8,7), hasCart, freeWidthH=12, freeWidthV=5} E\n 25: {at(9,7), hasCart, freeWidthH=12, freeWidthV=2} E\n 26: {at(10,7), hasCart, freeWidthH=12, freeWidthV=5} E\n 27: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} EXIT\n 28: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} <terminal>\n\nDemonstration 3 (required items: s1):\n  0: {at(0,7), freeWidthH=12, freeWidthV=8} E\n  1: {at(1,7), freeWidthH=12, freeWidthV=8} INTERACT\n  2: {at(1,7), hasCart, freeWidthH=12, freeWidthV=8} N\n  3: {at(1,6), hasCart, freeWidthH=12, freeWidthV=8} E\n  4: {at(2,6), hasCart, freeWidthH=12, freeWidthV=5} E\n  5: {at(3,6), hasCart, freeWidthH=12, freeWidthV=8} E\n  6: {at(4,6), hasCart, freeWidthH=12, freeWidthV=5} E\n  7: {at(5,6), hasCart, freeWidthH=12, freeWidthV=5} E\n  8: {at(6,6), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=2} INTERACT\n  9: {at(6,6), hasCart, adjShelf, shelfN, freeWidthH=12, freeWidthV=2} S\n 10: {at(6,7), hasCart, freeWidthH=12, freeWidthV=2} E\n 11: {at(7,7), hasCart, freeWidthH=12, freeWidthV=5} E\n 12: {at(8,7), hasCart, freeWidthH=12, freeWidthV=5} E\n 13: {at(9,7), hasCart, freeWidthH=12, freeWidthV=2} E\n 14: {at(10,7), hasCart, freeWidthH=12, freeWidthV=5} E\n 15: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} EXIT\n 16: {at(11,7), hasCart, freeWidthH=12, freeWidthV=8} <terminal>\n\nThe current hypotheses, expressed in a coarser representation, do not adequately explain the latest demonstration:\n- [g0_must_take_cart] OBLIGED: after start, eventually hasCart (before exit)\n- [g0_no_exit_without_cart] FORBIDDEN: (EXIT \u2227 \u00achasCart)\n- [g0_cart_required_at_exit] OBLIGED: after hasCart, eventually (EXIT \u2227 hasCart) (before exit)\n- [g0_no_cart_in_item_aisle] FORBIDDEN: (hasCart \u2227 (at(3,1) \u2228 at(3,2)))\n- [g0_no_item_interact_with_cart] FORBIDDEN: (INTERACT \u2227 at(3,1) \u2227 hasCart)\n- [g0_park_cart_before_north_aisle] FORBIDDEN: (N \u2227 at(3,3) \u2227 hasCart)\n- [g0_retrieve_cart_after_item] OBLIGED: after (INTERACT \u2227 at(3,1)), eventually hasCart (before exit)\n- [g0_cart_required_in_exit_corridor] FORBIDDEN: ((MOVE \u2228 EXIT) \u2227 \u00achasCart \u2227 (at(4,7) \u2228 at(5,7) \u2228 at(6,7) \u2228 at(7,7) \u2228 at(8,7) \u2228 at(9,7) \u2228 at(10,7) \u2228 at(11,7)))\n\nThe demonstrations are now shown in a lower-level representation that exposes distinctions hidden before (newly available: geometry). Identify the hidden distinctions and use them to define higher-level state properties and/or events (in \"abstraction\"), possibly hierarchically, and propose norms expressed over them. Norms may also use the primitive atoms directly.\nGeneralization across hypothetical environment configurations. The demonstrations were collected in particular store environments, but the underlying social norms should remain applicable when the physical environment changes. Before proposing each candidate norm, consider hypothetical variations: the store may have different dimensions, shelves and displays may be rearranged or rotated, objects and service stations may be placed in different locations, entrances and exits may move, and task routes may change. A location that serves one function in the observed environment might serve a different function elsewhere.\n\nDistinguish genuine behavioral norms from regularities that depend only on observed coordinates, object locations, geometric configurations, or task routes. For each proposed rule, mentally test whether it remains normatively meaningful under these changes. Prefer behavioral and relational concepts that are invariant to incidental layout differences, but also avoid overly broad definitions that could prohibit legitimate behavior in other configurations. Revise or reject candidates that fail these counterfactual tests.\n\nThese hypothetical environments are reasoning aids, not additional observations. Do not fabricate demonstrations from them. Every candidate must be consistent with the actual supplied demonstrations and executable using the available symbolic vocabulary. Include a brief justification explaining why each candidate should generalize.\nPropose 8 diverse candidate hypotheses.\n\nOutput format: return ONLY a JSON list (no prose, no code fences). Each element:\n{\"id\": short_name, \"text\": one-sentence natural-language statement of the norm,\n \"abstraction\": {\"state_properties\": {name: FORMULA, ...},\n                 \"events\": {name: {\"pre\": FORMULA, \"post\": FORMULA or null}, ...}},\n \"norm\": {\"type\": \"prohibition\", \"condition\": FORMULA}\n       | {\"type\": \"obligation\", \"trigger\": FORMULA or \"START\", \"discharge\": FORMULA}}\nFORMULA := atom | name of a property/event defined in this hypothesis | {\"not\": F} | {\"and\": [F, ...]}\n         | {\"or\": [F, ...]} | {\"le\"|\"lt\"|\"ge\"|\"gt\"|\"eq\": [numeric_feature, integer]}\nSemantics.  A trajectory is a sequence of steps (state s_k, action a_k).  A step's label contains the atoms true in\ns_k and the action a_k.  A state property is a formula over state atoms (no actions).  An event\n{\"pre\": P, \"post\": Q} occurs at step k when P holds for the label of step k and Q holds in the next state s_{k+1}\n(post may be null).  A prohibition counts one violation for every step whose label (including events occurring at\nthat step) satisfies the condition.  An obligation becomes pending at any step satisfying the trigger (\"START\" =\npending from the beginning) and is fulfilled by a later (or the same) step satisfying the discharge; it can be\ntriggered again; it is violated if it is still pending when the trajectory ends.",
+          "raw_response": "[\n  {\n    \"id\": \"no_cart_in_single_file_shelf_aisle\",\n    \"text\": \"Customers are prohibited from taking a cart into a single-file aisle bounded by shelves on both sides.\",\n    \"justification\": \"This uses relational shelf adjacency and aisle width rather than coordinates, so it applies to any rearranged narrow shelf aisle while allowing carts in wider or open areas.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"narrowVerticalShelfAisle\": {\n          \"and\": [\n            \"adjShelf\",\n            \"shelfE\",\n            \"shelfW\",\n            {\n              \"le\": [\n                \"freeWidthH\",\n                1\n              ]\n            }\n          ]\n        },\n        \"narrowHorizontalShelfAisle\": {\n          \"and\": [\n            \"adjShelf\",\n            \"shelfN\",\n            \"shelfS\",\n            {\n              \"le\": [\n                \"freeWidthV\",\n                1\n              ]\n            }\n          ]\n        },\n        \"singleFileShelfAisle\": {\n          \"or\": [\n            \"narrowVerticalShelfAisle\",\n            \"narrowHorizontalShelfAisle\"\n          ]\n        }\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"hasCart\",\n          \"singleFileShelfAisle\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"do_not_enter_single_file_aisle_with_cart\",\n    \"text\": \"Customers are prohibited from entering a single-file shelf aisle while still holding or pushing a cart.\",\n    \"justification\": \"The norm is about the transition into a constrained shelf aisle, not about a particular aisle location, so it generalizes to rotated or relocated aisles.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"narrowVerticalShelfAisle\": {\n          \"and\": [\n            \"adjShelf\",\n            \"shelfE\",\n            \"shelfW\",\n            {\n              \"le\": [\n                \"freeWidthH\",\n                1\n              ]\n            }\n          ]\n        },\n        \"narrowHorizontalShelfAisle\": {\n          \"and\": [\n            \"adjShelf\",\n            \"shelfN\",\n            \"shelfS\",\n            {\n              \"le\": [\n                \"freeWidthV\",\n                1\n              ]\n            }\n          ]\n        },\n        \"singleFileShelfAisle\": {\n          \"or\": [\n            \"narrowVerticalShelfAisle\",\n            \"narrowHorizontalShelfAisle\"\n          ]\n        }\n      },\n      \"events\": {\n        \"enterSingleFileShelfAisleWithCart\": {\n          \"pre\": {\n            \"and\": [\n              \"MOVE\",\n              \"hasCart\"\n            ]\n          },\n          \"post\": \"singleFileShelfAisle\"\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"enterSingleFileShelfAisleWithCart\"\n    }\n  },\n  {\n    \"id\": \"no_shelf_service_with_cart_in_single_file_aisle\",\n    \"text\": \"Customers are prohibited from interacting with shelf items while holding a cart in a single-file shelf aisle.\",\n    \"justification\": \"The rule captures the observed distinction between open shelf service with a cart and constrained-aisle shelf service without a cart using geometry rather than fixed item coordinates.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"narrowVerticalShelfAisle\": {\n          \"and\": [\n            \"adjShelf\",\n            \"shelfE\",\n            \"shelfW\",\n            {\n              \"le\": [\n                \"freeWidthH\",\n                1\n              ]\n            }\n          ]\n        },\n        \"narrowHorizontalShelfAisle\": {\n          \"and\": [\n            \"adjShelf\",\n            \"shelfN\",\n            \"shelfS\",\n            {\n              \"le\": [\n                \"freeWidthV\",\n                1\n              ]\n            }\n          ]\n        },\n        \"singleFileShelfAisle\": {\n          \"or\": [\n            \"narrowVerticalShelfAisle\",\n            \"narrowHorizontalShelfAisle\"\n          ]\n        }\n      },\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"INTERACT\",\n          \"hasCart\",\n          \"singleFileShelfAisle\"\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"retrieve_cart_after_on_foot_single_file_service\",\n    \"text\": \"After servicing a shelf on foot in a single-file aisle, customers are obliged to retrieve a cart before the trip ends.\",\n    \"justification\": \"The trigger is the functional act of shelf service in a narrow aisle, so the rule remains meaningful if the aisle or item is moved elsewhere.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"narrowVerticalShelfAisle\": {\n          \"and\": [\n            \"adjShelf\",\n            \"shelfE\",\n            \"shelfW\",\n            {\n              \"le\": [\n                \"freeWidthH\",\n                1\n              ]\n            }\n          ]\n        },\n        \"narrowHorizontalShelfAisle\": {\n          \"and\": [\n            \"adjShelf\",\n            \"shelfN\",\n            \"shelfS\",\n            {\n              \"le\": [\n                \"freeWidthV\",\n                1\n              ]\n            }\n          ]\n        },\n        \"singleFileShelfAisle\": {\n          \"or\": [\n            \"narrowVerticalShelfAisle\",\n            \"narrowHorizontalShelfAisle\"\n          ]\n        }\n      },\n      \"events\": {\n        \"singleFileShelfServiceOnFoot\": {\n          \"pre\": {\n            \"and\": [\n              \"INTERACT\",\n              \"singleFileShelfAisle\",\n              {\n                \"not\": \"hasCart\"\n              }\n            ]\n          },\n          \"post\": null\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"singleFileShelfServiceOnFoot\",\n      \"discharge\": \"hasCart\"\n    }\n  },\n  {\n    \"id\": \"retrieve_any_released_cart\",\n    \"text\": \"Whenever a customer puts down a cart during the shopping trip, they are obliged to retrieve a cart before leaving.\",\n    \"justification\": \"This abstracts over the exact reason and place for parking the cart, expressing a general anti-abandonment norm that is independent of store layout.\",\n    \"abstraction\": {\n      \"state_properties\": {},\n      \"events\": {\n        \"cartReleased\": {\n          \"pre\": {\n            \"and\": [\n              \"INTERACT\",\n              \"hasCart\"\n            ]\n          },\n          \"post\": {\n            \"not\": \"hasCart\"\n          }\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"cartReleased\",\n      \"discharge\": \"hasCart\"\n    }\n  },\n  {\n    \"id\": \"must_take_cart_for_trip\",\n    \"text\": \"Customers are obliged to obtain a cart during the shopping trip before leaving the store.\",\n    \"justification\": \"The obligation refers only to possession of a cart during the trip, not to where the cart station happens to be located.\",\n    \"abstraction\": {\n      \"state_properties\": {},\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"obligation\",\n      \"trigger\": \"START\",\n      \"discharge\": \"hasCart\"\n    }\n  },\n  {\n    \"id\": \"no_exit_without_cart\",\n    \"text\": \"Customers are prohibited from exiting the store without a cart.\",\n    \"justification\": \"The rule is tied to the exit action and cart possession rather than to any particular exit-cell coordinate or route through the store.\",\n    \"abstraction\": {\n      \"state_properties\": {},\n      \"events\": {}\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": {\n        \"and\": [\n          \"EXIT\",\n          {\n            \"not\": \"hasCart\"\n          }\n        ]\n      }\n    }\n  },\n  {\n    \"id\": \"do_not_park_cart_at_shelf_front\",\n    \"text\": \"Customers are prohibited from putting down a cart directly beside shelves where it could block access to merchandise.\",\n    \"justification\": \"The condition uses adjacency to shelves rather than absolute position, so it can apply to any shelf placement while permitting parking in open aisle-mouth areas.\",\n    \"abstraction\": {\n      \"state_properties\": {\n        \"shelfFront\": \"adjShelf\"\n      },\n      \"events\": {\n        \"cartReleasedAtShelfFront\": {\n          \"pre\": {\n            \"and\": [\n              \"INTERACT\",\n              \"hasCart\",\n              \"shelfFront\"\n            ]\n          },\n          \"post\": {\n            \"not\": \"hasCart\"\n          }\n        }\n      }\n    },\n    \"norm\": {\n      \"type\": \"prohibition\",\n      \"condition\": \"cartReleasedAtShelfFront\"\n    }\n  }\n]",
+          "parsed": [
+            {
+              "id": "no_cart_in_single_file_shelf_aisle",
+              "text": "Customers are prohibited from taking a cart into a single-file aisle bounded by shelves on both sides.",
+              "justification": "This uses relational shelf adjacency and aisle width rather than coordinates, so it applies to any rearranged narrow shelf aisle while allowing carts in wider or open areas.",
+              "abstraction": {
+                "state_properties": {
+                  "narrowVerticalShelfAisle": {
+                    "and": [
+                      "adjShelf",
+                      "shelfE",
+                      "shelfW",
+                      {
+                        "le": [
+                          "freeWidthH",
+                          1
+                        ]
+                      }
+                    ]
+                  },
+                  "narrowHorizontalShelfAisle": {
+                    "and": [
+                      "adjShelf",
+                      "shelfN",
+                      "shelfS",
+                      {
+                        "le": [
+                          "freeWidthV",
+                          1
+                        ]
+                      }
+                    ]
+                  },
+                  "singleFileShelfAisle": {
+                    "or": [
+                      "narrowVerticalShelfAisle",
+                      "narrowHorizontalShelfAisle"
+                    ]
+                  }
+                },
+                "events": {}
+              },
+              "norm": {
+                "type": "prohibition",
+                "condition": {
+                  "and": [
+                    "hasCart",
+                    "singleFileShelfAisle"
+                  ]
+                }
+              }
+            },
+            {
+              "id": "do_not_enter_single_file_aisle_with_cart",
+              "text": "Customers are prohibited from entering a single-file shelf aisle while still holding or pushing a cart.",
+              "justification": "The norm is about the transition into a constrained shelf aisle, not about a particular aisle location, so it generalizes to rotated or relocated aisles.",
+              "abstraction": {
+                "state_properties": {
+                  "narrowVerticalShelfAisle": {
+                    "and": [
+                      "adjShelf",
+                      "shelfE",
+                      "shelfW",
+                      {
+                        "le": [
+                          "freeWidthH",
+                          1
+                        ]
+                      }
+                    ]
+                  },
+                  "narrowHorizontalShelfAisle": {
+                    "and": [
+                      "adjShelf",
+                      "shelfN",
+                      "shelfS",
+                      {
+                        "le": [
+                          "freeWidthV",
+                          1
+                        ]
+                      }
+                    ]
+                  },
+                  "singleFileShelfAisle": {
+                    "or": [
+                      "narrowVerticalShelfAisle",
+                      "narrowHorizontalShelfAisle"
+                    ]
+                  }
+                },
+                "events": {
+                  "enterSingleFileShelfAisleWithCart": {
+                    "pre": {
+                      "and": [
+                        "MOVE",
+                        "hasCart"
+                      ]
+                    },
+                    "post": "singleFileShelfAisle"
+                  }
+                }
+              },
+              "norm": {
+                "type": "prohibition",
+                "condition": "enterSingleFileShelfAisleWithCart"
+              }
+            },
+            {
+              "id": "no_shelf_service_with_cart_in_single_file_aisle",
+              "text": "Customers are prohibited from interacting with shelf items while holding a cart in a single-file shelf aisle.",
+              "justification": "The rule captures the observed distinction between open shelf service with a cart and constrained-aisle shelf service without a cart using geometry rather than fixed item coordinates.",
+              "abstraction": {
+                "state_properties": {
+                  "narrowVerticalShelfAisle": {
+                    "and": [
+                      "adjShelf",
+                      "shelfE",
+                      "shelfW",
+                      {
+                        "le": [
+                          "freeWidthH",
+                          1
+                        ]
+                      }
+                    ]
+                  },
+                  "narrowHorizontalShelfAisle": {
+                    "and": [
+                      "adjShelf",
+                      "shelfN",
+                      "shelfS",
+                      {
+                        "le": [
+                          "freeWidthV",
+                          1
+                        ]
+                      }
+                    ]
+                  },
+                  "singleFileShelfAisle": {
+                    "or": [
+                      "narrowVerticalShelfAisle",
+                      "narrowHorizontalShelfAisle"
+                    ]
+                  }
+                },
+                "events": {}
+              },
+              "norm": {
+                "type": "prohibition",
+                "condition": {
+                  "and": [
+                    "INTERACT",
+                    "hasCart",
+                    "singleFileShelfAisle"
+                  ]
+                }
+              }
+            },
+            {
+              "id": "retrieve_cart_after_on_foot_single_file_service",
+              "text": "After servicing a shelf on foot in a single-file aisle, customers are obliged to retrieve a cart before the trip ends.",
+              "justification": "The trigger is the functional act of shelf service in a narrow aisle, so the rule remains meaningful if the aisle or item is moved elsewhere.",
+              "abstraction": {
+                "state_properties": {
+                  "narrowVerticalShelfAisle": {
+                    "and": [
+                      "adjShelf",
+                      "shelfE",
+                      "shelfW",
+                      {
+                        "le": [
+                          "freeWidthH",
+                          1
+                        ]
+                      }
+                    ]
+                  },
+                  "narrowHorizontalShelfAisle": {
+                    "and": [
+                      "adjShelf",
+                      "shelfN",
+                      "shelfS",
+                      {
+                        "le": [
+                          "freeWidthV",
+                          1
+                        ]
+                      }
+                    ]
+                  },
+                  "singleFileShelfAisle": {
+                    "or": [
+                      "narrowVerticalShelfAisle",
+                      "narrowHorizontalShelfAisle"
+                    ]
+                  }
+                },
+                "events": {
+                  "singleFileShelfServiceOnFoot": {
+                    "pre": {
+                      "and": [
+                        "INTERACT",
+                        "singleFileShelfAisle",
+                        {
+                          "not": "hasCart"
+                        }
+                      ]
+                    },
+                    "post": null
+                  }
+                }
+              },
+              "norm": {
+                "type": "obligation",
+                "trigger": "singleFileShelfServiceOnFoot",
+                "discharge": "hasCart"
+              }
+            },
+            {
+              "id": "retrieve_any_released_cart",
+              "text": "Whenever a customer puts down a cart during the shopping trip, they are obliged to retrieve a cart before leaving.",
+              "justification": "This abstracts over the exact reason and place for parking the cart, expressing a general anti-abandonment norm that is independent of store layout.",
+              "abstraction": {
+                "state_properties": {},
+                "events": {
+                  "cartReleased": {
+                    "pre": {
+                      "and": [
+                        "INTERACT",
+                        "hasCart"
+                      ]
+                    },
+                    "post": {
+                      "not": "hasCart"
+                    }
+                  }
+                }
+              },
+              "norm": {
+                "type": "obligation",
+                "trigger": "cartReleased",
+                "discharge": "hasCart"
+              }
+            },
+            {
+              "id": "must_take_cart_for_trip",
+              "text": "Customers are obliged to obtain a cart during the shopping trip before leaving the store.",
+              "justification": "The obligation refers only to possession of a cart during the trip, not to where the cart station happens to be located.",
+              "abstraction": {
+                "state_properties": {},
+                "events": {}
+              },
+              "norm": {
+                "type": "obligation",
+                "trigger": "START",
+                "discharge": "hasCart"
+              }
+            },
+            {
+              "id": "no_exit_without_cart",
+              "text": "Customers are prohibited from exiting the store without a cart.",
+              "justification": "The rule is tied to the exit action and cart possession rather than to any particular exit-cell coordinate or route through the store.",
+              "abstraction": {
+                "state_properties": {},
+                "events": {}
+              },
+              "norm": {
+                "type": "prohibition",
+                "condition": {
+                  "and": [
+                    "EXIT",
+                    {
+                      "not": "hasCart"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "do_not_park_cart_at_shelf_front",
+              "text": "Customers are prohibited from putting down a cart directly beside shelves where it could block access to merchandise.",
+              "justification": "The condition uses adjacency to shelves rather than absolute position, so it can apply to any shelf placement while permitting parking in open aisle-mouth areas.",
+              "abstraction": {
+                "state_properties": {
+                  "shelfFront": "adjShelf"
+                },
+                "events": {
+                  "cartReleasedAtShelfFront": {
+                    "pre": {
+                      "and": [
+                        "INTERACT",
+                        "hasCart",
+                        "shelfFront"
+                      ]
+                    },
+                    "post": {
+                      "not": "hasCart"
+                    }
+                  }
+                }
+              },
+              "norm": {
+                "type": "prohibition",
+                "condition": "cartReleasedAtShelfFront"
+              }
+            }
+          ],
+          "call": {
+            "cache_key": "358397ab946436ae70909e3a1fa5f74bbde09a70efd7913b887b88cd0e44379f",
+            "requested_model": "gpt-5.5",
+            "returned_model": "gpt-5.5-2026-04-23",
+            "response_id": "resp_0a27612133eb163d006ac7ecd486b487d1b59db713b23f633b",
+            "status": "completed",
+            "incomplete_details": null,
+            "usage": {
+              "input_tokens": 3439,
+              "input_tokens_details": {
+                "cached_tokens": 1792,
+                "cache_write_tokens": 0
+              },
+              "output_tokens": 5176,
+              "output_tokens_details": {
+                "reasoning_tokens": 3261
+              },
+              "total_tokens": 8615
+            },
+            "settings": {
+              "model": "gpt-5.5",
+              "temperature": null,
+              "reasoning_effort": null,
+              "max_output_tokens": null,
+              "api": "responses.create"
+            },
+            "replicate": "genlayout_cf/c2/5",
+            "timestamp": "2026-10-08T15:20:53",
+            "latency_s": 64.95,
+            "retries": [],
+            "cache_hit": false
+          }
+        }
+      ],
+      "accepted": null,
+      "rejected": null
+    }
+  ],
+  "llm_calls": [
+    {
+      "cache_key": "358397ab946436ae70909e3a1fa5f74bbde09a70efd7913b887b88cd0e44379f",
+      "requested_model": "gpt-5.5",
+      "returned_model": "gpt-5.5-2026-04-23",
+      "response_id": "resp_0a27612133eb163d006ac7ecd486b487d1b59db713b23f633b",
+      "status": "completed",
+      "incomplete_details": null,
+      "usage": {
+        "input_tokens": 3439,
+        "input_tokens_details": {
+          "cached_tokens": 1792,
+          "cache_write_tokens": 0
+        },
+        "output_tokens": 5176,
+        "output_tokens_details": {
+          "reasoning_tokens": 3261
+        },
+        "total_tokens": 8615
+      },
+      "settings": {
+        "model": "gpt-5.5",
+        "temperature": null,
+        "reasoning_effort": null,
+        "max_output_tokens": null,
+        "api": "responses.create"
+      },
+      "replicate": "genlayout_cf/c2/5",
+      "timestamp": "2026-10-08T15:20:53",
+      "latency_s": 64.95,
+      "retries": [],
+      "cache_hit": false
+    }
+  ]
+}

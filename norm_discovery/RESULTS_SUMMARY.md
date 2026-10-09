@@ -765,3 +765,18 @@ unchanged; the original results are untouched.
   * the cross-domain pooled AUROC (confounded by domain base rates).
 * **Implication:** preferring task-adjusted or norm-relative over raw is justified by length/inefficiency robustness,
   not by better detection of useful refinement opportunities.
+
+---
+
+# Experiment 1 on New Sequences (seeds 100–119; `results/exp1_policy_heldout/`)
+
+* Frozen GPT-5.5 proposals and the same pipeline as the selected-trigger noise experiment; no API calls.
+* 0 of 360 training sequences overlap with Experiment 2 (some individual demos recur because the task pool is
+  small); paired across policies.
+* **Clean sequences:**
+  * Aisle: task-adjusted and norm-relative reach accuracy 1.00 and unseen-aisle 1.00, versus raw 0.82 / 0.73 (paired
+    +0.18 [0.10, 0.26]).
+  * Cart: 0.91 vs 0.88 (+0.03 [−0.01, 0.07], n.s.).
+  * The two new triggers tie in accuracy; norm-relative refines less in the aisle domain (−1.6 [−3.25, −0.30]
+    refinements per run).
+* All adaptive policies trigger about 5–7 times per 20-demo run.
